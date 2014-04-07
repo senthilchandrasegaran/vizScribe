@@ -1,0 +1,46 @@
+<html5>
+<head>
+<meta charset="utf-8">
+  <style type="text/css">
+    body{
+        font-family: 'Segoe UI';
+        font-size: 12pt;
+    }
+
+    header h1{
+        font-size:12pt;
+        color: #fff;
+        background-color: #1BA1E2;
+        padding: 20px;
+
+    }
+    article
+    {
+        width: 80%;
+        margin:auto;
+        margin-top:10px;
+    }
+
+
+    input[type='file']{
+        margin:10px;
+    }
+  </style>
+  <script src="javascripts/jquery.js"></script>
+</head>
+<h1>Upload Video and Transcript files to proceed</h1>
+<article>
+  <label for=<%= inputvideo.id %> >Select a video file: </label>
+  <input id=<%= inputvideo.id %> type="file" accept="video/*" />
+  <output id=<%= outputvideo.id %> />
+</article>
+
+<article>
+  <label for=<%= inputtrans.id %> >Select a transcript file: </label>
+  <input id=<%= inputtrans.id %> type="file" />
+  <output id=<%= outputtrans.id %> />
+</article>
+<a href="/main">Click here to continue</a>
+<script type="text/javascript" src="javascripts/video_upload.js"></script>
+</script>
+</body>

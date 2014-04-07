@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html5>
+<head>
+  <meta charset="utf-8">
+    <style type="text/css">
+      html, body{
+        height: 100%;
+        width: 100%;
+        overflow: hidden;
+      }
+      p {
+        font-family: helvetica;
+        color: gray;
+      }
+      #right{
+        float:right;
+        width:50%;
+        height:100%;
+        background:White;   
+      }
+      #left{
+        float:left;
+        width:50%;
+        height:100%;
+      }
+      #topright{
+        float:right;
+        width:50%;
+        height:330px;
+        background:White;
+
+      }
+      // node rect, node text, and path link are for the indented,
+      // hierarchical tree that shows protocols defined.
+      .node rect {
+        cursor: pointer;
+        fill: #fff;
+        fill-opacity: .5;
+        stroke: #3182bd;
+        stroke-width: 1.5px;
+      }
+      .node text {
+        font: 10px sans-serif;
+        pointer-events: none;
+      }
+      path.link {
+        fill: none;
+        stroke: #9ecae1;
+        stroke-width: 1.5px;
+      }
+
+      #topleft{
+        float:left;
+        height: 330px;
+        width: 50%;
+        background:White;
+      }
+      #videodiv{
+        height: 300px;
+        width: 100%;
+      }
+      .vjs-default-skin.vjs-has-started.vjs-user-inactive.vjs-playing .vjs-control-bar {
+        visibility: visible !important;
+        opacity: 1 !important;
+        transition-duration: 0s!important;
+      }
+      #timeline{
+        height: 30px;
+        width: 100%;
+        padding: 0px;
+      }
+      #timelineHover{
+        height: 10px;
+        width: 100%;
+        padding: 0px;
+      }
+      #timelineSelect{
+        height: 10px;
+        width: 100%;
+        padding: 0px;
+      }
+      #timelineProtocols{
+        height: 10px;
+        width: 100%;
+        padding: 0px;
+      }
+      #bottomright{
+        float: right;
+        width:50%;
+        height: 300px;
+        background:White;   
+        font-family:helvetica;
+      }
+      #bottomleft{
+        float: left;
+        height: 300px;
+        width: 50%;
+        background:#F5F5F5;
+        font-size:12px;
+        font-family:helvetica;
+      }
+      #transTitle{
+        height: 8%;
+        width: 100%;
+      }
+      #transTitleText{
+        margin-right: 50%; 
+        vertical-align:middle;
+        height:100%;
+        color:DarkGray; 
+        font-family: "Segoe UI"; 
+        font-size:20px;
+      }
+      #transcriptDiv{
+        height:92%;
+        width:100%;
+        background:#FFFFFF;
+        overflow: hidden;
+      }
+      #transGraph{
+        float: right;
+        height:100%;
+        width:10%;
+        background:#FFFFFF;
+        overflow: hidden;
+      }
+      #transContent{
+        float: left;
+        height:100%;
+        width:90%;
+        background:#FFFFFF;
+        overflow: auto;
+        box-shadow: 0 0 10px 2px rgba(0,0,0,0.3) inset;
+      }
+      #filediv{
+        float:right;
+        vertical-align:middle;
+        height:100%;
+      }
+      #protocolTitle{
+        height: 8%;
+        width: 100%;
+      }
+      #protocolTitleText{
+        margin-right: 50%; 
+        vertical-align:middle;
+        height:100%;
+        color:DarkGray; 
+        font-family: "Segoe UI"; 
+        font-size:20px;
+      }
+      #protocolContent{
+        height:92%;
+        width:100%;
+        background:#FFFFFF;
+        overflow: hidden;
+        border:1px solid;
+        border-color: #C9C9C9;
+        
+      }
+      #jsondiv{
+        float:right;
+        vertical-align:top;
+        height: 100%;
+      }
+      h3{
+            margin: 0px;
+        }
+      #tagList{
+        height: 225px; 
+        overflow-y: auto;
+        border:1px solid;
+        border-color: #C9C9C9;
+        padding: 2px;
+      }
+      #barChart{
+        height: 100px;
+        border:1px solid;
+        border-color: #C9C9C9;
+        padding: 2px;
+      }
+      .highlighted {
+        background: #F8BB64;
+        color: #000000;
+      }
+      .dulled {
+        color: Gray;
+      }
+      .hoverHighlight {
+        background-color:rgba(220, 138, 12, 0.3)
+      }
+      .transHighlight {
+        background-color:rgba(123, 123, 123, 0.1)
+      }
+      .textClickHighlight {
+        background-color:rgba(75, 224, 0, 0.4)
+      }
+      .tagClickHighlight {
+        background-color:rgba(20, 255, 0, 0.4)
+      }
+      .boldText {
+        font-weight: bold;
+      }
+      .boldClickText {
+        font-weight: bold;
+      }
+</style>
+  <title>Protocol Analysis</title>
+  <script src="javascripts/jquery.js"></script>
+  <script src="javascripts/jquery.csv-0.71.min.js"></script>
+  <script src="javascripts/d3/d3.v3.js"></script>
+  <!-- Change URLs to wherever Video.js files will be hosted -->
+  <link href="images/video/video-js.css" rel="stylesheet" type="text/css">
+  <!-- video.js must be in the <head> for older IEs to work. -->
+  <script src="images/video/video.js"></script>
+  <!-- Unless using the CDN hosted version, update the URL to the Flash SWF -->
+  </script>
+  <script>
+    videojs.options.flash.swf = "images/video/video-js.swf";
+  </script>
+</head>
+<body>
+    <div id="topright">
+      <div id="protocolTitle">
+        <div id="jsondiv">
+          <h3><input type="file" id="jsonFile" name="jsonFile"/>
+          <output id="list"/>
+          </h3>
+        </div>
+        <div id="protocolTitleText"> 
+          Protocols
+        </div>
+      </div>
+      
+      <div id="protocolContent">
+      </div>
+    </div>
+     
+    <div id="topleft">
+      <div id="videodiv">
+        <video id="discussion-video" class="video-js vjs-default-skin"
+          controls autoplay preload="auto" height=100% width=100%
+          data-setup="{}">
+          <source src=<%-JSON.stringify(outputvideo.src)%> 
+                  type='video/mp4' />
+        </video>
+      </div>
+      <div id="timeline">
+          <div id="timelineHover"></div>
+          <div id="timelineSelect"></div>
+          <div id="timelineProtocols"></div>
+      </div>
+    </div>
+
+  <div id="bottomright">
+      <div id="tagList"></div>
+      <div id="barChart"></div>
+  </div> 
+    
+  <div id="bottomleft">
+    <div id="transTitle">
+        <div id="transTitleText"> 
+          Transcript
+        </div>
+    </div>
+    
+    <div id="transcriptDiv"> 
+      <div id="transGraph"> </div>
+      <div id="transContent"> </div>    
+    </div>
+  </div>    
+  <script type="text/javascript" src="javascripts/main.js"></script>
+
+</body>
+</html>
+
+
+
