@@ -27,13 +27,17 @@
     }
   </style>
   <script src="javascripts/jquery.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
 </head>
 <h1>Upload Video and Transcript files to proceed</h1>
 <article>
   <label for=<%= inputvideo.id %> >Select a video file: </label>
-  <input id=<%= inputvideo.id %> type="file" accept="video/*" />
+  <input id="FileBox" type="file" accept="video/*" />
   <output id=<%= outputvideo.id %> />
 </article>
+
+<span id='UploadArea'>
+</span>
 
 <article>
   <label for=<%= inputtrans.id %> >Select a transcript file: </label>

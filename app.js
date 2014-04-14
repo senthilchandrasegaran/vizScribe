@@ -40,50 +40,6 @@ var inputtrans =  { id: 'inputtrans'};
 var outputvideo =  { id: 'outputvideo', src: ''};
 var outputtrans =  { id: 'outputtrans', target: ''};
 
-
-// BEGIN CODE COPIED FROM RESUMABLE
-/*
-app.post('/upload', function(req, res){
-	// console.log(req);
-    resumable.post(req, function(status, 
-                                 filename, 
-                                 original_filename, 
-                                 identifier){
-        console.log('POST', status, original_filename, identifier);
-        res.send(status, {
-          // NOTE: Uncomment this funciton to enable cross-domain
-          // request.
-          //'Access-Control-Allow-Origin': '*'
-        });
-    });
-});
-
-// Handle status checks on chunks through Resumable.js
-app.get('/upload', function(req, res){
-    resumable.get(req, function(status, 
-                                filename, 
-                                original_filename, 
-                                identifier){
-        console.log('GET', status);
-        res.send(status, (status == 'found' ? 200 : 404));
-      });
-  });
-
-app.get('/download/:identifier', function(req, res){
-    resumable.write(req.params.identifier, res);
-});
-
-/*
-app.get('/resumable.js', function (req, res) {
-  var fs = require('fs');
-  res.setHeader("content-type", "application/javascript");
-  fs.createReadStream("./public/resumable.js").pipe(res);
-});
-app.listen(3000);
-*/
-// END CODE COPIED FROM RESUMABLE 
-
-// THIS IS OLDER CODE, COMMENTED FOR NOW
 app.get('/', function (req, res) //this '/' refers to '/index.html'
         // note changing it to app.get('/index.html'... will require the
         // user to include 'index.html' in the web address.
