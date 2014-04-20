@@ -1,3 +1,4 @@
+
 window.onload = function() {
     //Check File API support
     if (window.File && window.FileList && window.FileReader) {
@@ -34,6 +35,8 @@ window.onload = function() {
             }
         });
         // Read video (alternate: using resumable)
+        // Video code commented out for future development
+        /*
         var r = new Resumable({
           target: '/video_parameters',
           query: {upload_video_token: 'video_token'}
@@ -46,7 +49,7 @@ window.onload = function() {
         r.on('fileAdded', function(file){
           
         });
-
+        */
         // Read transcript and print result on the same page
         filesInput2.addEventListener("change", function(event) {
             var files = event.target.files; //FileList object
