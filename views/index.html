@@ -32,18 +32,25 @@
 <h1>Upload Video and Transcript files to proceed</h1>
 <article>
   <label for=<%= inputvideo.id %> >Select a video file: </label>
-  <input id="FileBox" type="file" accept="video/*" />
+  <input id="VideoFileBox" type="file" accept="video/*" />
   <output id=<%= outputvideo.id %> />
 </article>
-
-<span id='UploadArea'>
-</span>
 
 <article>
   <label for=<%= inputtrans.id %> >Select a transcript file: </label>
   <input id=<%= inputtrans.id %> type="file" />
   <output id=<%= outputtrans.id %> />
 </article>
+
+<article>
+  <label for="zipFileId" >Select a zip file of the images: </label>
+  <input id="ZipFileBox" type="file" />
+  <output id="zipFileOutput" />
+</article>
+
+<span id='UploadArea'>
+</span>
+
 <a href="/main">Click here to continue</a>
 <script type="text/javascript" src="javascripts/video_upload.js"></script>
 </script>

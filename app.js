@@ -14,7 +14,8 @@ var resumable = require('resumable');
 var app = express();
 var fs = require('fs'),
   exec = require('child_process').exec,
-  util = require('util');
+  util = require('util'),
+  admZip = require('adm-zip');
 
 // all environments
 app.set('port', process.env.PORT || 3000);
@@ -95,6 +96,12 @@ io.sockets.on('connection', function (socket) {
         {
             fs.write(Files[Name]['Handler'], Files[Name]['Data'], null, 'Binary', function (err, Writen) {
                 socket.emit('MoreData', { 'Place': Files[Name]['FileSize']/ 524288, Percent: 100 });
+
+                /* check if a zip file */
+                if(Name.indexOf(".zip") >= 0) {
+                     var zip = new admZip('public/video/' + Name);
+                      zip.extractAllTo("public/images/", /*overwrite*/true);
+                }
                 socket.emit('Done', {'URL' : 'public/video/' + Name});
             });
         }
