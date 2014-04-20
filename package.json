@@ -9,6 +9,14 @@
     "express": "3.4.8",
     "jade": "*",
     "mongodb": "*",
-    "monk": "*"
+    "monk": "*",
+    "http": "*",
+    "url": "*",
+    "ejs": "*",
+    "url": "*",
+    "resumable": "*",
+    "path": "*",
+    "socket.io": "*", 
+    "adm-zip": "*"
   }
 }
