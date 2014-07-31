@@ -5,3 +5,5 @@
 *.m4v
 *.zip
 *.gz
+
+node_modules/
