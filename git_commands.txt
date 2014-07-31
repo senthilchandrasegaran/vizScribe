@@ -1,0 +1,20 @@
+Commands to commit to remote repository
+git add . (current directory)
+
+git commit -m *message* (the message can be something like "work done
+for cscw")
+
+git push -u origin master
+
+if there is a conflict, you will get an error message, at which point do
+the following:
+
+git pull
+
+Then repeat the add, commit, and push commands, if there are no
+individual file clashes. If there are file clashes one of course needs
+to examine both versions of the conflicted files.
+
+git repack -a -d -f --depth=250 --window=250
+
+Run this command if your ".git" folder becomes too large.

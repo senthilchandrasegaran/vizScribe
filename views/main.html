@@ -4,6 +4,7 @@
   <meta charset="utf-8">
     <style type="text/css">
       html, body{
+        font: 10px sans-serif;
         height: 100%;
         width: 100%;
         overflow: hidden;
@@ -25,10 +26,15 @@
       }
       #topright{
         float:right;
-        width:50%;
-        height:330px;
+        width:25%;
+        height:40%;
         background:White;
 
+      }
+      #topfarright{
+        float: right;
+        width: 25%;
+        height:40%;
       }
       // node rect, node text, and path link are for the indented,
       // hierarchical tree that shows protocols defined.
@@ -51,12 +57,12 @@
 
       #topleft{
         float:left;
-        height: 330px;
+        height: 60%;
         width: 50%;
         background:White;
       }
       #videodiv{
-        height: 300px;
+        height: 85%;
         width: 100%;
       }
       .vjs-default-skin.vjs-has-started.vjs-user-inactive.vjs-playing .vjs-control-bar {
@@ -65,10 +71,25 @@
         transition-duration: 0s!important;
       }
       #timeline{
-        height: 30px;
+        height: 15%;
         width: 100%;
         padding: 0px;
       }
+      #transGraphTitle{
+        height:15px;
+        width:100%;
+        background:#FFFFFF;
+        font-size: 11px;
+        font-family:helvetica;
+        overflow: hidden;
+      }
+      #transGraph{
+        height:50px;
+        width:100%;
+        background:#FFFFFF;
+        overflow: hidden;
+      }
+      /*
       #timelineHover{
         height: 10px;
         width: 100%;
@@ -84,32 +105,36 @@
         width: 100%;
         padding: 0px;
       }
+      */
       #bottomright{
         float: right;
         width:50%;
-        height: 300px;
+        height: 60%;
         background:White;   
+        font: 12px sans-serif;
         font-family:helvetica;
       }
       #bottomleft{
         float: left;
-        height: 300px;
+        height: 40%;
         width: 50%;
         background:#F5F5F5;
-        font-size:12px;
+        // font-size:12px;
+        font: 10px sans-serif;
         font-family:helvetica;
+        overflow: scroll;
       }
       #transTitle{
         height: 8%;
         width: 100%;
       }
       #transTitleText{
-        margin-right: 50%; 
+        padding-bottom: 5px;
+        border-top: solid 1px #c0c0c0;
         vertical-align:middle;
         height:100%;
-        color:DarkGray; 
         font-family: "Segoe UI"; 
-        font-size:20px;
+        font-size:17px;
       }
       #transcriptDiv{
         height:92%;
@@ -117,25 +142,13 @@
         background:#FFFFFF;
         overflow: hidden;
       }
-      #transGraph{
-        float: right;
-        height:100%;
-        width:10%;
-        background:#FFFFFF;
-        overflow: hidden;
-      }
       #transContent{
         float: left;
         height:100%;
-        width:90%;
+        width:100%;
         background:#FFFFFF;
         overflow: auto;
         box-shadow: 0 0 10px 2px rgba(0,0,0,0.3) inset;
-      }
-      #filediv{
-        float:right;
-        vertical-align:middle;
-        height:100%;
       }
       #protocolTitle{
         height: 8%;
@@ -158,20 +171,110 @@
         border-color: #C9C9C9;
         
       }
-      #jsondiv{
-        float:right;
-        vertical-align:top;
-        height: 100%;
-      }
       h3{
             margin: 0px;
         }
+      #tagListTitle{
+        height:31%;
+        width:100%;
+        background:#FFFFFF;
+        font-size: 11px;
+        font-family:helvetica;
+        overflow: hidden;
+        border-left: solid 1px #c0c0c0;
+        padding-left: 5px;
+        box-shadow: 0px 3px 10px -2px rgba(0,0,0,0.3);
+      }
       #tagList{
-        height: 225px; 
+        height: 69%; 
         overflow-y: auto;
+        overflow-x: hidden;
         border:1px solid;
         border-color: #C9C9C9;
         padding: 2px;
+      }
+      #tagList.minimize {
+          height: 50px;
+        overflow-y: hidden;
+        overflow-x: auto;
+        white-space: nowrap;
+        font-size: 15px;
+      }
+      #sketchTitle{
+        height:5%;
+        width:100%;
+        background:#FFFFFF;
+        font-size: 11px;
+        font-family:helvetica;
+        overflow: hidden;
+      }
+      #sketches{
+        height: 45%; 
+        width: 100%; 
+        overflow: hidden;
+        border:1px solid;
+        border-color: #C9C9C9;
+      }
+      #sketches.minimize {
+        height: 50px;
+        font-size: 15px;
+      }
+      #sketchScrubber{
+        height: 100%; 
+        width: 0;
+        margin-right: 0;
+        margin-top: 0;
+        overflow: hidden;
+        border:2px solid;
+        border-color: rgba(0,0,0,0);
+        border-right-color: red;
+        pointer-events: none;
+      }
+      #sketchContent{
+        height: 100%; 
+        width: 100%; 
+        margin-right: 0;
+        margin-top: 0;
+        overflow: hidden;
+        z-index: 1;
+      }
+      #protocolGraphTitle{
+        height:5%;
+        width:100%;
+        background:#FFFFFF;
+        font-size: 11px;
+        font-family:helvetica;
+        overflow: hidden;
+      }
+      #protocolGraph{
+        height: 45%; 
+        width: 100%;
+        overflow: hidden;
+        border:1px solid;
+        border-color: #C9C9C9;
+        background: #FFFFFF;
+      }
+      #protocolGraph.minimize {
+        height: 50px;
+        width: 100%;
+        font-size: 15px;
+      }
+      #protocolGraphScrubber{
+        height: 100%; 
+        width: 0;
+        margin-right: 0;
+        margin-top: 0;
+        overflow: hidden;
+        border:2px solid;
+        border-color: rgba(0,0,0,0);
+        border-right-color: red;
+      }
+      #protocolGraphContent{
+        height: 100%; 
+        width: 100%;
+        margin-right: 0;
+        margin-top: 0;
+        overflow: hidden;
       }
       #barChart{
         height: 100px;
@@ -187,16 +290,17 @@
         color: Gray;
       }
       .hoverHighlight {
-        background-color:rgba(220, 138, 12, 0.3)
+        background-color:rgba(255, 127, 0, 0.3)
       }
       .transHighlight {
-        background-color:rgba(123, 123, 123, 0.1)
+        background-color:rgba(255, 127, 0, 0.3)
       }
       .textClickHighlight {
-        background-color:rgba(75, 224, 0, 0.4)
+        background-color:rgba(255, 127, 0, 0.6)
       }
       .tagClickHighlight {
-        background-color:rgba(20, 255, 0, 0.4)
+        background-color:rgba(255, 127, 0, 0.6);
+        color: #ffffff
       }
       .boldText {
         font-weight: bold;
@@ -204,10 +308,161 @@
       .boldClickText {
         font-weight: bold;
       }
+      // tabbed view for protocol definition
+      #imageView{
+        float:left;
+        width:100%;
+        height:50%;
+        background:White;   
+      }
+      #logFile{
+        float:left;
+        width:100%;
+        height:10%;
+        background:White;   
+      }
+
+      .axis path,
+      .axis line {
+        fill: none;
+        stroke: #c0c0c0;
+        shape-rendering: crispEdges;
+      }
+
+      .pathTrace line {
+        fill: none;
+        stroke: #c0c0c0;
+        stroke-width: 1px;
+      }
+
+      .pathTrace:hover {
+        stroke: rgba(225, 120, 0, 1);
+        stroke-width: 3px;
+      }
+
+      .dot {
+        fill: rgba(120, 200, 255, 1);
+      }
+
+      .dot:hover{
+        fill: rgba(225, 120, 0, 1);
+      }
+
+      .dot:active{
+        fill: rgba(225, 120, 0, 1);
+      }
+
+      .tooltip {
+        position: absolute;
+        pointer-events: none;
+      }
+
+      .largeTooltip {
+        position: absolute;
+        pointer-events: auto;
+      }
+
+      .contextmenu{
+        position: absolute;
+        visibility: hidden;
+        cursor:default;
+        font-size:1em;
+        opacity:1;
+        padding: 5px;
+      }
+      .contextmenu>ul{
+        display: block;
+        margin: 0px;
+        padding-left:10px;
+        padding-top: 5px;
+        padding-bottom: 5px;
+        //border-bottom: solid 1px #c0c0c0;
+      }
+      .contextmenu>ul:hover {
+        background:#EC6603;
+        color: #fff;
+      }
+      .contextmenu>ul:last-child {border:none};
+
+
+      // alternate css for context menu
+      // http://css-tricks.com/snippets/jquery/styled-popup-menu/
+      /*
+      .contextmenu { 
+        position:absolute;
+        visibility: hidden;
+        background:#EC6603;
+        padding:5px;
+        cursor:pointer;
+        border:none;
+        font-size:1em;
+        -webkit-transition: all .4s ease-in-out;
+        transition: all .4s ease-in-out;
+      }
+      */
+
+      // CSS code for tabs from http://codepen.io/CesarGabriel/pen/tKaxq
+      .wrapper {
+        background: white;
+        margin: auto;
+        padding: 1em;
+        width: 50%;
+        height: 100%;
+      }
+      h1 {
+        text-align: left;
+      }
+      ul.tabs {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+      }
+      ul.tabs li {
+        border: gray solid 1px;
+        border-bottom: none;
+        float: left;
+        margin: 0 .25em 0 0;
+        padding: .25em .25em;
+      }
+      ul.tabs li a {
+        color: gray;
+        font-weight: bold;
+        text-decoration: none;
+      }
+      ul.tabs li.active {
+        background: gray;
+      }
+      ul.tabs li.active a {
+        color: white;
+      }
+      .clr {
+        clear: both;
+      }
+      article {
+        border-top: gray solid 1px;
+        padding: 0 1em;
+      }
+      #totalProtocols{
+        width: 100%;
+        height: 100%;
+        min-height: 150px;
+        background-color: white;
+      }
+      #popup {
+        border: 1px solid gray;
+        border-radius: 5px 5px 5px 5px;
+        float: left;
+        left: 50%;
+        margin: auto;
+        position: fixed;
+        top: 200px;
+        z-index: 9999;
+      }
 </style>
   <title>Protocol Analysis</title>
   <script src="javascripts/jquery.js"></script>
   <script src="javascripts/jquery.csv-0.71.min.js"></script>
+  <script src="javascripts/byrei-dyndiv_1.0rc1.js"></script>
   <script src="javascripts/d3/d3.v3.js"></script>
   <!-- Change URLs to wherever Video.js files will be hosted -->
   <link href="images/video/video-js.css" rel="stylesheet" type="text/css">
@@ -220,20 +475,43 @@
   </script>
 </head>
 <body>
+    <div id="topfarright">
+      <div id="tagListTitle">
+        <h2>Word Cloud from Transcript</h2>
+        <p>List of Tags from Transcript [click to minimize]</p>
+      </div>
+      <div id="tagList"></div>
+    </div>
     <div id="topright">
-      <div id="protocolTitle">
-        <div id="jsondiv">
-          <h3><input type="file" id="jsonFile" name="jsonFile"/>
-          <output id="list"/>
-          </h3>
-        </div>
-        <div id="protocolTitleText"> 
-          Protocols
-        </div>
-      </div>
-      
-      <div id="protocolContent">
-      </div>
+    <section class="wrapper" style="{width: 100%; height: 100%}">
+      <h2>Protocols</h2>
+      <p>Define and Edit Protocols<p>
+      <ul class="tabs">
+        <li><a href="#tab1">View</a></li>
+        <li><a href="#tab2">Add/ Edit</a></li>
+        <li><a href="#tab3">Distribution</a></li>
+      </ul>
+      <div class="clr"></div>
+      <section class="block">
+        <article id="tab1">
+          <div id="protoView">
+          </div>
+        </article>
+        <article id="tab2">
+          <div id="protoEdit">
+              <textarea id="protocolTextArea" 
+                        style="-webkit-box-sizing: border-box" 
+                        aria-valuetext=""
+                        spellcheck="true">
+              </textarea>
+          </div>
+        </article>
+        <article id="tab3">
+          <div id="totalProtocols">
+          </div>
+        </article>
+      </section>
+    </section>
     </div>
      
     <div id="topleft">
@@ -246,18 +524,21 @@
         </video>
       </div>
       <div id="timeline">
+        <div id="transGraphTitle">
+        Graphical View of Transcript [click to minimize]
+        </div>
+        <div id="transGraph"> 
+        </div>
+          <!--Earlier d3 representations for the transcript now replaced
+              with transGraph
           <div id="timelineHover"></div>
           <div id="timelineSelect"></div>
           <div id="timelineProtocols"></div>
+          -->
       </div>
     </div>
 
   <div id="bottomright">
-      <div id="tagList"></div>
-      <div id="barChart"></div>
-  </div> 
-    
-  <div id="bottomleft">
     <div id="transTitle">
         <div id="transTitleText"> 
           Transcript
@@ -265,9 +546,33 @@
     </div>
     
     <div id="transcriptDiv"> 
-      <div id="transGraph"> </div>
       <div id="transContent"> </div>    
+      <div id="contextmenu" class="contextmenu"> </div>
     </div>
+  </div> 
+    
+  <div id="bottomleft">
+      <div id="sketchTitle">
+        Graphical Representation of Sketches [click to minimize]
+      </div>
+      <div id="sketches">
+        <div id="sketchContent">
+        </div>
+        <svg id="sketchScrubber">
+        </svg>
+      </div>
+      <div id="protocolGraphTitle">
+        Protocol Timeline [click to minimize]
+      </div>
+      <div id="protocolGraph">
+        <div id="protocolGraphContent">
+        </div>
+        <div id="protocolGraphScrubber">
+        </div>
+      </div>
+      <!--
+      <div id="barChart"></div>
+      -->
   </div>    
   <script type="text/javascript" src="javascripts/main.js"></script>
 

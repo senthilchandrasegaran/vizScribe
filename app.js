@@ -13,9 +13,9 @@ var url = require('url');
 var resumable = require('resumable');
 var app = express();
 var fs = require('fs'),
-  exec = require('child_process').exec,
-  util = require('util'),
-  admZip = require('adm-zip');
+    exec = require('child_process').exec,
+    util = require('util'),
+    admZip = require('adm-zip');
 
 // all environments
 app.set('port', process.env.PORT || 3000);
@@ -43,10 +43,13 @@ if ('development' == app.get('env')) {
 // variables for video and transcript:
 var inputvideo = { id: 'inputvideo' };
 var inputtrans = { id: 'inputtrans' };
+var sketchlog = { id: 'sketchlog' };
 var outputvideo = { id: 'outputvideo', src: '' };
 var outputtrans = { id: 'outputtrans', target: '' };
+var outputlog = { id: 'outputlog', target: '' };
+var userlog = { id: 'userlog' };
 
-/* polychrome listen */
+/* listen */
 var httpserver = http.createServer(app);
 httpserver.listen(app.get('port'), function () {
     console.log('Express server listening on port ' + app.get('port'));
@@ -100,7 +103,7 @@ io.sockets.on('connection', function (socket) {
                 /* check if a zip file */
                 if(Name.indexOf(".zip") >= 0) {
                      var zip = new admZip('public/video/' + Name);
-                      zip.extractAllTo("public/images/", /*overwrite*/true);
+                      zip.extractAllTo("public/images/sketches", /*overwrite*/true);
                 }
                 socket.emit('Done', {'URL' : 'public/video/' + Name});
             });
@@ -130,7 +133,9 @@ app.get('/', function (req, res) //this '/' refers to '/index.html'
         inputvideo: inputvideo,
         inputtrans: inputtrans,
         outputvideo: outputvideo,
-        outputtrans: outputtrans
+        outputtrans: outputtrans,
+        sketchlog: sketchlog,
+        outputlog: outputlog
     });
 });
 
@@ -144,7 +149,9 @@ app.get('/main.html', function (req, res) {
         inputvideo: inputvideo,
         inputtrans: inputtrans,
         outputvideo: outputvideo,
-        outputtrans: outputtrans
+        outputtrans: outputtrans,
+        sketchlog: sketchlog,
+        outputlog: outputlog
     });
 });
 
@@ -168,6 +175,21 @@ app.get('/receive_transcript_file', function (req, res) {
     res.end()
 });
 
+app.get('/log_file', function (req, res) {
+    var selectedURL = url.parse(req.url, true); //creates object
+    var logFileParams = selectedURL.query;
+    console.log(logFileParams.logFile);
+    outputlog.target = logFileParams.logFile;
+    // this sets the above defined variables
+    res.end();
+});
+
+app.get('/receive_log_file', function (req, res) {
+    res.writeHead(200);
+    res.write(outputlog.target);
+    res.end()
+});
+
 app.get('/video_parameters', function (req, res) {
     var selectedURL = url.parse(req.url, true); //creates object
     var videoParams = selectedURL.query;
@@ -181,9 +203,23 @@ app.get('/main', function (req, res) {
         inputvideo: inputvideo,
         inputtrans: inputtrans,
         outputvideo: outputvideo,
-        outputtrans: outputtrans
+        outputtrans: outputtrans,
+        sketchlog: sketchlog,
+        outputlog: outputlog
     });
 });
+
+app.post('/userlog', function (req, res){
+  res.send(req.body);
+  // write user log file as text
+  fs.writeFile('public/userlog/userlog.csv', String(req.body.data),
+               function (err) {
+    if (err) throw err;
+    console.log('outputlog.csv was written');
+  });
+  res.end();
+});
+
 
 //http.createServer(app).listen(app.get('port'), function(){
 //  console.log('Express server listening on port ' + app.get('port'));

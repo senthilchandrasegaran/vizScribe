@@ -1,14 +1,14 @@
 window.onload = function() {
-var socket = io.connect('http://localhost:3000');
-var FReader;
-var Name;
+  var socket = io.connect('http://localhost:3000');
+  var FReader;
+  var Name;
 
-window.onload = function () {
     //Check File API support
     if (window.File && window.FileList && window.FileReader) {
         var filesInput = document.getElementById("VideoFileBox");
         var filesInput2 = document.getElementById(inputtrans.id);
         var filesInput3 = document.getElementById("ZipFileBox");
+        var filesInput4 = document.getElementById(sketchlog.id);
 
         // Read video
         filesInput.addEventListener("change", function (event) {
@@ -45,7 +45,7 @@ window.onload = function () {
             socket.on('Done', function (data) {
                 $("#UploadArea").empty();
                 var Content = "Video Successfully Uploaded !!"
-                alert(Content);
+                console.log(Content);
             });
             function Refresh() {
                 location.reload(true);
@@ -121,7 +121,7 @@ window.onload = function () {
             socket.on('Done', function (data) {
                 $("#UploadArea").remove();
                 var Content = "Zip File Successfully Uploaded !!"
-                alert(Content);
+                console.log(Content);
             });
             function Refresh() {
                 location.reload(true);
@@ -173,23 +173,56 @@ window.onload = function () {
                 picReader.addEventListener("load", function (event) {
                     //outputtrans.target = event.target;
                     var textFile = event.target;
-                    var div = document.createElement("div");
-                    div.innerText = textFile.result;
+                    // var div = document.createElement("div");
+                    // div.innerText = textFile.result;
                     console.log(textFile.result.toString());
-                    output.insertBefore(div, null);
+                    // output.insertBefore(div, null);
 
                     $.ajax({
                         type: "GET",
                         url: "/transcript_file",
                         data: { transcript: textFile.result.toString() }
                     }).done(function (msg) {
-                        alert("Transcript Saved: " + msg);
+                        console.log("Transcript Saved: " + msg);
                     });
                 });
 
                 //Read the text file
                 picReader.readAsText(file);
                 console.log("transcript read!");
+            }
+        });
+
+        // Read transcript and print result on the same page
+        filesInput4.addEventListener("change", function (event) {
+            var files = event.target.files; //FileList object
+            var output = document.getElementById(outputtrans.id);
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+                //Only plain text
+                //if (!file.type.match('plain')) continue;
+                var logReader = new FileReader();
+                logReader.addEventListener("load", function (event) {
+                    //outputtrans.target = event.target;
+                    var textFile = event.target;
+                    // var div = document.createElement("div");
+                    // div.innerText = textFile.result;
+                    console.log("log file: " +
+                                textFile.result.toString());
+                    //output.insertBefore(div, null);
+
+                    $.ajax({
+                        type: "GET",
+                        url: "/log_file",
+                        data: { logFile: textFile.result.toString() }
+                    }).done(function (msg) {
+                        console.log("Logfile Saved: " + msg);
+                    });
+                });
+
+                //Read the text file
+                logReader.readAsText(file);
+                console.log("logfile read!");
             }
         });
     }
