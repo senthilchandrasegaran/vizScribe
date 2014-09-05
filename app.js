@@ -1,4 +1,3 @@
-
 /**
 * Module dependencies.
 */
@@ -16,6 +15,7 @@ var fs = require('fs'),
     exec = require('child_process').exec,
     util = require('util'),
     admZip = require('adm-zip');
+
 
 // all environments
 app.set('port', process.env.PORT || 3000);
@@ -86,7 +86,7 @@ io.sockets.on('connection', function (socket) {
             }
             else {
                 Files[Name]['Handler'] = fd; //We store the file handler so we can write to it later
-                socket.emit('MoreData', { 'Place': Place, Percent: 0 });
+                socket.emit('MoreData', { 'Place': Place, Percent: 0, 'Name': Name  });
             }
         });
     });
@@ -98,7 +98,7 @@ io.sockets.on('connection', function (socket) {
         if (Files[Name]['Downloaded'] == Files[Name]['FileSize']) //If File is Fully Uploaded
         {
             fs.write(Files[Name]['Handler'], Files[Name]['Data'], null, 'Binary', function (err, Writen) {
-                socket.emit('MoreData', { 'Place': Files[Name]['FileSize']/ 524288, Percent: 100 });
+                socket.emit('MoreData', { 'Place': Files[Name]['FileSize']/ 524288, Percent: 100, 'Name': Name  });
 
                 /* check if a zip file */
                 if(Name.indexOf(".zip") >= 0) {
@@ -113,13 +113,13 @@ io.sockets.on('connection', function (socket) {
                 Files[Name]['Data'] = ""; //Reset The Buffer
                 var Place = Files[Name]['Downloaded'] / 524288;
                 var Percent = (Files[Name]['Downloaded'] / Files[Name]['FileSize']) * 100;
-                socket.emit('MoreData', { 'Place': Place, 'Percent': Percent });
+                socket.emit('MoreData', { 'Place': Place, 'Percent': Percent, 'Name': Name });
             });
         }
         else {
             var Place = Files[Name]['Downloaded'] / 524288;
             var Percent = (Files[Name]['Downloaded'] / Files[Name]['FileSize']) * 100;
-            socket.emit('MoreData', { 'Place': Place, 'Percent': Percent });
+            socket.emit('MoreData', { 'Place': Place, 'Percent': Percent, 'Name': Name  });
         }
     });
 });
@@ -187,6 +187,12 @@ app.get('/log_file', function (req, res) {
 app.get('/receive_log_file', function (req, res) {
     res.writeHead(200);
     res.write(outputlog.target);
+    res.end()
+});
+
+app.get('/receive_video_file', function (req, res) {
+    res.writeHead(200);
+    res.write(outputvideo.src);
     res.end()
 });
 

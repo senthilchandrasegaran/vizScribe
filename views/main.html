@@ -57,7 +57,7 @@
 
       #topleft{
         float:left;
-        height: 60%;
+        height: 70%;
         width: 50%;
         background:White;
       }
@@ -69,6 +69,11 @@
         visibility: visible !important;
         opacity: 1 !important;
         transition-duration: 0s!important;
+      }
+      #audiodiv{
+        height: 10%;
+        width: 100%;
+        padding: 0px;
       }
       #timeline{
         height: 15%;
@@ -116,13 +121,14 @@
       }
       #bottomleft{
         float: left;
-        height: 40%;
+        height: 30%;
         width: 50%;
         background:#F5F5F5;
         // font-size:12px;
         font: 10px sans-serif;
         font-family:helvetica;
-        overflow: scroll;
+        // overflow: scroll;
+        overflow: hidden;
       }
       #transTitle{
         height: 8%;
@@ -225,11 +231,24 @@
         margin-right: 0;
         margin-top: 0;
         overflow: hidden;
-        border:2px solid;
+        border:1px solid;
         border-color: rgba(0,0,0,0);
         border-right-color: red;
         pointer-events: none;
       }
+      /*
+      #waveScrubber{
+        height: 100%
+        width: 0;
+        margin-right: 0;
+        margin-top: 0;
+        overflow: hidden;
+        border:1px solid;
+        border-color: rgba(0,0,0,0);
+        border-right-color: red;
+        pointer-events: none;
+      }
+      */
       #sketchContent{
         height: 100%; 
         width: 100%; 
@@ -265,7 +284,7 @@
         margin-right: 0;
         margin-top: 0;
         overflow: hidden;
-        border:2px solid;
+        border:1px solid;
         border-color: rgba(0,0,0,0);
         border-right-color: red;
       }
@@ -462,12 +481,16 @@
   <title>Protocol Analysis</title>
   <script src="javascripts/jquery.js"></script>
   <script src="javascripts/jquery.csv-0.71.min.js"></script>
+  <script src="javascripts/jquery.scrollTo-min.js"></script>
   <script src="javascripts/byrei-dyndiv_1.0rc1.js"></script>
   <script src="javascripts/d3/d3.v3.js"></script>
   <!-- Change URLs to wherever Video.js files will be hosted -->
   <link href="images/video/video-js.css" rel="stylesheet" type="text/css">
   <!-- video.js must be in the <head> for older IEs to work. -->
   <script src="images/video/video.js"></script>
+  <!--
+  <script src="javascripts/wavesurfer.min.js"></script>
+  -->
   <!-- Unless using the CDN hosted version, update the URL to the Flash SWF -->
   </script>
   <script>
@@ -523,6 +546,12 @@
                   type='video/mp4' />
         </video>
       </div>
+      <!--
+      <div id="audiodiv">
+        <svg id="waveScrubber">
+        </svg>
+      </div>
+      -->
       <div id="timeline">
         <div id="transGraphTitle">
         Graphical View of Transcript [click to minimize]

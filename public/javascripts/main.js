@@ -49,7 +49,22 @@ var logData = [];
 var commitLog = [];
 var selectedIndices = [];
 
+// audio visualization 
+/*
+var wavesurfer = Object.create(WaveSurfer);
 
+wavesurfer.init({
+  container: document.querySelector('#audiodiv'),
+  waveColor: 'lightgray',
+  progressColor: 'steelblue',
+  normalize: 'true',
+  dragSelection: 'false',
+  interact: 'false',
+  height: $('#audiodiv').height()
+});
+
+wavesurfer.setVolume(0);
+*/
 
 // The hmsToSec function takes a "hh:mm:ss", or "mm:ss" or just an "ss"
 // string and converts it to seconds. Returns a number.
@@ -95,6 +110,8 @@ function hmsToSeconds(str) {
 // removed and the resulting tags are scaled by frequency and showed on
 // the right pane.
 window.onload = function() {
+  var player = videojs('discussion-video');
+  player.on('loadedmetadata', function() {
   // var files = evt.target.files; // FileList object
   // files is a FileList of File objects. List some properties.
   var transcriptFile;
@@ -114,6 +131,10 @@ window.onload = function() {
               }
               var lowerCaseWords = captionArray[i][3].toLowerCase()
                                    .split(wordSeparators);
+              lowerCaseWords.shift();
+              // for some reason, the wordSeparators split the line in a
+              // way that the first word is an empty "".
+              // lowerCaseWords.shift() gets rid of that "".
               lowerCaseLines.push(lowerCaseWords);
               for (var k in words) {
                 tempspan+= '<span id="line'+i+'word'+k+'">' +
@@ -137,6 +158,10 @@ window.onload = function() {
             $("#transContent").append(displayLines[j]);  
           }
           numLines = displayLines.length;
+
+
+          player.ready(function(){
+          var videoLenSec = player.duration();
           // representation of lines in transcript overall window
           d3.select("#transGraph").selectAll("svg").remove();
           var w = $('#transGraph').width();
@@ -149,6 +174,10 @@ window.onload = function() {
                   .attr("height", h);
           */
           
+          var transcriptScale = d3.scale.linear()
+                                  .domain([0, Math.round(videoLenSec)])
+                                  .range([0, w]);
+          console.log(videoLenSec);
           var maxvalue = Math.max.apply(Math, tagFreq);
           var transGraphPadding = 0;                
           var rects = transSvg.selectAll("rect")   
@@ -156,21 +185,33 @@ window.onload = function() {
                          .enter()             
                          .append("rect")
                          .attr("x", function(d,i) {
-                                          return i* (w/numLines);
+                                          // return i* (w/numLines);
+                           var xSec =
+                             hmsToSec(captionArray[i+1][0]);
+                           var xloc = transcriptScale(xSec);
+                           return(xloc);
                                       })
                          .attr("y", function(d) {
                                           return 0;
                                           })
                          .attr("width", w/numLines - transGraphPadding)
+                         .attr("width", function(d, i){
+                            var endSec = hmsToSec(captionArray[i+1][1]);
+                            var startSec = 
+                              hmsToSec(captionArray[i+1][0]);
+                            var wScaled = 
+                              transcriptScale(endSec-startSec);
+                            return wScaled;
+                         })
                          .attr("height", function(d){
                             var lineRatio = d.length/longestLineLength;
                             var boxHeight = lineRatio*h;
                             return boxHeight;
                          })
                          .attr("stroke-width", 1)
-                         .attr("stroke", "rgba(123, 123, 123, 0.3)")
+                         .attr("stroke", "rgba(255,255,255,1)")
                          .attr("fill", function(d) {
-                              return "rgba(123, 123, 123, 0.1)";
+                              return "rgba(123, 123, 123, 0.3)";
                          });
           var halfWidth = (w/numLines - transGraphPadding)/2;
           /*
@@ -189,6 +230,7 @@ window.onload = function() {
           }
           */
           // end representation of lines
+        }); // end player.ready()
 
 
         wordList = wordList.concat.apply(wordList, lowerCaseLines);
@@ -367,9 +409,18 @@ window.onload = function() {
           //---------------------------------------------------------------   
           // Video seeking Code
           //---------------------------------------------------------------   
-          var player = videojs('discussion-video');
           var videoDuration = 0
+          /*
+          var wavevid = $.ajax({
+              type: "GET", // can remove this to avoid confusion
+              url: "/receive_video_file", // change to send_trn_fil
+              // note: "send" from POV of client
+              }).done(function(data){
+                wavesurfer.load(data);
+              });
+          */
           player.ready(function() {
+
             $('#transContent').on('click', 'ul', function(e){
               var captionIndex = $('#transContent').children('ul')
                                                    .index(this);
@@ -444,7 +495,7 @@ window.onload = function() {
                 .removeClass('boldText');
             d3.select("#transGraph").selectAll("svg")
                 .selectAll("rect")
-                .attr("fill", "rgba(123, 123, 123, 0.1)");
+                .attr("fill", "rgba(123, 123, 123, 0.3)");
           });
 
       //---------------------------------------------------------------   
@@ -550,7 +601,7 @@ window.onload = function() {
             $(this).removeClass('transHighlight');
             d3.select("#transGraph").selectAll("svg")
                 .selectAll("rect")
-                .attr("fill", "rgba(123, 123, 123, 0.1)");
+                .attr("fill", "rgba(123, 123, 123, 0.3)");
           });
           
         // Allow interaction with seesoft-like visualization
@@ -569,15 +620,15 @@ window.onload = function() {
         }); // end of transGraph onmouseenter function.
 
         $('#transGraph').on('mouseleave', 'svg rect', function() {
-          $(this).attr("fill", "rgba(123, 123, 123, 0.1)");
+          $(this).attr("fill", "rgba(123, 123, 123, 0.3)");
 
           // remove light highlighting on mouse leave
           $("#transContent ul").removeClass('hoverHighlight');
         }); // end of transGraph onmouseleave function
         
-        var player = videojs('discussion-video');
+        // var player = videojs('discussion-video');
         var videoDuration = 0
-        player.ready(function() {
+         player.ready(function() {
           $('#transGraph svg').on('click', 'rect', function(e){
             var transGraphIndex = $('#transGraph svg').children('rect')
                                                    .index(this);
@@ -585,10 +636,16 @@ window.onload = function() {
             captionStartTimeSec = hmsToSec(captionStartTimeMin);
             e.preventDefault();
             player.currentTime(captionStartTimeSec);
+            // wavesurfer.seek(captionStartTimeSec/player.duration());
             var transClickItem = $('#transContent').children('ul')
                                                    .eq(transGraphIndex);
             transClickItem.addClass('hoverHighlight');
-            // transClickItem.scrollIntoView(true);
+            // this small snippet below to scroll the transcript to show
+            // the line corresponding to the item selected in transgraph
+            var topPos = $("#transContent").offset.top;
+            console.log(topPos);
+            transClickItem.scrollTo(topPos);
+            
 //             transClickItem.animate({
 //                  scrollTop: $(this)[0].children('span')[0]
 //                                       .position().top
@@ -649,10 +706,12 @@ window.onload = function() {
         var vidPlayer = videojs("discussion-video");
         vidPlayer.ready(function() {
           var $sketchScrubberProgress = $("#sketchScrubber");
+          var $waveScrubberProgress = $("#waveScrubber");
           var $protocolScrubberProgress = $("#protocolGraphScrubber");
           vidPlayer.on('timeupdate', function(e) {
             var percent = this.currentTime()/this.duration();
             $sketchScrubberProgress.width((percent * 100) + "%");
+            $waveScrubberProgress.width((percent * 100) + "%");
             $protocolScrubberProgress.width((percent * 100) + "%");
           });
         });
@@ -739,7 +798,7 @@ window.onload = function() {
                       return colorlist[colorindex] + 
                              (0.6 - indents*0.1).toString() + ")";
                     })
-                   .attr("stroke", "rgba(123, 123, 123, 0.1)");
+                   .attr("stroke", "rgba(123, 123, 123, 0.3)");
           protoRect.append("text")
                    .attr("x", function(d, i) {
                       d.split("\t").length;
@@ -773,13 +832,10 @@ window.onload = function() {
             if (protoTimeArray[pindex][0] == selectedIndices[ind][3]){
               var timeInSecs = hmsToSeconds(selectedIndices[ind][2]) - 
                                hmsToSeconds(selectedIndices[ind][1])
-              // console.log("time in secs = "+ timeInSecs);
               protoTimeArray[pindex][2]+= timeInSecs;
-              // console.log(protoTimeArray[pindex][2]);
             }
           } 
         }
-        console.log(protoTimeArray);
 
         var maxTime = 0;
         for (var j in protoTimeArray){
@@ -787,10 +843,8 @@ window.onload = function() {
             maxTime = protoTimeArray[j][2];
           }
         }
-        console.log(maxTime);
         var chartWidth = $("#totalProtocols").width() - 20;
         var chartHeight = $("#totalProtocols").height();
-        console.log(chartWidth + ", "+ chartHeight);
 
         d3.select("#totalProtocols").selectAll("svg").remove();
 
@@ -896,7 +950,6 @@ window.onload = function() {
               }
               var sendData = {};
               sendData.data = selectedIndices;
-              // console.log("protocols = " +selectedIndices);
               $("#transContent ul:eq("+(i-1)+")")
                   .css({"background-color": 
                          protocolColorList[protocolList
@@ -1213,6 +1266,7 @@ window.onload = function() {
       // zM -- close all folds
       // zR -- open all folds
       // set foldmethod = syntax
+  }); //player.ready attempt for the whole code chunk
 } // end of window.onload code
 
 
