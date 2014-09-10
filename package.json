@@ -17,6 +17,7 @@
     "resumable": "*",
     "path": "*",
     "socket.io": "*", 
-    "adm-zip": "*"
+    "adm-zip": "*",
+    "express-jwt" : "*"
   }
 }

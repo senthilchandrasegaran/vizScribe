@@ -159,6 +159,14 @@ window.onload = function() {
           }
           numLines = displayLines.length;
 
+          // This jQuery code below makes the transcript text annotable
+          // using the annotator library.
+          // The setupPlugins sets up annotator in the 'default' mode.
+          jQuery(function ($) {
+            $('#bottomright').annotator()
+                              .annotator('setupPlugins');
+          });
+
 
           player.ready(function(){
           var videoLenSec = player.duration();
@@ -452,7 +460,7 @@ window.onload = function() {
             //----------------------------------------------   
             // add bars of highlighted bits next to seekbar
             //----------------------------------------------   
-            var transItemIds = []
+            var transItemIds = [];
             transItems.each(function(index, value){
                 var idIndex = $('#transContent').children('ul')
                                                 .index(this);

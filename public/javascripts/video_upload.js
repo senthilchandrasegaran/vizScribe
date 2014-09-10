@@ -250,6 +250,3 @@ window.onload = function() {
         console.log("Your browser does not support File API");
     }
 }
-
-
-

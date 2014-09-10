@@ -10,6 +10,7 @@ var path = require('path');
 var ejs = require('ejs');
 var url = require('url');
 var resumable = require('resumable');
+var jwt = require('express-jwt');
 var app = express();
 var fs = require('fs'),
     exec = require('child_process').exec,
@@ -63,7 +64,9 @@ io.set('log level', 1);
 
 /* socket.io for uploaded videos */
 io.sockets.on('connection', function (socket) {
-    socket.on('Start', function (data) { //data contains the variables that we passed through in the html file
+    socket.on('Start', function (data) { // data contains the variables
+                                         // that we passed through in
+                                         // the html file
         var Name = data['Name'];
         Files[Name] = {  //Create a new Entry in The Files Variable
             FileSize: data['Size'],
@@ -85,58 +88,75 @@ io.sockets.on('connection', function (socket) {
                 console.log(err);
             }
             else {
-                Files[Name]['Handler'] = fd; //We store the file handler so we can write to it later
-                socket.emit('MoreData', { 'Place': Place, Percent: 0, 'Name': Name  });
+                Files[Name]['Handler'] = fd; // We store the file
+                                             // handler so we can write
+                                             // to it later
+                socket.emit('MoreData', { 'Place': Place, 
+                                          Percent: 0, 
+                                          'Name': Name  });
             }
         });
     });
 
     socket.on('Upload', function (data) {
-        var Name = data['Name'];
-        Files[Name]['Downloaded'] += data['Data'].length;
-        Files[Name]['Data'] += data['Data'];
-        if (Files[Name]['Downloaded'] == Files[Name]['FileSize']) //If File is Fully Uploaded
-        {
-            fs.write(Files[Name]['Handler'], Files[Name]['Data'], null, 'Binary', function (err, Writen) {
-                socket.emit('MoreData', { 'Place': Files[Name]['FileSize']/ 524288, Percent: 100, 'Name': Name  });
-
-                /* check if a zip file */
-                if(Name.indexOf(".zip") >= 0) {
-                     var zip = new admZip('public/video/' + Name);
-                      zip.extractAllTo("public/images/sketches", /*overwrite*/true);
-                }
-                socket.emit('Done', {'URL' : 'public/video/' + Name});
-            });
-        }
-        else if (Files[Name]['Data'].length > 10485760) { //If the Data Buffer reaches 10MB
-            fs.write(Files[Name]['Handler'], Files[Name]['Data'], null, 'Binary', function (err, Writen) {
-                Files[Name]['Data'] = ""; //Reset The Buffer
-                var Place = Files[Name]['Downloaded'] / 524288;
-                var Percent = (Files[Name]['Downloaded'] / Files[Name]['FileSize']) * 100;
-                socket.emit('MoreData', { 'Place': Place, 'Percent': Percent, 'Name': Name });
-            });
-        }
-        else {
-            var Place = Files[Name]['Downloaded'] / 524288;
-            var Percent = (Files[Name]['Downloaded'] / Files[Name]['FileSize']) * 100;
-            socket.emit('MoreData', { 'Place': Place, 'Percent': Percent, 'Name': Name  });
-        }
+      var Name = data['Name'];
+      Files[Name]['Downloaded'] += data['Data'].length;
+      Files[Name]['Data'] += data['Data'];
+      if (Files[Name]['Downloaded'] == Files[Name]['FileSize']) {
+      // If File is Fully Uploaded, that is
+        fs.write(Files[Name]['Handler'], Files[Name]['Data'], 
+                 null, 'Binary', function (err, Writen) {
+          socket.emit('MoreData', 
+                      {'Place': Files[Name]['FileSize']/ 524288, 
+                       Percent: 100, 
+                       'Name': Name  });
+              /* check if a zip file */
+          if (Name.indexOf(".zip") >= 0) {
+            var zip = new admZip('public/video/' + Name);
+            zip.extractAllTo("public/images/sketches", 
+                             /*overwrite*/true);
+          }
+          socket.emit('Done', {'URL' : 'public/video/' + Name});
+        });
+      } else if (Files[Name]['Data'].length > 10485760) { 
+        //If the Data Buffer reaches 10MB
+        fs.write(Files[Name]['Handler'], 
+                 Files[Name]['Data'], null, 
+                 'Binary', function (err, Writen) {
+          Files[Name]['Data'] = ""; //Reset The Buffer
+          var Place = Files[Name]['Downloaded'] / 524288;
+          var Percent = (Files[Name]['Downloaded'] / 
+                         Files[Name]['FileSize']) * 100;
+          socket.emit('MoreData', 
+                      {'Place': Place, 
+                       'Percent': Percent, 
+                       'Name': Name });
+        });
+      } else {
+        var Place = Files[Name]['Downloaded'] / 524288;
+        var Percent = (Files[Name]['Downloaded'] / 
+                       Files[Name]['FileSize']) * 100;
+        socket.emit('MoreData', 
+                    {'Place': Place, 
+                     'Percent': Percent, 
+                     'Name': Name  });
+      }
     });
 });
 
 
-app.get('/', function (req, res) //this '/' refers to '/index.html'
-// note changing it to app.get('/index.html'... will require the
-// user to include 'index.html' in the web address.
-{
-    res.render('index.html', {
-        inputvideo: inputvideo,
-        inputtrans: inputtrans,
-        outputvideo: outputvideo,
-        outputtrans: outputtrans,
-        sketchlog: sketchlog,
-        outputlog: outputlog
-    });
+app.get('/', function (req, res) {
+  //this '/' refers to '/index.html'
+  // note changing it to app.get('/index.html'... will require the
+  // user to include 'index.html' in the web address.
+  res.render('index.html', {
+    inputvideo: inputvideo,
+    inputtrans: inputtrans,
+    outputvideo: outputvideo,
+    outputtrans: outputtrans,
+    sketchlog: sketchlog,
+    outputlog: outputlog
+  });
 });
 
 app.get('/video.html', function (req, res) {
@@ -214,6 +234,22 @@ app.get('/main', function (req, res) {
         outputlog: outputlog
     });
 });
+
+// This annotator bit is to use the annotator library to allow
+// annotation of the transcribed text.
+/*
+app.get('/annotator-token', 
+    jwt({secret: 'dc176c29-23da-4a19-bc5f-061d45e6d0f4',
+         consumerKey: '0cc039fa9d414ddeb43f83447d6838e7',
+         userID: 'senthil',
+         issuedAt: '2014-09-09T10:51:18Z',
+         ttl: 86400}),
+    function(req, res){
+      // if (!req.user.admin) return res.send(401);
+      console.log("token received!");
+      res.send(200);
+});
+*/
 
 app.post('/userlog', function (req, res){
   res.send(req.body);

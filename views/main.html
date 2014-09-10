@@ -2,6 +2,8 @@
 <html5>
 <head>
   <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" 
+          href="stylesheets/annotator.min.css">
     <style type="text/css">
       html, body{
         font: 10px sans-serif;
@@ -484,6 +486,10 @@
   <script src="javascripts/jquery.scrollTo-min.js"></script>
   <script src="javascripts/byrei-dyndiv_1.0rc1.js"></script>
   <script src="javascripts/d3/d3.v3.js"></script>
+  <!-- The annotator library at http://annotatorjs.org/ allows the
+       creation of annotations, useful in our case for the analyst to
+       annotate the transcript text -->
+  <script src="javascripts/annotator-full.min.js"></script>
   <!-- Change URLs to wherever Video.js files will be hosted -->
   <link href="images/video/video-js.css" rel="stylesheet" type="text/css">
   <!-- video.js must be in the <head> for older IEs to work. -->
@@ -558,12 +564,6 @@
         </div>
         <div id="transGraph"> 
         </div>
-          <!--Earlier d3 representations for the transcript now replaced
-              with transGraph
-          <div id="timelineHover"></div>
-          <div id="timelineSelect"></div>
-          <div id="timelineProtocols"></div>
-          -->
       </div>
     </div>
 
