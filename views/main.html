@@ -238,6 +238,7 @@
         border-right-color: red;
         pointer-events: none;
       }
+        
       /*
       #waveScrubber{
         height: 100%
@@ -479,6 +480,48 @@
         top: 200px;
         z-index: 9999;
       }
+        
+        
+      #concordance-view {    
+        left: 12%;
+        background: #F5F5F5;
+        margin: auto;
+        position: fixed;
+        top: 200px;
+        text-align: left;
+        font-size: 12px;
+        visibility: hidden;
+        font-family: 'Courier New';
+        border: 1px solid gray;
+      }
+        
+       #concordance-view-content {    
+        background: #F5F5F5;
+        padding-top: 10px;
+        padding-left: 10px;
+        overflow-y: auto;
+        text-align: left;
+        font-size: 12px;
+        font-family: 'Courier New';
+      }
+      
+        
+      #concordance-close {
+            width: 25px;
+            height: 25px; 
+            float: right;
+            left: 99%;
+            top: 30px;
+            background-repeat: no-repeat;
+            background-image: url(images/close.png);
+            background-size: 25px 25px;
+            
+        }
+        
+         #concordance-close:hover {
+            background-color: #9ecae1;
+        }
+        
 </style>
   <title>Protocol Analysis</title>
   <script src="javascripts/jquery.js"></script>
@@ -602,7 +645,14 @@
       <!--
       <div id="barChart"></div>
       -->
-  </div>    
+  </div>   
+    
+  <div id="concordance-view">
+  <div id="concordance-close" onmousedown="document.getElementById('concordance-view').style.visibility= 'hidden'">
+  </div>
+   <div id="concordance-view-content">
+       </div>
+  </div>   
   <script type="text/javascript" src="javascripts/main.js"></script>
 
 </body>
