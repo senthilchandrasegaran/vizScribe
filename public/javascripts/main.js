@@ -98,6 +98,51 @@ function hmsToSec(hms){
   return seconds;
 }
 
+//copied from 
+//http://stackoverflow.com/questions/3410464/how-to-find-all-occurrences-of-one-string-in-another-in-javascript
+function getIndicesOf(searchStr, str, caseSensitive) {
+    var startIndex = 0, searchStrLen = searchStr.length;
+    var index, indices = [];
+    if (!caseSensitive) {
+        str = str.toLowerCase();
+        searchStr = searchStr.toLowerCase();
+    }
+    while ((index = str.indexOf(searchStr, startIndex)) > -1) {
+        indices.push(index);
+        startIndex = index + searchStrLen;
+    }
+    return indices;
+}
+
+
+function concordance(word) {
+
+    //take the captionArray and put in one string
+    var allCaptions = "";
+    var window = 60; 
+
+    captionArray.forEach(function (caption) {
+        allCaptions += caption[3] + " ";
+    });
+    
+    //now search of the index (indices) of the word in the allCaptions
+    var indices = getIndicesOf(word, allCaptions, true);
+
+    //Array of the concordances
+    var concordances = [];
+
+    for (var i = 0; i < indices.length; i++) {
+        var index = indices[i];
+
+        var left = index - window < 0 ? 0 : index - window;
+        var right = index + window + word.length > allCaptions.length - 1 ? allCaptions.length - 1 : index + window + word.length;
+        concordances.push("<span>" + allCaptions.substring(left, index - 1) + " <b>" + allCaptions.substring(index, index + word.length - 1) + "</b> " + allCaptions.substring(index + word.length, right) + "</span>");
+    }
+
+    return concordances; 
+}
+
+
 // Function to handle tabs on protocol view div
 $(function(){
   $('ul.tabs li:first').addClass('active');
@@ -531,6 +576,28 @@ window.onload = function() {
             $(this).parent().children('text')
                             .removeClass('tagClickHighlight');
             $(this).addClass('tagClickHighlight');
+
+            // KB edits ----
+                
+            document.getElementById('concordance-view').style.visibility = 'visible';
+            console.log($(this).text());
+            //get concordance
+            var word = $(this).text();
+            var allConcordances = concordance(word);
+            console.log(allConcordances);
+
+            $('#concordance-view-content span').remove();
+                
+            $('#concordance-view-content br').remove();
+            //now add it to the interface
+            allConcordances.forEach(function (eachConcordance) {
+                $('#concordance-view-content').append(eachConcordance + "<br/>");
+            });
+
+            // -------------
+
+
+
             tagHoverText = $(this).text();
             $('.textClickHighlight').removeClass('textClickHighlight');
             $('.boldClickText').removeClass('boldClickText');
