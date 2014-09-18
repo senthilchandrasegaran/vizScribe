@@ -445,14 +445,15 @@ window.onload = function() {
               });
           */
           player.ready(function() {
-
             $('#transContent').on('click', 'ul', function(e){
-              var captionIndex = $('#transContent').children('ul')
-                                                   .index(this);
-              var captionStartTimeMin = captionArray[captionIndex][0]
-              captionStartTimeSec = hmsToSec(captionStartTimeMin);
-              e.preventDefault();
-              player.currentTime(captionStartTimeSec);
+              if (e.ctrlKey) {
+                var captionIndex = $('#transContent').children('ul')
+                                                     .index(this);
+                var captionStartTimeMin = captionArray[captionIndex][0]
+                captionStartTimeSec = hmsToSec(captionStartTimeMin);
+                e.preventDefault();
+                player.currentTime(captionStartTimeSec);
+              }
             });
           });
           //---------------------------------------------------------------   
