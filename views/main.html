@@ -150,6 +150,12 @@
         background:#FFFFFF;
         overflow: hidden;
       }
+      #annotDiv{
+        height: 100%;
+        width: 100%;
+        float: left;
+        overflow: auto;
+      }
       #transContent{
         float: left;
         height:100%;
@@ -523,7 +529,7 @@
         }
         
 </style>
-  <title>Protocol Analysis</title>
+  <title>VizScribe</title>
   <script src="javascripts/jquery.js"></script>
   <script src="javascripts/jquery.csv-0.71.min.js"></script>
   <script src="javascripts/jquery.scrollTo-min.js"></script>
@@ -556,8 +562,8 @@
     </div>
     <div id="topright">
     <section class="wrapper" style="{width: 100%; height: 100%}">
-      <h2>Protocols</h2>
-      <p>Define and Edit Protocols<p>
+      <h2>Codes</h2>
+      <p>Define and Edit Codes<p>
       <ul class="tabs">
         <li><a href="#tab1">View</a></li>
         <li><a href="#tab2">Add/ Edit</a></li>
@@ -616,12 +622,13 @@
           Transcript
         </div>
     </div>
-    
     <div id="transcriptDiv"> 
-      <div id="transContent"> </div>    
-      <div id="contextmenu" class="contextmenu"> </div>
+        <div id="annotDiv">
+        <div id="transContent"> </div>
+        </div>
     </div>
   </div> 
+  <div id="contextmenu" class="contextmenu"> </div>
     
   <div id="bottomleft">
       <div id="sketchTitle">
@@ -634,7 +641,7 @@
         </svg>
       </div>
       <div id="protocolGraphTitle">
-        Protocol Timeline [click to minimize]
+        Code Timeline [click to minimize]
       </div>
       <div id="protocolGraph">
         <div id="protocolGraphContent">
