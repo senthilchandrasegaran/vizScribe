@@ -55,7 +55,7 @@ var greenHighlight = "rgba(232, 138, 12, 0.7)";
 
 var transGraphColor = "rgba(123, 123, 123, 0.3)";
 var boldHighlightColor = "rgba(255, 127, 0, 0.8)";
-var mildHighlightColor = "rgba(255, 127, 0, 0.3)";
+var mildHighlightColor = "rgba(255, 127, 0, 0.8)";
 var wordCloudColor = "rgba(10, 100, 70, 0.7)";
 var shadowGrey = "rgba(123,123,123,0.7)";
 
