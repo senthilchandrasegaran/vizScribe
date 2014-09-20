@@ -1,5 +1,6 @@
 // VizScribe: A visual analytics tool for protocol analysis
 //    Code by: Senthil Chandrasegaran
+//             Karthik Badam
 //
 // list of stopwords from www.jasondavies.com
 // stop word removal code from the same source, but modified to suit
@@ -356,38 +357,6 @@ window.onload = function() {
         $("#tagList").empty()
         $("#tagList").append(tagspans);  
 
-        /*
-        // bar chart of word frequencies, corresponds to taglist
-        d3.select("#barChart").selectAll("svg").remove();
-        var svg = d3.select("#barChart").append("svg");
-        var w = $('#barChart').width();
-        var h = $('#barChart').height();
-        svg.attr("width", w)
-           .attr("height", h);
-
-        var maxvalue = Math.max.apply(Math, tagFreq);
-        var barpadding = 1;                
-
-        var rects = svg.selectAll("rect")   
-                       .data(tagFreq)       
-                       .enter()             
-                       .append("rect")
-                       .attr("x", function(d,i) {
-                                        return i* (w/tagFreq.length);
-                        })
-                       .attr("y", function(d) {
-                                        return h - d*4;
-                        })
-                       .attr("rx", 1)
-                       .attr("ry", 1)
-                       .attr("width", w/tagFreq.length - barpadding)
-                       .attr("height", function(d) {
-                                        return d*4;
-                        })
-                       .attr("fill", function(d) {
-                            return "rgba(0, 120, 200, 1)";
-                        });
-      */
       // Remove tag on right click
           var tagListDOM = $('#tagList');
           tagListDOM.oncontextmenu = function() { return false;}
@@ -428,39 +397,6 @@ window.onload = function() {
 
                   $("#tagList").append(tagspans);  
 
-                  /*
-                  // bar chart of word frequencies, corresponds to
-                  // taglist
-                  d3.select("#barChart").selectAll("svg").remove();
-                  var svg = d3.select("#barChart").append("svg");
-                  var w = $('#barChart').width();
-                  var h = $('#barChart').height();
-                  svg.attr("width", w)
-                     .attr("height", h);
-
-                  var maxvalue = Math.max.apply(Math, tagFreq);
-                  var barpadding = 1;                
-
-                  var rects = svg.selectAll("rect")   
-                       .data(tagFreq)       
-                       .enter()             
-                       .append("rect")
-                       .attr("x", function(d,i) {
-                                        return i* (w/tagFreq.length);
-                                    })
-                       .attr("y", function(d) {
-                                        return h - d*4;
-                                        })
-                       .attr("rx", 1)
-                       .attr("ry", 1)
-                       .attr("width", w/tagFreq.length - barpadding)
-                       .attr("height", function(d) {
-                                        return d*4;
-                                        })
-                       .attr("fill", function(d) {
-                            return "rgba(0, 120, 200, 1)";
-                       });
-                  */
                   // Finally remove all highlights from transcript
                   $("#transContent ul").removeClass('hoverHighlight');
                   $("#transContent ul").removeClass('boldText');
