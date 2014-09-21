@@ -252,14 +252,15 @@ app.get('/annotator-token',
 */
 
 app.post('/userlog', function (req, res){
-  res.send(req.body);
+  //res.send(req.body);
   // write user log file as text
   fs.writeFile('public/userlog/userlog.csv', String(req.body.data),
                function (err) {
     if (err) throw err;
     console.log('outputlog.csv was written');
+    res.send(200);
   });
-  res.end();
+  // res.end();
 });
 
 

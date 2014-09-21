@@ -68,11 +68,56 @@ var colorlist = [ "rgba(228,26,28,",
                   "rgba(152,78,163,",
                   "rgba(255,127,0," ];
 
-var colorlistFull = [ "rgba(228,26,28,",
-                      "rgba(55,126,184,",
-                      "rgba(77,175,74,",
-                      "rgba(152,78,163,",
-                      "rgba(255,127,0," ];
+var colorlistFull = [ 
+                      "rgba(166,206,227,",
+                      "rgba(31,120,180,",
+                      "rgba(178,223,138,",
+                      "rgba(51,160,44,",
+                      "rgba(251,154,153,",
+                      "rgba(227,26,28,",
+                      "rgba(253,191,111,",
+                      "rgba(255,127,0,",
+                      "rgba(202,178,214,",
+                      "rgba(106,61,154,",
+                      "rgba(255,255,153,",
+                      "rgba(177,89,40,",
+                      "rgba(166,206,227,",
+                      "rgba(31,120,180,",
+                      "rgba(178,223,138,",
+                      "rgba(51,160,44,",
+                      "rgba(251,154,153,",
+                      "rgba(227,26,28,",
+                      "rgba(253,191,111,",
+                      "rgba(255,127,0,",
+                      "rgba(202,178,214,",
+                      "rgba(106,61,154,",
+                      "rgba(255,255,153,",
+                      "rgba(177,89,40,",
+                      "rgba(166,206,227,",
+                      "rgba(31,120,180,",
+                      "rgba(178,223,138,",
+                      "rgba(51,160,44,",
+                      "rgba(251,154,153,",
+                      "rgba(227,26,28,",
+                      "rgba(253,191,111,",
+                      "rgba(255,127,0,",
+                      "rgba(202,178,214,",
+                      "rgba(106,61,154,",
+                      "rgba(255,255,153,",
+                      "rgba(177,89,40,",
+                      "rgba(166,206,227,",
+                      "rgba(31,120,180,",
+                      "rgba(178,223,138,",
+                      "rgba(51,160,44,",
+                      "rgba(251,154,153,",
+                      "rgba(227,26,28,",
+                      "rgba(253,191,111,",
+                      "rgba(255,127,0,",
+                      "rgba(202,178,214,",
+                      "rgba(106,61,154,",
+                      "rgba(255,255,153,",
+                      "rgba(177,89,40,"
+                    ];
 
 // When a new protocol is added
 var getColor = function () {
@@ -906,7 +951,9 @@ window.onload = function () {
 
                     // display the tree with some D3 code
                     d3.select("#protoView").selectAll("svg").remove();
-                    var protoViewSvg = d3.select("#protoView").append("svg");
+                    var protoViewSvg = d3.select("#protoView")
+                                         .append("svg")
+                                         .attr("height", 400);
                     var w = $('#protoView').width();
                     var h = $('#protoView').height();
 
@@ -1071,7 +1118,7 @@ window.onload = function () {
                        //if (protocolObject[d].hasChildren) {
                        //    color = color + (0).toString() + ")";
                        //} else {
-                       color = color + (1).toString() + ")";
+                       color = color + (0.5).toString() + ")";
                        //}
                        protocolColorList.push(color);
                        return color;
@@ -1235,7 +1282,8 @@ window.onload = function () {
                     menuItems += '<ul id="' + protocolList[ind] + '">' +
             protocolList[ind] + '</ul>';
                 }
-
+                
+/*
                 // Adding a text field to add a new code on the fly
                 menuItems += '<ul id="addNew">' +
                        '<textarea id="newCode" rows=1 cols=10>' +
@@ -1247,6 +1295,7 @@ window.onload = function () {
                           '</button>' +
                         '</span>' +
                      '</ul>';
+*/
                 // menuItems += '<ul>unassign</ul>';
 
                 // The code below makes sure the context menu is fully visible
