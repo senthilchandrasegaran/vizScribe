@@ -1,17 +1,13 @@
 // VizScribe: A visual analytics tool for protocol analysis
 //    Code by: Senthil Chandrasegaran
+//             Sriram Karthik Badam
 //
 // list of stopwords from www.jasondavies.com
 // stop word removal code from the same source, but modified to suit
 // current application
 //
 // Begin stop word removal code
-var stopWords = /^(i|me|my|myself|we|us|our|ours|ourselves|you|your|yours|yourself|yourselves|he|him|his|himself|she|her|hers|herself|it|its|itself|they|them|their|theirs|themselves|what|which|who|whom|whose|this|that|these|those|am|is|are|was|were|be|been|being|have|has|had|having|do|does|did|doing|will|would|should|can|could|ought|i'm|you're|he's|she's|it's|we're|they're|i've|you've|we've|they've|i'd|you'd|he'd|she'd|we'd|they'd|i'll|you'll|he'll|she'll|we'll|they'll|isn't|aren't|wasn't|weren't|hasn't|haven't|hadn't|doesn't|don't|didn't|won't|wouldn't|shan't|shouldn't|can't|cannot|couldn't|mustn't|let's|that's|who's|what's|here's|there's|when's|where's|why's|how's|a|an|the|and|but|if|or|because|as|until|while|of|at|by|for|with|about|against|between|into|through|during|before|after|above|below|to|from|up|upon|down|in|out|on|off|over|under|again|further|then|once|here|there|when|where|why|how|all|any|both|each|few|more|most|other|some|such|no|nor|not|only|own|same|so|than|too|very|say|says|said|shall)$/;
-var punctuation = /[!&()*+,-\.\/:;<=>?\[\\\]^`\{|\}~]+/g;
-//"
 var wordSeparators = /[\s\u3031-\u3035\u309b\u309c\u30a0\u30fc\uff70]+/g;
-var discard = /^(@|https?:)/;
-var htmlTags = /(<[^>]*?>|<script.*?<\/script>|<style.*?<\/style>|<head.*?><\/head>)/g;
 var w = 960,
     h = 600;
 
@@ -22,18 +18,16 @@ var words = [],
     keyword = "",
     tags,
     fontSize,
-    maxLength = 30;
+    maxLength = 30,
     numLines = 0;
     // statusText = d3.select("#status");
-var words = [];
-// "
+
 var transcript = [];
 var lowerCaseLines = [];
+var tagsToRemove = []; // list of words the user removes from taglist
 var displayLines = [];
 var tempspan = '';
 var spanArray = [];
-var wordList = [];
-var tagList = [];
 var captionArray = [];
 var protocolArray = [];
 var protocolList = [];
@@ -130,9 +124,7 @@ var pushColor = function (color) {
 }
 
 var depthFirstTraversalProtocolTree = function () {
-
     var sortedList = [];
-
     var protocolNames = Object.keys(protocolObject);
     for (var i = 0; i < protocolNames.length; i++) {
         var protocolName = protocolNames[i];
@@ -170,25 +162,6 @@ function preOrderTraversal(protocolName, childrenList, protocolNames) {
 
 var sketchPathColor = "rgba(225, 120, 0, 0.2)";
 
-
-
-// audio visualization 
-/*
-var wavesurfer = Object.create(WaveSurfer);
-
-wavesurfer.init({
-  container: document.querySelector('#audiodiv'),
-  waveColor: 'lightgray',
-  progressColor: 'steelblue',
-  normalize: 'true',
-  dragSelection: 'false',
-  interact: 'false',
-  height: $('#audiodiv').height()
-});
-
-wavesurfer.setVolume(0);
-*/
-
 // The hmsToSec function takes a "hh:mm:ss", or "mm:ss" or just an "ss"
 // string and converts it to seconds. Returns a number.
 function hmsToSec(hms){
@@ -220,7 +193,6 @@ function getIndicesOf(searchStr, str, caseSensitive) {
 
 
 function concordance(word) {
-
     //take the captionArray and put in one string
     var allCaptions = "";
     var window = 60; 
@@ -242,7 +214,6 @@ function concordance(word) {
         var right = index + window + word.length > allCaptions.length - 1 ? allCaptions.length - 1 : index + window + word.length;
         concordances.push("<span>" + allCaptions.substring(left, index - 1) + " <b>" + allCaptions.substring(index, index + word.length - 1) + "</b> " + allCaptions.substring(index + word.length, right) + "</span>");
     }
-
     return concordances; 
 }
 
@@ -273,7 +244,6 @@ function hmsToSeconds(str) {
     return s;
 } // End Function to convert hh:mm:ss to seconds
 
-
 // This function allows selection of transcript file (a CSV file) and
 // displays it on the left bottom pane in the browser. Stop words are
 // removed and the resulting tags are scaled by frequency and showed on
@@ -291,40 +261,42 @@ window.onload = function () {
             dataType: "text"
         }).done(function (data) {
             captionArray = $.csv.toArrays(data);
-            var longestLineLength = 0; // number of words in the longest line
+            var longestLineLength = 0; // num words in the longest line
             for (var i in captionArray) {
-                if (captionArray[i][0].toLowerCase() !== "start time") {
-                    var words = captionArray[i][3].split(wordSeparators);
-                    if (words.length > longestLineLength) {
-                        longestLineLength = words.length;
-                    }
-                    var lowerCaseWords = captionArray[i][3].toLowerCase()
-                                   .split(wordSeparators);
-                    lowerCaseWords.shift();
-                    // for some reason, the wordSeparators split the line in a
-                    // way that the first word is an empty "".
-                    // lowerCaseWords.shift() gets rid of that "".
-                    lowerCaseLines.push(lowerCaseWords);
-                    for (var k in words) {
-                        tempspan += '<span id="line' + i + 'word' + k + '">' +
-                           words[k] + ' </span>';
-                        spanArray.push([i, k, words[k].toLowerCase()]);
-                    }
-
-                    displayLines.push('<ul style="padding-left:5px" id="line '
-                                + i +
-                                ' speaker ' + captionArray[i][2] + '">' +
-                                '<span style="color:#c3c3c3;' +
-                                  'font-family:courier;' +
-                                  'font-size:7pt">' +
-                                captionArray[i][0].split(".")[0] + " " +
-                                '</span>' +
-                                tempspan + '</ul>')
-                    tempspan = "";
+              if (captionArray[i][0].toLowerCase() !== "start time") {
+                var words = captionArray[i][3].split(wordSeparators);
+                if (words.length > longestLineLength) {
+                  longestLineLength = words.length;
                 }
+                var lowerCaseWords = captionArray[i][3]
+                                       .toLowerCase()
+                                       .split(wordSeparators);
+                lowerCaseWords.shift();
+                // for some reason, the wordSeparators split the line in
+                // a way that the first word is an empty "".
+                // lowerCaseWords.shift() gets rid of that "".
+                lowerCaseLines.push(lowerCaseWords);
+                for (var k in words) {
+                  tempspan += '<span id="line' + i + 'word' + k + '">' +
+                              words[k] + ' </span>';
+                  spanArray.push([i, k, words[k].toLowerCase()]);
+                }
+
+                displayLines.push(
+                            '<ul style="padding-left:5px" id="line '
+                            + i +
+                            ' speaker ' + captionArray[i][2] + '">' +
+                            '<span style="color:#c3c3c3;' +
+                              'font-family:courier;' +
+                              'font-size:7pt">' +
+                            captionArray[i][0].split(".")[0] + " " +
+                            '</span>' +
+                            tempspan + '</ul>')
+                tempspan = "";
+              }
             }
             for (var j in displayLines) {
-                $("#transContent").append(displayLines[j]);
+              $("#transContent").append(displayLines[j]);
             }
             numLines = displayLines.length;
 
@@ -332,133 +304,69 @@ window.onload = function () {
             // using the annotator library.
             // The setupPlugins sets up annotator in the 'default' mode.
             jQuery(function ($) {
-                $('#bottomright').annotator()
-                          .annotator('setupPlugins');
+              $('#bottomright').annotator().annotator('setupPlugins');
             });
 
-
             player.ready(function () {
-                var videoLenSec = player.duration();
-                // representation of lines in transcript overall window
-                d3.select("#transGraph").selectAll("svg").remove();
-                var w = $('#transGraph').width();
-                var h = $('#transGraph').height() - 5;
-                var transSvg = d3.select("#transGraph").append("svg")
-                           .attr("width", w)
-                           .attr("height", h);
-                /*
-                transSvg.attr("width", w)
-                .attr("height", h);
-                */
+              var videoLenSec = player.duration();
+              // representation of lines in transcript overall window
+              d3.select("#transGraph").selectAll("svg").remove();
+              var w = $('#transGraph').width();
+              var h = $('#transGraph').height() - 5;
+              var transSvg = d3.select("#transGraph").append("svg")
+                         .attr("width", w)
+                         .attr("height", h);
+              /*
+              transSvg.attr("width", w)
+              .attr("height", h);
+              */
 
-                var transcriptScale = d3.scale.linear()
+              var transcriptScale = d3.scale.linear()
                                   .domain([0, Math.round(videoLenSec)])
                                   .range([0, w]);
-                console.log(videoLenSec);
-                // var maxvalue = Math.max.apply(Math, tagFreq);
-                var transGraphPadding = 0;
-                var rects = transSvg.selectAll("rect")
-                         .data(lowerCaseLines)
-                         .enter()
-                         .append("rect")
-                         .attr("x", function (d, i) {
-                             // return i* (w/numLines);
-                             var xSec =
-                             hmsToSec(captionArray[i + 1][0]);
-                             var xloc = transcriptScale(xSec);
-                             return (xloc);
-                         })
-                         .attr("y", function (d) {
-                             return 0;
-                         })
-                         .attr("width", w / numLines - transGraphPadding)
-                         .attr("width", function (d, i) {
-                             var endSec = hmsToSec(captionArray[i + 1][1]);
-                             var startSec =
-                              hmsToSec(captionArray[i + 1][0]);
-                             var wScaled =
-                              transcriptScale(endSec - startSec);
-                             return wScaled;
-                         })
-                         .attr("height", function (d) {
-                             var lineRatio = d.length / longestLineLength;
-                             var boxHeight = lineRatio * h;
-                             return boxHeight;
-                         })
-                         .attr("stroke-width", 1)
-                         .attr("stroke", "rgba(255,255,255,1)")
-                         .attr("fill", function (d) {
-                             return transGraphColor;
-                         });
-                var halfWidth = (w / numLines - transGraphPadding) / 2;
-                /*
-                for (lineInd in lowerCaseLines){
-                var numWords = lowerCaseLines[lineInd].length;
-                var circles = transSvg.selectAll("circle")   
-                .data(lowerCaseLines[lineInd])       
-                .enter()             
-                .append("circle")
-                .attr("cy", lineInd * (w/numLines) + halfWidth)
-                .attr("cx", function(d, i){
-                return i * (w/numWords);
-                })
-                .attr("r", halfWidth)
-                .style("fill", "rgba(220, 138, 12, 1)");
-                }
-                */
-                // end representation of lines
+              console.log(videoLenSec);
+              // var maxvalue = Math.max.apply(Math, tagFreq);
+              var transGraphPadding = 0;
+              var rects = transSvg.selectAll("rect")
+                       .data(lowerCaseLines)
+                       .enter()
+                       .append("rect")
+                       .attr("x", function (d, i) {
+                           // return i* (w/numLines);
+                           var xSec =
+                           hmsToSec(captionArray[i + 1][0]);
+                           var xloc = transcriptScale(xSec);
+                           return (xloc);
+                       })
+                       .attr("y", function (d) {
+                           return 0;
+                       })
+                       .attr("width", w / numLines - transGraphPadding)
+                       .attr("width", function (d, i) {
+                         var endSec = hmsToSec(captionArray[i + 1][1]);
+                         var startSec =
+                           hmsToSec(captionArray[i + 1][0]);
+                         var wScaled =
+                           transcriptScale(endSec - startSec);
+                         return wScaled;
+                       })
+                       .attr("height", function (d) {
+                         var lineRatio = d.length / longestLineLength;
+                         var boxHeight = lineRatio * h;
+                         return boxHeight;
+                       })
+                       .attr("stroke-width", 1)
+                       .attr("stroke", "rgba(255,255,255,1)")
+                       .attr("fill", function (d) {
+                           return transGraphColor;
+                       });
+              var halfWidth = (w / numLines - transGraphPadding) / 2;
+              // end representation of lines
             }); // end player.ready()
 
-
-            wordList = wordList.concat.apply(wordList, lowerCaseLines);
-            var conceptList = [];
-            for (var num in wordList) {
-                wordList[num] = wordList[num].replace(punctuation, "");
-                if (!stopWords.test(wordList[num]) && (wordList[num] != "")) {
-                    conceptList.push(wordList[num]);
-                }
-            }
-
-            var wordObj = {};
-            for (var i = 0, j = conceptList.length; i < j; i++) {
-                if (wordObj[conceptList[i]]) {
-                    wordObj[conceptList[i]]++;
-                }
-                else {
-                    wordObj[conceptList[i]] = 1;
-                }
-            }
-
-            var sortedList = [];
-            for (var uniqueWord in wordObj)
-                sortedList.push([uniqueWord, wordObj[uniqueWord]])
-            sortedList.sort(function (a, b) { return a[1] - b[1] })
-
-            tagList = sortedList.reverse();
-
-            // To generate tag list
-            var cloudArray = []
-            var tagNum = 0;
-            var maxfreq = tagList[0][1];
-            var tagspans = "";
-            var tagFreq = [];
-
-            var fontScale = d3.scale.linear()
-                          .domain([maxfreq, 1])
-                          .range([25, 10]);
-
-            for (var tagNum in tagList) {
-                tagspans += '<text id="tag ' +
-                       tagNum +
-                       '" style = "font-size:' +
-                       Math.round(fontScale(tagList[tagNum][1])) + 'pt;' +
-                       ' color:' + wordCloudColor + ');">' +
-                       tagList[tagNum][0] +
-                       ' </text>';
-                tagFreq.push(tagList[tagNum][1]);
-            }
             $("#tagList").empty()
-            $("#tagList").append(tagspans);
+            // $("#tagList").append(tagspans);
+            $("#tagList").append(makeWordList(lowerCaseLines));
 
             /*
             // bar chart of word frequencies, corresponds to taglist
@@ -496,86 +404,26 @@ window.onload = function () {
             var tagListDOM = $('#tagList');
             tagListDOM.oncontextmenu = function () { return false; }
             tagListDOM.on('mousedown', 'text', function (e) {
-                if (e.button == 2) {
-                    var isRemoveTag = confirm("Remove tag: " +
-                                        $(this).text() +
-                                        " from list?");
-                    if (isRemoveTag == true) {
-                        var tagToRemove = $(this).text();
-                        var removeIndex = tagListDOM.children("text")
-                                              .index(this);
-                        if (removeIndex > -1) {
-                            tagList.splice(removeIndex, 1);
-                        }
-                        // Then Regenerate taglist and barchart
-                        // first empty the div
-                        $("#tagList").empty();
-                        // Then add everything with the updated tagList
-                        var cloudArray = []
-                        var tagNum = 0;
-                        var maxfreq = tagList[0][1];
-                        var tagspans = "";
-                        var tagFreq = [];
-                        var fontScale = d3.scale.linear()
-                                    .domain([maxfreq, 1])
-                                    .range([25, 10]);
-
-                        for (var tagNum in tagList) {
-                            tagspans += '<text id="tag ' +
-                         tagNum + '" style = "font-size:' +
-                       Math.round(fontScale(tagList[tagNum][1])) + 'pt;' +
-                         ' color:' + wordCloudColor + ');">' +
-                         tagList[tagNum][0] +
-                         ' </text>';
-                            tagFreq.push(tagList[tagNum][1]);
-                        }
-
-                        $("#tagList").append(tagspans);
-
-                        /*
-                        // bar chart of word frequencies, corresponds to
-                        // taglist
-                        d3.select("#barChart").selectAll("svg").remove();
-                        var svg = d3.select("#barChart").append("svg");
-                        var w = $('#barChart').width();
-                        var h = $('#barChart').height();
-                        svg.attr("width", w)
-                        .attr("height", h);
-
-                        var maxvalue = Math.max.apply(Math, tagFreq);
-                        var barpadding = 1;                
-
-                        var rects = svg.selectAll("rect")   
-                        .data(tagFreq)       
-                        .enter()             
-                        .append("rect")
-                        .attr("x", function(d,i) {
-                        return i* (w/tagFreq.length);
-                        })
-                        .attr("y", function(d) {
-                        return h - d*4;
-                        })
-                        .attr("rx", 1)
-                        .attr("ry", 1)
-                        .attr("width", w/tagFreq.length - barpadding)
-                        .attr("height", function(d) {
-                        return d*4;
-                        })
-                        .attr("fill", function(d) {
-                        return "rgba(0, 120, 200, 1)";
-                        });
-                        */
-                        // Finally remove all highlights from transcript
-                        $("#transContent ul").removeClass('hoverHighlight');
-                        $("#transContent ul").removeClass('boldText');
-
-                    }
-                    else {
-                        return true;
-                    }
-                } else {
+              if (e.button == 2) {
+                var isRemoveTag = confirm("Remove tag: " +
+                                    $(this).text() +
+                                    " from list?");
+                if (isRemoveTag == true) {
+                  var tagToRemove = $(this).text();
+                  tagsToRemove.push(tagToRemove);
+                  $("#tagList").empty()
+                  $("#tagList").append(makeWordList(lowerCaseLines,
+                                                    tagsToRemove));
+                  // Finally remove all highlights from transcript
+                  $("#transContent ul").removeClass('hoverHighlight');
+                  $("#transContent ul").removeClass('boldText');
+                }
+                else {
                     return true;
                 }
+              } else {
+                  return true;
+              }
             }); //end mousedown e function
             // end function for remove tag on rightclick
 
@@ -584,25 +432,16 @@ window.onload = function () {
             // Video seeking Code
             //---------------------------------------------------------------   
             var videoDuration = 0
-            /*
-            var wavevid = $.ajax({
-            type: "GET", // can remove this to avoid confusion
-            url: "/receive_video_file", // change to send_trn_fil
-            // note: "send" from POV of client
-            }).done(function(data){
-            wavesurfer.load(data);
-            });
-            */
             player.ready(function () {
                 $('#transContent').on('click', 'ul', function (e) {
-                    if (e.ctrlKey) {
-                        var captionIndex = $('#transContent').children('ul')
-                                                     .index(this);
-                        var captionStartTimeMin = captionArray[captionIndex][0]
-                        captionStartTimeSec = hmsToSec(captionStartTimeMin);
-                        e.preventDefault();
-                        player.currentTime(captionStartTimeSec);
-                    }
+                  if (e.ctrlKey) {
+                    var captionIndex = $('#transContent').children('ul')
+                                                         .index(this);
+                    var captionStartTimeMin = captionArray[captionIndex][0]
+                    captionStartTimeSec = hmsToSec(captionStartTimeMin);
+                    e.preventDefault();
+                    player.currentTime(captionStartTimeSec);
+                  }
                 });
             });
             //---------------------------------------------------------------   
@@ -615,62 +454,53 @@ window.onload = function () {
             // light highlighting on mouse enter
             //---------------------------------------------------------------   
             tagListDOM.on('mouseenter', 'text', function () {
-                videoDuration = player.duration();
-                $(this).addClass('hoverHighlight');
-                tagHoverText = $(this).text();
-                var transItems = $("#transContent ul span:contains('"
-                                + tagHoverText + "')").closest("ul");
-                transItems.addClass('hoverHighlight');
-                $("#transContent ul span:contains('" + tagHoverText + "')")
-               .addClass('boldText');
+              videoDuration = player.duration();
+              $(this).addClass('hoverHighlight');
+              tagHoverText = $(this).text();
+              var transItems = $("#transContent ul span:contains('"
+                              + tagHoverText + "')").closest("ul");
+              transItems.addClass('hoverHighlight');
+              $("#transContent ul span:contains('" + 
+                tagHoverText + "')").addClass('boldText');
 
-                //----------------------------------------------   
-                // add bars of highlighted bits next to seekbar
-                //----------------------------------------------   
-                var transItemIds = [];
-                transItems.each(function (index, value) {
-                    var idIndex = $('#transContent').children('ul')
+              //----------------------------------------------   
+              // add bars of highlighted bits next to seekbar
+              //----------------------------------------------   
+              var transItemIds = [];
+              transItems.each(function (index, value) {
+                var idIndex = $('#transContent').children('ul')
                                                 .index(this);
-                    transItemIds.push(idIndex);
-                    // change color of vertical text rep bars
-                    var hiRects = $("#transGraph svg")
-                                  .children('rect');
-                    d3.select(hiRects[idIndex])
+                transItemIds.push(idIndex);
+                // change color of vertical text rep bars
+                var hiRects = $("#transGraph svg").children('rect');
+                d3.select(hiRects[idIndex])
                   .attr("fill", oldHighlighting);
-                    /*
-                    var transSvg = d3.select("#transGraph")
-                    .selectAll("svg");
-                    var w = $('#transGraph').width();
-                    var h = $('#transGraph').height();
-                    transSvg.attr("width", w)
-                    .attr("height", h);
-                    */
-                    var numLines = hiRects.length;
-                });
-                var timeSegArray = [];
-                //load corresponding times of highlighted ul items in a list
-                var ind = 0;
-                for (ind in transItemIds) {
-                    var numInd = transItemIds[ind];
-                    var startTime = hmsToSec(captionArray[numInd][0]);
-                    var duration = hmsToSec(captionArray[numInd][1]) -
-                                 startTime;
-                    timeSegArray.push([startTime, duration]);
-                }
+                var numLines = hiRects.length;
+              });
+              var timeSegArray = [];
+              //load corresponding times of highlighted ul items in a list
+              var ind = 0;
+              for (ind in transItemIds) {
+                var numInd = transItemIds[ind];
+                var startTime = hmsToSec(captionArray[numInd][0]);
+                var duration = hmsToSec(captionArray[numInd][1]) -
+                             startTime;
+                timeSegArray.push([startTime, duration]);
+              }
             });
 
             //---------------------------------------------------------------   
             // remove light highlighting on mouse leave
             //---------------------------------------------------------------   
             tagListDOM.on('mouseleave', 'text', function () {
-                $(this).removeClass('hoverHighlight');
-                $("#transContent ul span:contains('" + tagHoverText + "')")
-                .closest("ul").removeClass('hoverHighlight');
-                $("#transContent ul span:contains('" + tagHoverText + "')")
-                .removeClass('boldText');
-                d3.select("#transGraph").selectAll("svg")
-                .selectAll("rect")
-                .attr("fill", transGraphColor);
+              $(this).removeClass('hoverHighlight');
+              $("#transContent ul span:contains('" + tagHoverText + "')")
+              .closest("ul").removeClass('hoverHighlight');
+              $("#transContent ul span:contains('" + tagHoverText + "')")
+              .removeClass('boldText');
+              d3.select("#transGraph").selectAll("svg")
+              .selectAll("rect")
+              .attr("fill", transGraphColor);
             });
 
             //---------------------------------------------------------------   
@@ -764,35 +594,7 @@ window.onload = function () {
                                  startTime;
                     timeSegArray.push([startTime, duration]);
                 }
-                /*
-                var svgVideo = d3.select("#timeline").append("svg");
-                var timelineLength = $('#timeline').width();
-                var h = $('#timeline').height();
-                svgVideo.attr("width", timelineLength)
-                .attr("height", h);
-
-                var totalTime = videoDuration;
-                var timeScale = timelineLength/videoDuration;
-                var rects = svgVideo.selectAll("rect")   
-                .data(timeSegArray)       
-                .enter()             
-                .append("rect")
-                .style("stroke", "rgba(123, 123, 123, 0.7)")
-                .style("stroke-width", 1)
-                .attr("x", function(d,i) {
-                return (d[0]*timeScale);
-                })
-                .attr("y", 0)
-                .attr("rx", 2)
-                .attr("ry", 2)
-                .attr("width", function(d,i) {
-                return (d[1]*timeScale);
-                })
-                .attr("height", h)
-                .attr("fill", "rgba(123, 123, 123, 0.2)");
-                // end highlight bars
-                */
-            });
+            }); // end light gray highlighting
 
             // remove light highlighting on mouse leave
             $('#transContent').on('mouseleave', 'ul', function () {
@@ -800,7 +602,7 @@ window.onload = function () {
                 d3.select("#transGraph").selectAll("svg")
                 .selectAll("rect")
                 .attr("fill", transGraphColor);
-            });
+            }); // end remove light highlighting
 
             // Allow interaction with seesoft-like visualization
             $('#transGraph').on('mouseenter', 'svg rect', function () {
@@ -827,49 +629,26 @@ window.onload = function () {
             // var player = videojs('discussion-video');
             var videoDuration = 0
             player.ready(function () {
-                $('#transGraph svg').on('click', 'rect', function (e) {
-                    var transGraphIndex = $('#transGraph svg').children('rect')
-                                                   .index(this);
-                    var captionStartTimeMin = captionArray[transGraphIndex][0]
-                    captionStartTimeSec = hmsToSec(captionStartTimeMin);
-                    e.preventDefault();
-                    player.currentTime(captionStartTimeSec);
-                    // wavesurfer.seek(captionStartTimeSec/player.duration());
-                    var transClickItem = $('#transContent').children('ul')
-                                                   .eq(transGraphIndex);
-                    transClickItem.addClass('hoverHighlight');
-                    // this small snippet below to scroll the transcript to show
-                    // the line corresponding to the item selected in transgraph
-                    var topPos = $("#transContent").offset.top;
-                    console.log(topPos);
-                    transClickItem.scrollTo(topPos);
-
-                    //             transClickItem.animate({
-                    //                  scrollTop: $(this)[0].children('span')[0]
-                    //                                       .position().top
-                    //             }, 'slow');
-                });
+              $('#transGraph svg').on('click', 'rect', function (e) {
+                var transGraphIndex = $('#transGraph svg')
+                                        .children('rect')
+                                        .index(this);
+                var captionStartTimeMin = captionArray[transGraphIndex][0]
+                captionStartTimeSec = hmsToSec(captionStartTimeMin);
+                e.preventDefault();
+                player.currentTime(captionStartTimeSec);
+                // wavesurfer.seek(captionStartTimeSec/player.duration());
+                var transClickItem = $('#transContent')
+                                        .children('ul')
+                                        .eq(transGraphIndex);
+                transClickItem.addClass('hoverHighlight');
+                // this small snippet below to scroll the transcript to show
+                // the line corresponding to the item selected in transgraph
+                var topPos = $("#transContent").offset.top;
+                console.log(topPos);
+                transClickItem.scrollTo(topPos);
+              });
             });
-
-            /*
-            // toggle the size of the tagList div 
-            var tagListTextSizes = [];
-
-            $("#tagListTitle").click(function(){
-            if($("#tagList").hasClass('minimize')) {
-            $("#tagList").animate({height:"45%"},200)
-            .removeClass('minimize');
-            } else { 
-            $("#tagList").animate({height:50},200)
-            .addClass('minimize');
-            $("tagList").children("text").each(function(){
-            tagListTextSizes.push[$(this), 
-            $(this).css("font-size")];
-            });
-            $("#tagList").children("text").css("font-size", "12px");
-            }
-            });
-            */
 
             // toggle the size of the sketches div (pathViewer)
             $("#sketchTitle").click(function () {
@@ -890,13 +669,6 @@ window.onload = function () {
                 } else {
                     $("#protocolGraph").animate({ height: 50 }, 200)
                       .addClass('minimize');
-                    /*
-                    var minRects = d3.select("#protocolGraphContent")
-                    .select("svg")
-                    .selectAll("rect");
-                    minRects.transition()
-                    .attr("y", 0);
-                    */
                 }
             });
 
@@ -913,7 +685,6 @@ window.onload = function () {
                     $protocolScrubberProgress.width((percent * 100) + "%");
                 });
             });
-
 
             // Allow tabbed indenting on protocol textArea field
             // Code snippet credit to
@@ -1136,54 +907,6 @@ window.onload = function () {
                    .text(function (d) {
                        return d;
                    });
-
-
-                    // var protoRect = protoViewSvg.selectAll("g")
-                    //           .data(pArray)
-                    //           .enter().append("g")
-                    //           .attr("transform", function (d, i) {
-                    //               var indents = d.split("\t").length;
-                    //               var yline = i * 16 +
-                    //                         10 +
-                    //                         protoViewPadding;
-
-                    //               return "translate(" +
-                    //                     indents * 10 + "," +
-                    //                     yline + ")";
-
-                    //           })
-                    // protoRect.append("rect")
-                    //.attr("width", 15)
-                    //.attr("height", 15)
-                    //.attr("stroke-width", 1)
-                    //.attr("fill", function (d, i) {
-                    //    var indents = d.split("\t").length;
-                    //    if (indents == 1) {
-                    //        colorindex++;
-                    //        protocolList
-                    //       .push(d.split("\t")[d.split("\t").length - 1]);
-                    //        protocolColorList.push(colorlist[colorindex] +
-                    //                          "0.3)");
-                    //    }
-                    //    return colorlist[colorindex] +
-                    //          (0.6 - indents * 0.1).toString() + ")";
-                    //})
-                    //.attr("stroke", transGraphColor);
-                    // protoRect.append("text")
-                    //.attr("x", function (d, i) {
-                    //    d.split("\t").length;
-                    //})
-                    //.attr("y", function (d, i) {
-                    //    return i + 7;
-                    //})
-                    //.attr("dx", "2em")
-                    //.text(function (d) {
-                    //    return d.split("\t")[d.split("\t").length - 1]
-                    //});
-
-                    //(0.3 - indents * 0.1).toString();
-
-
                 }
                 protocolList.push("unassign");
                 protocolColorList.push("rgba(255,255,255,0.1)");
@@ -1283,21 +1006,6 @@ window.onload = function () {
             protocolList[ind] + '</ul>';
                 }
                 
-/*
-                // Adding a text field to add a new code on the fly
-                menuItems += '<ul id="addNew">' +
-                       '<textarea id="newCode" rows=1 cols=10>' +
-                       '</textarea> <br>' +
-                       '<span id="buttonspan" text-align="right"' +
-                       'display="block">' +
-                          '<button id="newCodeBtn" type="submit">' +
-                          'Add New' +
-                          '</button>' +
-                        '</span>' +
-                     '</ul>';
-*/
-                // menuItems += '<ul>unassign</ul>';
-
                 // The code below makes sure the context menu is fully visible
                 // and doesn't overflow the displayed extents of the page
                 var menuXpos, menuYpos;
@@ -1475,22 +1183,22 @@ window.onload = function () {
                                     .indexOf(d[3])];
                        });
                     // then get rid of the context menu
-                    $('.contextmenu').css({ "box-shadow": "none",
-                        "border": "none",
-                        "background": "none"
-                    })
-                           .empty();
+                    $('.contextmenu')
+                      .css({ "box-shadow": "none",
+                             "border": "none",
+                             "background": "none" })
+                      .empty();
                 }
             }); // end of code that decides what happens when an item is
             // clicked on the context menu
 
             // remove context menu when clicked elsewhere
             $('#transContent').on('click', function () {
-                $('.contextmenu').css({ "box-shadow": "none",
-                    "border": "none",
-                    "background": "none"
-                })
-                           .empty();
+                $('.contextmenu')
+                  .css({ "box-shadow": "none",
+                         "border": "none",
+                         "background": "none" })
+                  .empty();
             });
         }); // end of file ajax code
 
@@ -1712,20 +1420,20 @@ window.onload = function () {
                       "0px 3px 5px 5px" + shadowGrey);
       });
 
-            svgContent.selectAll("text")
-     .data(commitLog)
-     .enter()
-     .append("text")
-     .text(function (d) {
-         return d[3];
-     })
-     .attr("x", function (d) { return x(d[0]); })
-     .attr("y", function (d) { return y(d[2]) + 5; })
-     .attr("font-family", "sans-serif")
-     .attr("font-size", "11px")
-     .style("text-anchor", "middle")
-     .attr("fill", "white");
-        }); // End code to generate paths
+      svgContent.selectAll("text")
+                 .data(commitLog)
+                 .enter()
+                 .append("text")
+                 .text(function (d) {
+                     return d[3];
+                 })
+                 .attr("x", function (d) { return x(d[0]); })
+                 .attr("y", function (d) { return y(d[2]) + 5; })
+                 .attr("font-family", "sans-serif")
+                 .attr("font-size", "11px")
+                 .style("text-anchor", "middle")
+                 .attr("fill", "white");
+      }); // End code to generate paths
         // End Stuff to execute when log file loaded
         // NOTES FOR CODE FOLDING in VIM:
         // zc -- close fold
