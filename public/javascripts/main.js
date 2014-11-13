@@ -1,12 +1,8 @@
 // VizScribe: A visual analytics tool for protocol analysis
 //    Code by: Senthil Chandrasegaran
 //             Sriram Karthik Badam
-//
-// list of stopwords from www.jasondavies.com
-// stop word removal code from the same source, but modified to suit
-// current application
-//
-// Begin stop word removal code
+
+// Global variables
 var wordSeparators = /[\s\u3031-\u3035\u309b\u309c\u30a0\u30fc\uff70]+/g;
 var w = 960,
     h = 600;
@@ -63,55 +59,55 @@ var colorlist = [ "rgba(228,26,28,",
                   "rgba(255,127,0," ];
 
 var colorlistFull = [ 
-                      "rgba(166,206,227,",
-                      "rgba(31,120,180,",
-                      "rgba(178,223,138,",
-                      "rgba(51,160,44,",
-                      "rgba(251,154,153,",
-                      "rgba(227,26,28,",
-                      "rgba(253,191,111,",
-                      "rgba(255,127,0,",
-                      "rgba(202,178,214,",
-                      "rgba(106,61,154,",
-                      "rgba(255,255,153,",
-                      "rgba(177,89,40,",
-                      "rgba(166,206,227,",
-                      "rgba(31,120,180,",
-                      "rgba(178,223,138,",
-                      "rgba(51,160,44,",
-                      "rgba(251,154,153,",
-                      "rgba(227,26,28,",
-                      "rgba(253,191,111,",
-                      "rgba(255,127,0,",
-                      "rgba(202,178,214,",
-                      "rgba(106,61,154,",
-                      "rgba(255,255,153,",
-                      "rgba(177,89,40,",
-                      "rgba(166,206,227,",
-                      "rgba(31,120,180,",
-                      "rgba(178,223,138,",
-                      "rgba(51,160,44,",
-                      "rgba(251,154,153,",
-                      "rgba(227,26,28,",
-                      "rgba(253,191,111,",
-                      "rgba(255,127,0,",
-                      "rgba(202,178,214,",
-                      "rgba(106,61,154,",
-                      "rgba(255,255,153,",
-                      "rgba(177,89,40,",
-                      "rgba(166,206,227,",
-                      "rgba(31,120,180,",
-                      "rgba(178,223,138,",
-                      "rgba(51,160,44,",
-                      "rgba(251,154,153,",
-                      "rgba(227,26,28,",
-                      "rgba(253,191,111,",
-                      "rgba(255,127,0,",
-                      "rgba(202,178,214,",
-                      "rgba(106,61,154,",
-                      "rgba(255,255,153,",
-                      "rgba(177,89,40,"
-                    ];
+      "rgba(166,206,227,",
+      "rgba(31,120,180,",
+      "rgba(178,223,138,",
+      "rgba(51,160,44,",
+      "rgba(251,154,153,",
+      "rgba(227,26,28,",
+      "rgba(253,191,111,",
+      "rgba(255,127,0,",
+      "rgba(202,178,214,",
+      "rgba(106,61,154,",
+      "rgba(255,255,153,",
+      "rgba(177,89,40,",
+      "rgba(166,206,227,",
+      "rgba(31,120,180,",
+      "rgba(178,223,138,",
+      "rgba(51,160,44,",
+      "rgba(251,154,153,",
+      "rgba(227,26,28,",
+      "rgba(253,191,111,",
+      "rgba(255,127,0,",
+      "rgba(202,178,214,",
+      "rgba(106,61,154,",
+      "rgba(255,255,153,",
+      "rgba(177,89,40,",
+      "rgba(166,206,227,",
+      "rgba(31,120,180,",
+      "rgba(178,223,138,",
+      "rgba(51,160,44,",
+      "rgba(251,154,153,",
+      "rgba(227,26,28,",
+      "rgba(253,191,111,",
+      "rgba(255,127,0,",
+      "rgba(202,178,214,",
+      "rgba(106,61,154,",
+      "rgba(255,255,153,",
+      "rgba(177,89,40,",
+      "rgba(166,206,227,",
+      "rgba(31,120,180,",
+      "rgba(178,223,138,",
+      "rgba(51,160,44,",
+      "rgba(251,154,153,",
+      "rgba(227,26,28,",
+      "rgba(253,191,111,",
+      "rgba(255,127,0,",
+      "rgba(202,178,214,",
+      "rgba(106,61,154,",
+      "rgba(255,255,153,",
+      "rgba(177,89,40,"
+    ];
 
 // When a new protocol is added
 var getColor = function () {
@@ -249,958 +245,946 @@ function hmsToSeconds(str) {
 // removed and the resulting tags are scaled by frequency and showed on
 // the right pane.
 window.onload = function () {
-    var player = videojs('discussion-video');
-    player.on('loadedmetadata', function () {
-        // var files = evt.target.files; // FileList object
-        // files is a FileList of File objects. List some properties.
-        var transcriptFile;
-        var fileTemp = $.ajax({
-            type: "GET", // can remove this to avoid confusion
-            url: "/receive_transcript_file", // change to send_trn_fil
-            // note: "send" from POV of client
-            dataType: "text"
-        }).done(function (data) {
-            captionArray = $.csv.toArrays(data);
-            var longestLineLength = 0; // num words in the longest line
-            for (var i in captionArray) {
-              if (captionArray[i][0].toLowerCase() !== "start time") {
-                var words = captionArray[i][3].split(wordSeparators);
-                if (words.length > longestLineLength) {
-                  longestLineLength = words.length;
-                }
-                var lowerCaseWords = captionArray[i][3]
-                                       .toLowerCase()
-                                       .split(wordSeparators);
-                lowerCaseWords.shift();
-                // for some reason, the wordSeparators split the line in
-                // a way that the first word is an empty "".
-                // lowerCaseWords.shift() gets rid of that "".
-                lowerCaseLines.push(lowerCaseWords);
-                for (var k in words) {
-                  tempspan += '<span id="line' + i + 'word' + k + '">' +
-                              words[k] + ' </span>';
-                  spanArray.push([i, k, words[k].toLowerCase()]);
-                }
+  var player = videojs('discussion-video');
+  player.on('loadedmetadata', function () {
+    // var files = evt.target.files; // FileList object
+    // files is a FileList of File objects. List some properties.
+    var transcriptFile;
+    var fileTemp = $.ajax({
+      type: "GET", // can remove this to avoid confusion
+      url: "/receive_transcript_file", // change to send_trn_fil
+      // note: "send" from POV of client
+      dataType: "text"
+    }).done(function (data) {
+      captionArray = $.csv.toArrays(data);
+      var longestLineLength = 0; // num words in the longest line
+      for (var i in captionArray) {
+        if (captionArray[i][0].toLowerCase() !== "start time") {
+          var words = captionArray[i][3].split(wordSeparators);
+          if (words.length > longestLineLength) {
+            longestLineLength = words.length;
+          }
+          var lowerCaseWords = captionArray[i][3]
+                                 .toLowerCase()
+                                 .split(wordSeparators);
+          lowerCaseWords.shift();
+          // for some reason, the wordSeparators split the line in
+          // a way that the first word is an empty "".
+          // lowerCaseWords.shift() gets rid of that "".
+          lowerCaseLines.push(lowerCaseWords);
+          for (var k in words) {
+            tempspan += '<span id="line' + i + 'word' + k + '">' +
+                        words[k] + ' </span>';
+            spanArray.push([i, k, words[k].toLowerCase()]);
+          }
 
-                displayLines.push(
-                            '<ul style="padding-left:5px" id="line '
-                            + i +
-                            ' speaker ' + captionArray[i][2] + '">' +
-                            '<span style="color:#c3c3c3;' +
-                              'font-family:courier;' +
-                              'font-size:7pt">' +
-                            captionArray[i][0].split(".")[0] + " " +
-                            '</span>' +
-                            tempspan + '</ul>')
-                tempspan = "";
-              }
-            }
-            for (var j in displayLines) {
-              $("#transContent").append(displayLines[j]);
-            }
-            numLines = displayLines.length;
+          displayLines.push(
+                      '<ul style="padding-left:5px" id="line '
+                      + i +
+                      ' speaker ' + captionArray[i][2] + '">' +
+                      '<span style="color:#c3c3c3;' +
+                        'font-family:courier;' +
+                        'font-size:7pt">' +
+                      captionArray[i][0].split(".")[0] + " " +
+                      '</span>' +
+                      tempspan + '</ul>')
+          tempspan = "";
+        }
+      }
+      for (var j in displayLines) {
+        $("#transContent").append(displayLines[j]);
+      }
+      numLines = displayLines.length;
 
-            // This jQuery code below makes the transcript text annotable
-            // using the annotator library.
-            // The setupPlugins sets up annotator in the 'default' mode.
-            jQuery(function ($) {
-              $('#bottomright').annotator().annotator('setupPlugins');
-            });
+      // This jQuery code below makes the transcript text
+      // annotable using the annotator library.  The setupPlugins
+      // sets up annotator in the 'default' mode.
+      jQuery(function ($) {
+        $('#bottomright').annotator().annotator('setupPlugins');
+      });
 
-            player.ready(function () {
-              var videoLenSec = player.duration();
-              // representation of lines in transcript overall window
-              d3.select("#transGraph").selectAll("svg").remove();
-              var w = $('#transGraph').width();
-              var h = $('#transGraph').height() - 5;
-              var transSvg = d3.select("#transGraph").append("svg")
-                         .attr("width", w)
-                         .attr("height", h);
-              /*
-              transSvg.attr("width", w)
-              .attr("height", h);
-              */
+      player.ready(function () {
+        var videoLenSec = player.duration();
+        // representation of lines in transcript overall window
+        d3.select("#transGraph").selectAll("svg").remove();
+        var w = $('#transGraph').width();
+        var h = $('#transGraph').height() - 5;
+        var transSvg = d3.select("#transGraph").append("svg")
+                   .attr("width", w)
+                   .attr("height", h);
+        /*
+        transSvg.attr("width", w)
+        .attr("height", h);
+        */
 
-              var transcriptScale = d3.scale.linear()
-                                  .domain([0, Math.round(videoLenSec)])
-                                  .range([0, w]);
-              console.log(videoLenSec);
-              // var maxvalue = Math.max.apply(Math, tagFreq);
-              var transGraphPadding = 0;
-              var rects = transSvg.selectAll("rect")
-                       .data(lowerCaseLines)
-                       .enter()
-                       .append("rect")
-                       .attr("x", function (d, i) {
-                           // return i* (w/numLines);
-                           var xSec =
-                           hmsToSec(captionArray[i + 1][0]);
-                           var xloc = transcriptScale(xSec);
-                           return (xloc);
-                       })
-                       .attr("y", function (d) {
-                           return 0;
-                       })
-                       .attr("width", w / numLines - transGraphPadding)
-                       .attr("width", function (d, i) {
-                         var endSec = hmsToSec(captionArray[i + 1][1]);
-                         var startSec =
-                           hmsToSec(captionArray[i + 1][0]);
-                         var wScaled =
-                           transcriptScale(endSec - startSec);
-                         return wScaled;
-                       })
-                       .attr("height", function (d) {
-                         var lineRatio = d.length / longestLineLength;
-                         var boxHeight = lineRatio * h;
-                         return boxHeight;
-                       })
-                       .attr("stroke-width", 1)
-                       .attr("stroke", "rgba(255,255,255,1)")
-                       .attr("fill", function (d) {
-                           return transGraphColor;
-                       });
-              var halfWidth = (w / numLines - transGraphPadding) / 2;
-              // end representation of lines
-            }); // end player.ready()
+        var transcriptScale = d3.scale.linear()
+                            .domain([0, Math.round(videoLenSec)])
+                            .range([0, w]);
+        console.log(videoLenSec);
+        // var maxvalue = Math.max.apply(Math, tagFreq);
+        var transGraphPadding = 0;
+        var rects = transSvg.selectAll("rect")
+                 .data(lowerCaseLines)
+                 .enter()
+                 .append("rect")
+                 .attr("x", function (d, i) {
+                     // return i* (w/numLines);
+                     var xSec =
+                     hmsToSec(captionArray[i + 1][0]);
+                     var xloc = transcriptScale(xSec);
+                     return (xloc);
+                 })
+                 .attr("y", function (d) {
+                     return 0;
+                 })
+                 .attr("width", w / numLines - transGraphPadding)
+                 .attr("width", function (d, i) {
+                   var endSec = hmsToSec(captionArray[i + 1][1]);
+                   var startSec =
+                     hmsToSec(captionArray[i + 1][0]);
+                   var wScaled =
+                     transcriptScale(endSec - startSec);
+                   return wScaled;
+                 })
+                 .attr("height", function (d) {
+                   var lineRatio = d.length / longestLineLength;
+                   var boxHeight = lineRatio * h;
+                   return boxHeight;
+                 })
+                 .attr("stroke-width", 1)
+                 .attr("stroke", "rgba(255,255,255,1)")
+                 .attr("fill", function (d) {
+                     return transGraphColor;
+                 });
+        var halfWidth = (w / numLines - transGraphPadding) / 2;
+        // end representation of lines
+      }); // end player.ready()
 
+      $("#tagList").empty()
+      // $("#tagList").append(tagspans);
+      $("#tagList").append(makeWordList(lowerCaseLines));
+
+      /*
+      // bar chart of word frequencies, corresponds to taglist
+      d3.select("#barChart").selectAll("svg").remove();
+      var svg = d3.select("#barChart").append("svg");
+      var w = $('#barChart').width();
+      var h = $('#barChart').height();
+      svg.attr("width", w)
+      .attr("height", h);
+
+      var maxvalue = Math.max.apply(Math, tagFreq);
+      var barpadding = 1;                
+
+      var rects = svg.selectAll("rect")   
+      .data(tagFreq)       
+      .enter()             
+      .append("rect")
+      .attr("x", function(d,i) {
+      return i* (w/tagFreq.length);
+      })
+      .attr("y", function(d) {
+      return h - d*4;
+      })
+      .attr("rx", 1)
+      .attr("ry", 1)
+      .attr("width", w/tagFreq.length - barpadding)
+      .attr("height", function(d) {
+      return d*4;
+      })
+      .attr("fill", function(d) {
+      return "rgba(0, 120, 200, 1)";
+      });
+      */
+      // Remove tag on right click
+      var tagListDOM = $('#tagList');
+      tagListDOM.oncontextmenu = function () { return false; }
+      tagListDOM.on('mousedown', 'text', function (e) {
+        if (e.button == 2) {
+          var isRemoveTag = confirm("Remove tag: " +
+                              $(this).text() +
+                              " from list?");
+          if (isRemoveTag == true) {
+            var tagToRemove = $(this).text();
+            tagsToRemove.push(tagToRemove);
             $("#tagList").empty()
-            // $("#tagList").append(tagspans);
-            $("#tagList").append(makeWordList(lowerCaseLines));
+            $("#tagList").append(makeWordList(lowerCaseLines,
+                                              tagsToRemove));
+            // Finally remove all highlights from transcript
+            $("#transContent ul").removeClass('hoverHighlight');
+            $("#transContent ul").removeClass('boldText');
+          }
+        } 
+      }); // end function for remove tag on rightclick
 
-            /*
-            // bar chart of word frequencies, corresponds to taglist
-            d3.select("#barChart").selectAll("svg").remove();
-            var svg = d3.select("#barChart").append("svg");
-            var w = $('#barChart').width();
-            var h = $('#barChart').height();
-            svg.attr("width", w)
-            .attr("height", h);
+      //----------------------------------------------------------
+      // light highlighting on mouse enter
+      //----------------------------------------------------------
+      var tagHoverText = "";
+      tagListDOM.on('mouseenter', 'text', function () {
+        videoDuration = player.duration();
+        $(this).addClass('hoverHighlight');
+        tagHoverText = $.trim($(this).text());
+        var transItems = $("#transContent ul span:containsNC('"
+                        + tagHoverText + "')").closest("ul");
+        transItems.addClass('hoverHighlight');
+        $("#transContent ul span:containsNC('" + 
+          tagHoverText + "')").addClass('boldText');
 
-            var maxvalue = Math.max.apply(Math, tagFreq);
-            var barpadding = 1;                
+        //----------------------------------------------   
+        // Highlight corresponding items in transGraph
+        //----------------------------------------------   
+        var transItemIds = [];
+        transItems.each(function (index, value) {
+          var idIndex = $('#transContent').children('ul')
+                                          .index(this);
+          transItemIds.push(idIndex);
+          // change color of vertical text rep bars
+          var hiRects = $("#transGraph svg").children('rect');
+          d3.select(hiRects[idIndex])
+            .attr("fill", oldHighlighting);
+          var numLines = hiRects.length;
+        });
+        var timeSegArray = [];
+        //load corresponding times of highlighted ul items in a list
+        var ind = 0;
+        for (ind in transItemIds) {
+          var numInd = transItemIds[ind];
+          var startTime = hmsToSec(captionArray[numInd][0]);
+          var duration = hmsToSec(captionArray[numInd][1]) -
+                       startTime;
+          timeSegArray.push([startTime, duration]);
+        }
+      });
 
-            var rects = svg.selectAll("rect")   
-            .data(tagFreq)       
-            .enter()             
-            .append("rect")
-            .attr("x", function(d,i) {
-            return i* (w/tagFreq.length);
-            })
-            .attr("y", function(d) {
-            return h - d*4;
-            })
-            .attr("rx", 1)
-            .attr("ry", 1)
-            .attr("width", w/tagFreq.length - barpadding)
-            .attr("height", function(d) {
-            return d*4;
-            })
-            .attr("fill", function(d) {
-            return "rgba(0, 120, 200, 1)";
-            });
-            */
-            // Remove tag on right click
-            var tagListDOM = $('#tagList');
-            tagListDOM.oncontextmenu = function () { return false; }
-            tagListDOM.on('mousedown', 'text', function (e) {
-              if (e.button == 2) {
-                var isRemoveTag = confirm("Remove tag: " +
-                                    $(this).text() +
-                                    " from list?");
-                if (isRemoveTag == true) {
-                  var tagToRemove = $(this).text();
-                  tagsToRemove.push(tagToRemove);
-                  $("#tagList").empty()
-                  $("#tagList").append(makeWordList(lowerCaseLines,
-                                                    tagsToRemove));
-                  // Finally remove all highlights from transcript
-                  $("#transContent ul").removeClass('hoverHighlight');
-                  $("#transContent ul").removeClass('boldText');
-                }
-                else {
-                    return true;
-                }
-              } else {
-                  return true;
-              }
-            }); //end mousedown e function
-            // end function for remove tag on rightclick
+      //---------------------------------------------------------------   
+      // remove light highlighting on mouse leave
+      //---------------------------------------------------------------   
+      tagListDOM.on('mouseleave', 'text', function () {
+        $(this).removeClass('hoverHighlight');
+        $("#transContent ul span:containsNC('" + tagHoverText + "')")
+        .closest("ul").removeClass('hoverHighlight');
+        $("#transContent ul span:containsNC('" + tagHoverText + "')")
+        .removeClass('boldText');
+        d3.select("#transGraph").selectAll("svg")
+        .selectAll("rect")
+        .attr("fill", transGraphColor);
+      });
 
-            // Brushing and linking on Mouseover or Mouseclick
-            //---------------------------------------------------------------   
-            // Video seeking Code
-            //---------------------------------------------------------------   
-            var videoDuration = 0
-            player.ready(function () {
-                $('#transContent').on('click', 'ul', function (e) {
-                  if (e.ctrlKey) {
-                    var captionIndex = $('#transContent').children('ul')
-                                                         .index(this);
-                    var captionStartTimeMin = captionArray[captionIndex][0]
-                    captionStartTimeSec = hmsToSec(captionStartTimeMin);
-                    e.preventDefault();
-                    player.currentTime(captionStartTimeSec);
-                  }
-                });
-            });
-            //---------------------------------------------------------------   
+      //---------------------------------------------------------------   
+      // dark highlighting on mouse click
+      //---------------------------------------------------------------   
+      tagListDOM.on('click', 'text', function (e) {
+          // KB edits ----
+          if (e.ctrlKey) {
+              document.getElementById('concordance-view').style.visibility = 'visible';
+              console.log($(this).text());
+              //get concordance
+              var word = $(this).text();
+              var allConcordances = concordance(word);
+              console.log(allConcordances);
 
-            // interactions: hover, select etc. on text
-            var tagListDOM = $('#tagList');
-            var tagHoverText = "";
+              $('#concordance-view-content span').remove();
 
-            //---------------------------------------------------------------  
-            // light highlighting on mouse enter
-            //---------------------------------------------------------------   
-            tagListDOM.on('mouseenter', 'text', function () {
-              videoDuration = player.duration();
-              $(this).addClass('hoverHighlight');
-              tagHoverText = $(this).text();
-              var transItems = $("#transContent ul span:contains('"
-                              + tagHoverText + "')").closest("ul");
-              transItems.addClass('hoverHighlight');
-              $("#transContent ul span:contains('" + 
-                tagHoverText + "')").addClass('boldText');
+              $('#concordance-view-content br').remove();
+              //now add it to the interface
+              allConcordances.forEach(function (eachConcordance) {
+                  $('#concordance-view-content').append(eachConcordance + "<br/>");
+              });
+
+              // -------------
+          } else {
+              
+              $(this).parent().children('text')
+                      .removeClass('tagClickHighlight');
+              $(this).addClass('tagClickHighlight');
+
+              tagHoverText = $.trim($(this).text());
+              $('.textClickHighlight').removeClass('textClickHighlight');
+              $('.boldClickText').removeClass('boldClickText');
+              var transItems = $("#transContent ul span:containsNC('"
+                          + tagHoverText + "')").closest("ul");
+              transItems.addClass('textClickHighlight');
+              $("#transContent ul span:containsNC('" + tagHoverText + "')")
+          .addClass('boldClickText');
 
               //----------------------------------------------   
               // add bars of highlighted bits next to seekbar
               //----------------------------------------------   
-              var transItemIds = [];
+              var transItemIds = []
               transItems.each(function (index, value) {
-                var idIndex = $('#transContent').children('ul')
-                                                .index(this);
-                transItemIds.push(idIndex);
-                // change color of vertical text rep bars
-                var hiRects = $("#transGraph svg").children('rect');
-                d3.select(hiRects[idIndex])
-                  .attr("fill", oldHighlighting);
-                var numLines = hiRects.length;
-              });
+                  var idIndex = $('#transContent').children('ul').index(this);
+                  transItemIds.push(idIndex);
+                  // change color of vertical text rep bars
+                  var hiRects = $("#transGraph svg")
+                            .children('rect');
+                  d3.select(hiRects[idIndex])
+            .attr("fill", boldHighlightColor);
+              })
               var timeSegArray = [];
               //load corresponding times of highlighted ul items in a list
               var ind = 0;
               for (ind in transItemIds) {
-                var numInd = transItemIds[ind];
-                var startTime = hmsToSec(captionArray[numInd][0]);
-                var duration = hmsToSec(captionArray[numInd][1]) -
-                             startTime;
-                timeSegArray.push([startTime, duration]);
+                  var numInd = transItemIds[ind];
+                  var startTime = hmsToSec(captionArray[numInd][0]);
+                  var duration = hmsToSec(captionArray[numInd][1]) -
+                           startTime;
+                  timeSegArray.push([startTime, duration]);
               }
-            });
-
-            //---------------------------------------------------------------   
-            // remove light highlighting on mouse leave
-            //---------------------------------------------------------------   
-            tagListDOM.on('mouseleave', 'text', function () {
-              $(this).removeClass('hoverHighlight');
-              $("#transContent ul span:contains('" + tagHoverText + "')")
-              .closest("ul").removeClass('hoverHighlight');
-              $("#transContent ul span:contains('" + tagHoverText + "')")
-              .removeClass('boldText');
-              d3.select("#transGraph").selectAll("svg")
-              .selectAll("rect")
-              .attr("fill", transGraphColor);
-            });
-
-            //---------------------------------------------------------------   
-            // dark highlighting on mouse click
-            //---------------------------------------------------------------   
-            tagListDOM.on('click', 'text', function (e) {
-                
-                // KB edits ----
-                if (e.ctrlKey) {
-                    document.getElementById('concordance-view').style.visibility = 'visible';
-                    console.log($(this).text());
-                    //get concordance
-                    var word = $(this).text();
-                    var allConcordances = concordance(word);
-                    console.log(allConcordances);
-
-                    $('#concordance-view-content span').remove();
-
-                    $('#concordance-view-content br').remove();
-                    //now add it to the interface
-                    allConcordances.forEach(function (eachConcordance) {
-                        $('#concordance-view-content').append(eachConcordance + "<br/>");
-                    });
-
-                    // -------------
-                } else {
-                    
-                    $(this).parent().children('text')
-                            .removeClass('tagClickHighlight');
-                    $(this).addClass('tagClickHighlight');
-
-                    tagHoverText = $(this).text();
-                    $('.textClickHighlight').removeClass('textClickHighlight');
-                    $('.boldClickText').removeClass('boldClickText');
-                    var transItems = $("#transContent ul span:contains('"
-                                + tagHoverText + "')").closest("ul");
-                    transItems.addClass('textClickHighlight');
-                    $("#transContent ul span:contains('" + tagHoverText + "')")
-                .addClass('boldClickText');
-
-                    //----------------------------------------------   
-                    // add bars of highlighted bits next to seekbar
-                    //----------------------------------------------   
-                    var transItemIds = []
-                    transItems.each(function (index, value) {
-                        var idIndex = $('#transContent').children('ul').index(this);
-                        transItemIds.push(idIndex);
-                        // change color of vertical text rep bars
-                        var hiRects = $("#transGraph svg")
-                                  .children('rect');
-                        d3.select(hiRects[idIndex])
-                  .attr("fill", boldHighlightColor);
-                    })
-                    var timeSegArray = [];
-                    //load corresponding times of highlighted ul items in a list
-                    var ind = 0;
-                    for (ind in transItemIds) {
-                        var numInd = transItemIds[ind];
-                        var startTime = hmsToSec(captionArray[numInd][0]);
-                        var duration = hmsToSec(captionArray[numInd][1]) -
-                                 startTime;
-                        timeSegArray.push([startTime, duration]);
-                    }
-                }
-            });
-
-            //---------------------------------------------------------------   
-            // light gray highlighting on mouseover for transcript
-            //---------------------------------------------------------------   
-            $('#transContent').on('mouseenter', 'ul', function () {
-                $(this).addClass('transHighlight');
-                //----------------------------------------------   
-                // add bars of highlighted bits next to seekbar
-                //----------------------------------------------   
-                var transItem = $(this);
-                var transItemIds = []
-                var idIndex = $('#transContent').children('ul').index(this);
-                transItemIds.push(idIndex);
-                // change color of vertical text rep bars
-                var hiRects = $("#transGraph svg")
-                              .children('rect');
-                d3.select(hiRects[idIndex])
-              .attr("fill", mildHighlightColor);
-                var timeSegArray = [];
-                //load corresponding times of highlighted ul items in a list
-                var ind = 0;
-                for (ind in transItemIds) {
-                    var numInd = transItemIds[ind];
-                    var startTime = hmsToSec(captionArray[numInd][0]);
-                    var duration = hmsToSec(captionArray[numInd][1]) -
-                                 startTime;
-                    timeSegArray.push([startTime, duration]);
-                }
-            }); // end light gray highlighting
-
-            // remove light highlighting on mouse leave
-            $('#transContent').on('mouseleave', 'ul', function () {
-                $(this).removeClass('transHighlight');
-                d3.select("#transGraph").selectAll("svg")
-                .selectAll("rect")
-                .attr("fill", transGraphColor);
-            }); // end remove light highlighting
-
-            // Allow interaction with seesoft-like visualization
-            $('#transGraph').on('mouseenter', 'svg rect', function () {
-                $(this).attr("fill", greenHighlight);
-                var transGraphIndex = $('#transGraph svg')
-                                  .children('rect').index(this);
-
-                // light highlighting of transcript
-                videoDuration = player.duration();
-                var transItem = $('#transContent').children('ul')
-                                            .eq(transGraphIndex);
-                transItem.addClass('hoverHighlight');
-                // note: 'eq' returns jquery object at index. 
-                // For DOM object at index use 'get'
-            }); // end of transGraph onmouseenter function.
-
-            $('#transGraph').on('mouseleave', 'svg rect', function () {
-                $(this).attr("fill", transGraphColor);
-
-                // remove light highlighting on mouse leave
-                $("#transContent ul").removeClass('hoverHighlight');
-            }); // end of transGraph onmouseleave function
-
-            // var player = videojs('discussion-video');
-            var videoDuration = 0
-            player.ready(function () {
-              $('#transGraph svg').on('click', 'rect', function (e) {
-                var transGraphIndex = $('#transGraph svg')
-                                        .children('rect')
-                                        .index(this);
-                var captionStartTimeMin = captionArray[transGraphIndex][0]
-                captionStartTimeSec = hmsToSec(captionStartTimeMin);
-                e.preventDefault();
-                player.currentTime(captionStartTimeSec);
-                // wavesurfer.seek(captionStartTimeSec/player.duration());
-                var transClickItem = $('#transContent')
-                                        .children('ul')
-                                        .eq(transGraphIndex);
-                transClickItem.addClass('hoverHighlight');
-                // this small snippet below to scroll the transcript to show
-                // the line corresponding to the item selected in transgraph
-                var topPos = $("#transContent").offset.top;
-                console.log(topPos);
-                transClickItem.scrollTo(topPos);
-              });
-            });
-
-            // toggle the size of the sketches div (pathViewer)
-            $("#sketchTitle").click(function () {
-                if ($("#sketches").hasClass('minimize')) {
-                    $("#sketches").animate({ height: "45%" }, 200)
-                      .removeClass('minimize');
-                } else {
-                    $("#sketches").animate({ height: 50 }, 200)
-                      .addClass('minimize');
-                }
-            });
-
-            // toggle the size of the protocolGraph div 
-            $("#protocolGraphTitle").click(function () {
-                if ($("#protocolGraph").hasClass('minimize')) {
-                    $("#protocolGraph").animate({ height: "45%" }, 200)
-                      .removeClass('minimize');
-                } else {
-                    $("#protocolGraph").animate({ height: 50 }, 200)
-                      .addClass('minimize');
-                }
-            });
-
-            // show Video Progress on the sketch and Protocol Divs
-            var vidPlayer = videojs("discussion-video");
-            vidPlayer.ready(function () {
-                var $sketchScrubberProgress = $("#sketchScrubber");
-                var $waveScrubberProgress = $("#waveScrubber");
-                var $protocolScrubberProgress = $("#protocolGraphScrubber");
-                vidPlayer.on('timeupdate', function (e) {
-                    var percent = this.currentTime() / this.duration();
-                    $sketchScrubberProgress.width((percent * 100) + "%");
-                    $waveScrubberProgress.width((percent * 100) + "%");
-                    $protocolScrubberProgress.width((percent * 100) + "%");
-                });
-            });
-
-            // Allow tabbed indenting on protocol textArea field
-            // Code snippet credit to
-            // jqueryrain.com/2012/09/indentation-in-textarea-using-jquery/
-            $('textArea').keydown(function (e) {
-                if (e.keyCode == 9) {
-                    e.preventDefault();
-                    var start = $(this).get(0).selectionStart;
-                    $(this).val($(this).val().substring(0, start) + "\t" +
-          $(this).val().substring($(this).get(0).selectionEnd));
-                    $(this).get(0).selectionStart = $(this).get(0).selectionEnd =
-            start + 1;
-                    $(this).focus();
-                    return false;
-                }
-            }); // end function for tabbed indenting
-
-            // On focus returning back to the "view" tab, 
-            // update text in that tab with whatever was entered in the
-            // protocol edit tab
-
-            $('ul.tabs li:first').on('click', function () {
-                if ($(this).hasClass('active')) {
-                    var pArray = document
-                  .getElementById('protocolTextArea')
-                  .value
-                  .split("\n");
-
-                    function removeTabs(pString) {
-                        return pString.split("\t")[pString.split("\t").length - 1];
-                    }
-
-                    // deleted code for array splitting
-                    // add new code that works, the old one didn't.
-
-                    // display the tree with some D3 code
-                    d3.select("#protoView").selectAll("svg").remove();
-                    var protoViewSvg = d3.select("#protoView")
-                                         .append("svg")
-                                         .attr("height", 400);
-                    var w = $('#protoView').width();
-                    var h = $('#protoView').height();
-
-                    var protoViewPadding = 5;
-                    var colorindex = -1;
-                    var tmp = -1;
-
-                    //protocolList = [];
-                    protocolColorList = [];
+          }
+      });
 
 
-                    //KB edits --------
+      //----------------------------------------------------------
+      // Video seeking Code
+      //----------------------------------------------------------
+      var videoDuration = 0
+      player.ready(function () {
+          $('#transContent').on('click', 'ul', function (e) {
+            if (e.ctrlKey) {
+              e.preventDefault();
+              var captionIndex = $('#transContent').children('ul')
+                                                   .index(this);
+              var captionStartTimeMin = 
+                captionArray[captionIndex][0];
+              captionStartTimeSec = hmsToSec(captionStartTimeMin);
+              player.currentTime(captionStartTimeSec);
+            }
+          });
+      });
+      //----------------------------------------------------------
+      // End of Video seeking Code
+      //----------------------------------------------------------
 
-                    //working with pArray directly
-                    //need to find difference to 
-                    //make sure the protocol are not completely rewritten 
+      //---------------------------------------------------------------   
+      // light gray highlighting on mouseover for transcript
+      //---------------------------------------------------------------   
+      
+      // Add highlighting on mouseenter
+      $('#transContent').on('mouseenter', 'ul', function () {
+          $(this).addClass('transHighlight');
+          //----------------------------------------------   
+          // add bars of highlighted bits next to seekbar
+          //----------------------------------------------   
+          var transItem = $(this);
+          var transItemIds = []
+          var idIndex = $('#transContent').children('ul').index(this);
+          transItemIds.push(idIndex);
+          // change color of vertical text rep bars
+          var hiRects = $("#transGraph svg")
+                        .children('rect');
+          d3.select(hiRects[idIndex])
+        .attr("fill", mildHighlightColor);
+          var timeSegArray = [];
+          //load corresponding times of highlighted ul items in a list
+          var ind = 0;
+          for (ind in transItemIds) {
+              var numInd = transItemIds[ind];
+              var startTime = hmsToSec(captionArray[numInd][0]);
+              var duration = hmsToSec(captionArray[numInd][1]) -
+                           startTime;
+              timeSegArray.push([startTime, duration]);
+          }
+      }); 
 
-                    //Structure of the protocol object
-                    // protocol1 : {color, level, parentName}
-                    // protocol2 : {color, level, parentName}
-                    // protocol3 : {color, level, parentName}
-                    // note that this is a linear buffer but the hierarchy is encoded in level variable
+      // remove highlighting on mouse leave
+      $('#transContent').on('mouseleave', 'ul', function () {
+          $(this).removeClass('transHighlight');
+          d3.select("#transGraph").selectAll("svg")
+          .selectAll("rect")
+          .attr("fill", transGraphColor);
+      }); 
 
-                    //read the protocols and levels into a list first 
+      //---------------------------------------------------------------   
+      // end of light gray highlighting on mouseover for transcript
+      //---------------------------------------------------------------   
 
-                    var newProtocolList = [];
-                    var parentName = "#ISROOT#";
-                    for (var i = 0; i < pArray.length; i++) {
-                        var d = pArray[i];
-                        var tabCount = d.split("\t").length;
-                        var protocolName = d.split("\t")[tabCount - 1];
-                        protocolName = protocolName.trim()
+      // Allow interaction with seesoft-like visualization
+      $('#transGraph').on('mouseenter', 'svg rect', function () {
+          $(this).attr("fill", greenHighlight);
+          var transGraphIndex = $('#transGraph svg')
+                            .children('rect').index(this);
 
-                        newProtocolList.push({
-                            protocolName: protocolName,
-                            level: tabCount,
-                            parentName: tabCount != 1 ? parentName : "#ISROOT#"
+          // light highlighting of transcript
+          videoDuration = player.duration();
+          var transItem = $('#transContent').children('ul')
+                                      .eq(transGraphIndex);
+          transItem.addClass('hoverHighlight');
+          // note: 'eq' returns jquery object at index. 
+          // For DOM object at index use 'get'
+      }); // end of transGraph onmouseenter function.
+
+      $('#transGraph').on('mouseleave', 'svg rect', function () {
+          $(this).attr("fill", transGraphColor);
+
+          // remove light highlighting on mouse leave
+          $("#transContent ul").removeClass('hoverHighlight');
+      }); // end of transGraph onmouseleave function
+
+      // var player = videojs('discussion-video');
+      var videoDuration = 0
+      player.ready(function () {
+        $('#transGraph svg').on('click', 'rect', function (e) {
+          var transGraphIndex = $('#transGraph svg')
+                                  .children('rect')
+                                  .index(this);
+          var captionStartTimeMin = captionArray[transGraphIndex][0]
+          captionStartTimeSec = hmsToSec(captionStartTimeMin);
+          e.preventDefault();
+          player.currentTime(captionStartTimeSec);
+          // wavesurfer.seek(captionStartTimeSec/player.duration());
+          var transClickItem = $('#transContent')
+                                  .children('ul')
+                                  .eq(transGraphIndex);
+          transClickItem.addClass('hoverHighlight');
+          // this small snippet below to scroll the transcript to show
+          // the line corresponding to the item selected in transgraph
+          var topPos = $("#transContent").offset.top;
+          console.log(topPos);
+          transClickItem.scrollTo(topPos);
+        });
+      });
+
+      // toggle the size of the sketches div (pathViewer)
+      $("#sketchTitle").click(function () {
+          if ($("#sketches").hasClass('minimize')) {
+              $("#sketches").animate({ height: "45%" }, 200)
+                .removeClass('minimize');
+          } else {
+              $("#sketches").animate({ height: 50 }, 200)
+                .addClass('minimize');
+          }
+      });
+
+      // toggle the size of the protocolGraph div 
+      $("#protocolGraphTitle").click(function () {
+          if ($("#protocolGraph").hasClass('minimize')) {
+              $("#protocolGraph").animate({ height: "45%" }, 200)
+                .removeClass('minimize');
+          } else {
+              $("#protocolGraph").animate({ height: 50 }, 200)
+                .addClass('minimize');
+          }
+      });
+
+      // show Video Progress on the sketch and Protocol Divs
+      var vidPlayer = videojs("discussion-video");
+      vidPlayer.ready(function () {
+          var $sketchScrubberProgress = $("#sketchScrubber");
+          var $waveScrubberProgress = $("#waveScrubber");
+          var $protocolScrubberProgress = $("#protocolGraphScrubber");
+          vidPlayer.on('timeupdate', function (e) {
+              var percent = this.currentTime() / this.duration();
+              $sketchScrubberProgress.width((percent * 100) + "%");
+              $waveScrubberProgress.width((percent * 100) + "%");
+              $protocolScrubberProgress.width((percent * 100) + "%");
+          });
+      });
+
+      // Allow tabbed indenting on protocol textArea field
+      // Code snippet credit to
+      // jqueryrain.com/2012/09/indentation-in-textarea-using-jquery/
+      $('textArea').keydown(function (e) {
+          if (e.keyCode == 9) {
+              e.preventDefault();
+              var start = $(this).get(0).selectionStart;
+              $(this).val($(this).val().substring(0, start) + "\t" +
+                $(this).val().substring($(this).get(0).selectionEnd));
+              $(this).get(0).selectionStart = $(this).get(0).selectionEnd =
+                start + 1;
+              $(this).focus();
+              return false;
+          }
+      }); // end function for tabbed indenting
+
+      // On focus returning back to the "view" tab, 
+      // update text in that tab with whatever was entered in the
+      // protocol edit tab
+
+      $('ul.tabs li:first').on('click', function () {
+          if ($(this).hasClass('active')) {
+              var pArray = document
+            .getElementById('protocolTextArea')
+            .value
+            .split("\n");
+
+              function removeTabs(pString) {
+                  return pString.split("\t")[pString.split("\t").length - 1];
+              }
+
+              // deleted code for array splitting
+              // add new code that works, the old one didn't.
+
+              // display the tree with some D3 code
+              d3.select("#protoView").selectAll("svg").remove();
+              var protoViewSvg = d3.select("#protoView")
+                                   .append("svg")
+                                   .attr("height", 400);
+              var w = $('#protoView').width();
+              var h = $('#protoView').height();
+
+              var protoViewPadding = 5;
+              var colorindex = -1;
+              var tmp = -1;
+
+              //protocolList = [];
+              protocolColorList = [];
+
+
+              //KB edits --------
+
+              //working with pArray directly
+              //need to find difference to 
+              //make sure the protocol are not completely rewritten 
+
+              //Structure of the protocol object
+              // protocol1 : {color, level, parentName}
+              // protocol2 : {color, level, parentName}
+              // protocol3 : {color, level, parentName}
+              // note that this is a linear buffer but the hierarchy is encoded in level variable
+
+              //read the protocols and levels into a list first 
+
+              var newProtocolList = [];
+              var parentName = "#ISROOT#";
+              for (var i = 0; i < pArray.length; i++) {
+                  var d = pArray[i];
+                  var tabCount = d.split("\t").length;
+                  var protocolName = d.split("\t")[tabCount - 1];
+                  protocolName = protocolName.trim()
+
+                  newProtocolList.push({
+                      protocolName: protocolName,
+                      level: tabCount,
+                      parentName: tabCount != 1 ? parentName : "#ISROOT#"
+                  });
+
+                  parentName = protocolName;
+              }
+
+              // check with the old protocolObject and change the protocolObject accordingly
+              var protocolKeyList = Object.keys(protocolObject);
+              for (var j = 0; j < protocolKeyList.length; j++) {
+                  protocolObject[protocolKeyList[j]].deleted = true;
+              }
+
+              for (var i = 0; i < newProtocolList.length; i++) {
+                  var protocolName = newProtocolList[i].protocolName;
+                  var level = newProtocolList[i].level;
+                  var parentName = newProtocolList[i].parentName;
+
+                  var presenceCounter = 0;
+
+                  //check the position of this protocol in the oldList 
+                  for (var j = 0; j < protocolKeyList.length; j++) {
+                      var tempProtocolName = protocolKeyList[j];
+                      var templevel = protocolObject[protocolKeyList[j]].level;
+                      var tempParentName = protocolObject[protocolKeyList[j]].parentName;
+
+                      //set the delete flag
+
+                      if (tempProtocolName == protocolName) {
+                          if (templevel == level) {
+                              if (tempParentName == parentName) {
+
+                                  //found the protocol .. now unsetting the delete flag                            
+                                  protocolObject[tempProtocolName].deleted = false;
+                                  break;
+                              } else {
+
+                                  //renaming the parent name will just work
+                                  protocolObject[tempProtocolName].parentName = parentName;
+                                  protocolObject[tempProtocolName].deleted = false;
+                                  break;
+                              }
+                          } else {
+
+                              //changing the level
+                              protocolObject[tempProtocolName].level = level;
+                              protocolObject[tempProtocolName].deleted = false;
+
+                              if (tempParentName != parentName) {
+                                  //renaming the parent name will just work
+                                  protocolObject[tempProtocolName].parentName = parentName;
+                              }
+
+                              break;
+                          }
+                      } else {
+                          if (presenceCounter == protocolKeyList.length - 1) {
+
+                              //means the protocol is NEW!
+                              var color = getColor();
+
+                              //if (level != 1) {
+                              //    color = "";
+                              //}
+
+                              protocolObject[protocolName] = {
+                                  color: color,
+                                  level: level,
+                                  parentName: parentName,
+                                  deleted: false,
+                                  hasChildren: false
+                              };
+                          }
+                          presenceCounter++;
+                      }
+                  }
+
+                  //What if the protocolObject is empty -- ie., there is no previous protocolList!
+                  if (protocolKeyList.length == 0) {
+                      //add each protocol in the protocol list to the protocolObject
+                      //means the protocol is NEW!
+                      var color = getColor();
+
+                      //if (level != 1) {
+                      //    color = "";
+                      //}
+                      protocolObject[protocolName] = {
+                          color: color,
+                          level: level,
+                          parentName: parentName,
+                          deleted: false,
+                          hasChildren: false
+                      };
+                  }
+              }
+
+              //Now handle the deleted nodes? - not worrying about it now
+
+              //D3 code for the tree!
+              protocolList = depthFirstTraversalProtocolTree();
+              protoViewSvg.selectAll("g").remove();
+
+              var protoRect = protoViewSvg.selectAll("g")
+                        .data(protocolList)
+                        .enter().append("g")
+                        .attr("transform", function (d, i) {
+                            var indents = protocolObject[d].level;
+                            var yline = i * 16 +
+                                      10 +
+                                      protoViewPadding;
+
+                            return "translate(" +
+                                  indents * 10 + "," +
+                                  yline + ")";
+
                         });
 
-                        parentName = protocolName;
-                    }
+              protoRect.append("rect")
+             .attr("width", 15)
+             .attr("height", 15)
+             .attr("stroke-width", 1)
+             .attr("fill", function (d, i) {
+                 var indents = protocolObject[d].level;
+                 var color = protocolObject[d].color;
+                 //if (protocolObject[d].hasChildren) {
+                 //    color = color + (0).toString() + ")";
+                 //} else {
+                 color = color + (0.5).toString() + ")";
+                 //}
+                 protocolColorList.push(color);
+                 return color;
+             })
+             .attr("stroke", transGraphColor);
 
-                    // check with the old protocolObject and change the protocolObject accordingly
-                    var protocolKeyList = Object.keys(protocolObject);
-                    for (var j = 0; j < protocolKeyList.length; j++) {
-                        protocolObject[protocolKeyList[j]].deleted = true;
-                    }
+              protoRect.append("text")
+             .attr("x", function (d, i) {
+                 protocolObject[d].level;
+             })
+             .attr("y", function (d, i) {
+                 return i + 7;
+             })
+             .attr("dx", "2em")
+             .text(function (d) {
+                 return d;
+             });
+          }
+          protocolList.push("unassign");
+          protocolColorList.push("rgba(255,255,255,0.1)");
+      }); // end function for updating protocols from entered text
 
-                    for (var i = 0; i < newProtocolList.length; i++) {
-                        var protocolName = newProtocolList[i].protocolName;
-                        var level = newProtocolList[i].level;
-                        var parentName = newProtocolList[i].parentName;
+      // Add total protocol distributions
+      $('ul.tabs li:eq(2)').on('click', function () {
+          // get the final list of assigned protocols
+          var protoTimeArray = [];
+          for (var i in protocolList) {
+              if (protocolList[i] != "unassign") {
+                  protoTimeArray.push([protocolList[i],
+                           protocolColorList[i],
+                           0]);
+              }
+          }
+          for (var pindex in protoTimeArray) {
+              for (var ind in selectedIndices) {
+                  if (protoTimeArray[pindex][0] == selectedIndices[ind][3]) {
+                      var timeInSecs = hmsToSeconds(selectedIndices[ind][2]) -
+                         hmsToSeconds(selectedIndices[ind][1])
+                      protoTimeArray[pindex][2] += timeInSecs;
+                  }
+              }
+          }
 
-                        var presenceCounter = 0;
+          var maxTime = 0;
+          for (var j in protoTimeArray) {
+              if (protoTimeArray[j][2] > maxTime) {
+                  maxTime = protoTimeArray[j][2];
+              }
+          }
+          var chartWidth = $("#totalProtocols").width() - 20;
+          var chartHeight = $("#totalProtocols").height();
 
-                        //check the position of this protocol in the oldList 
-                        for (var j = 0; j < protocolKeyList.length; j++) {
-                            var tempProtocolName = protocolKeyList[j];
-                            var templevel = protocolObject[protocolKeyList[j]].level;
-                            var tempParentName = protocolObject[protocolKeyList[j]].parentName;
+          d3.select("#totalProtocols").selectAll("svg").remove();
 
-                            //set the delete flag
+          var tSVG = d3.select("#totalProtocols")
+               .append("svg")
+               .attr("width", chartWidth)
+               .attr("height", chartHeight)
+               .append("g");
 
-                            if (tempProtocolName == protocolName) {
-                                if (templevel == level) {
-                                    if (tempParentName == parentName) {
+          var protos = d3.scale.ordinal()
+                 .domain(protocolList)
+                 .rangePoints([10, chartWidth - 10], 0);
 
-                                        //found the protocol .. now unsetting the delete flag                            
-                                        protocolObject[tempProtocolName].deleted = false;
-                                        break;
-                                    } else {
+          var xAxis = d3.svg.axis()
+                .scale(protos)
+                .orient("bottom");
 
-                                        //renaming the parent name will just work
-                                        protocolObject[tempProtocolName].parentName = parentName;
-                                        protocolObject[tempProtocolName].deleted = false;
-                                        break;
-                                    }
-                                } else {
+          tSVG.append("g")
+              .attr("class", "x axis")
+              .attr("transform", "translate(0," + (chartHeight + 5) + ")")
+              .call(xAxis)
+              .append("text")
+              .attr("class", "label")
+              .attr("x", chartWidth)
+              .attr("y", -6)
+              .style("text-anchor", "end")
+              .text("protocols");
 
-                                    //changing the level
-                                    protocolObject[tempProtocolName].level = level;
-                                    protocolObject[tempProtocolName].deleted = false;
+          tSVG.selectAll("rect")
+              .data(protoTimeArray)
+              .enter()
+              .append("rect")
+              .attr("x", function (d, i) {
+                  return i / protoTimeArray.length * chartWidth;
+              })
+              .attr("y", function (d, i) {
+                  return chartHeight - (d[2] / maxTime * chartHeight - 5);
+              })
+              .attr("width", chartWidth / protoTimeArray.length - 2)
+              .attr("height", function (d, i) {
+                  return (d[2] / maxTime * chartHeight) - 5;
+              })
+              .attr("fill", function (d, i) {
+                  return d[1];
+              });
+      });
 
-                                    if (tempParentName != parentName) {
-                                        //renaming the parent name will just work
-                                        protocolObject[tempProtocolName].parentName = parentName;
-                                    }
+      // code to assign protocol codes with selected text
+      $('#transContent').on('contextmenu', function (e) {
+          e.preventDefault();
+          var t = '';
+          if (window.getSelection) {
+              t = window.getSelection();
+          } else if (document.getSelection) {
+              t = document.getSelection();
+          } else if (document.selection) {
+              t = document.selection.createRange().text;
+          }
+          selectedText = String(t);
+          var menuItems = '<p> assign to code:</p>';
+          for (ind in protocolList) {
+              menuItems += '<ul id="' + protocolList[ind] + '">' +
+                protocolList[ind] + '</ul>';
+          }
+          
+          // The code below makes sure the context menu is fully
+          // visible and doesn't overflow the displayed extents of
+          // the page
+          var menuXpos, menuYpos;
+          var bottomRightTopOffset = $('#bottomright')
+                                       .offset().top;
+          var bottomRightLeftOffset = $('#bottomright')
+                                        .offset().left;
+          var bottomRightWidth = $('#bottomright').width();
+          var bottomRightHeight = $('#bottomright').height();
+          var contextMenuWidth = $('.contextmenu')
+                                    .html(menuItems)
+                                    .width();
+          var contextMenuHeight = $('.contextmenu')
+                                    .html(menuItems)
+                                    .height();
+          console.log(bottomRightLeftOffset +
+              bottomRightWidth / 2);
+          console.log("menu width = " +
+              contextMenuWidth);
+          if (pageXOffset + e.clientX <=
+              bottomRightLeftOffset + bottomRightWidth / 2) {
+              if (pageYOffset + e.clientY <=
+                  bottomRightTopOffset + bottomRightHeight / 2) {
+                  menuXpos = pageXOffset +
+                 e.clientX;
+                  menuYpos = pageYOffset +
+                 e.clientY;
+              } else {
+                  menuXpos = pageXOffset +
+                 e.clientX;
+                  menuYpos = pageYOffset +
+                 e.clientY -
+                 contextMenuHeight;
+              }
+          } else {
+              if (pageYOffset + e.clientY <= bottomRightTopOffset +
+                                             bottomRightHeight / 2) {
+                menuXpos = pageXOffset + e.clientX - contextMenuWidth;
+                menuYpos = pageYOffset + e.clientY;
+              } else {
+                menuXpos = pageXOffset + e.clientX - contextMenuWidth;
+                menuYpos = pageYOffset + e.clientY - contextMenuHeight;
+              }
+          }
+          $(".contextmenu").html(menuItems)
+             .css({
+                 "visibility": "visible",
+                 "left": menuXpos + "px",
+                 "top": menuYpos + "px",
+                 "background": "white",
+                 "border": "solid 1px #c2c2c2",
+                 "z-index": 100,
+                 "box-shadow": "3px 3px 5px 0px " + shadowGrey
+             });
+      });
+      // end of code for pop-up coding menu in transContent
 
-                                    break;
-                                }
-                            } else {
-                                if (presenceCounter == protocolKeyList.length - 1) {
+      selectedIndices = [];
+      // assign selected text to array under the clicked code
+      $(".contextmenu").on("click", "ul", function (evt) {
+          evt.stopPropagation(); // stops click from propagating to
+          // underlying div element.
 
-                                    //means the protocol is NEW!
-                                    var color = getColor();
+          if ($.contains(this, '#newCodeBtn')) {
+              console.log("you can add a code here.");
+              console.log($(this).has('button'));
+              $('#newCodeBtn').on('click', function () {
+                  // If the textbox has text in it, add it to the existing
+                  // codes.
+                  var addedCode = $('#newCode').val();
+                  if (addedCode != "") {
+                      protocolList.push(addedCode);
+                      addedCode = "";
+                  }
+              });
+          } else {
+              // Based on selection, capture from original csv first
+              var selectedArray = selectedText.split("\n");
+              for (var i in captionArray) {
+                  for (var j in selectedArray) {
+                      selectedLine = selectedArray[j];
+                      if ((selectedLine != "") &&
+            (captionArray[i][3].indexOf(selectedLine) > -1)) {
+                          if ($(this).text() == "unassign") {
+                              for (var ksel in selectedIndices) {
+                                  if (selectedIndices[ksel][4] == captionArray[i][3]) {
+                                      selectedIndices.splice(ksel, 1);
+                                  }
+                              }
+                          } else {
+                              selectedIndices.push([
+              i - 1, // compensate for 1st line of csv being header
+              captionArray[i][0], // start time
+              captionArray[i][1],  // end time
+              $(this).text(),
+              captionArray[i][3] + "\r"
+            ]);
+                          }
+                          var sendData = {};
+                          sendData.data = selectedIndices;
+                          $("#transContent ul:eq(" + (i - 1) + ")")
+              .css({ "background-color":
+                     protocolColorList[protocolList
+                          .indexOf($(this).text())]
+              });
+                      }
+                      break;
+                  }
+              }
+              $.post("/userlog", sendData, function (data, error) { });
+              // Note: the post request seems to take only JSON as data, but
+              // read documentation to see if this is always the case. --
+              // senthil
 
-                                    //if (level != 1) {
-                                    //    color = "";
-                                    //}
-
-                                    protocolObject[protocolName] = {
-                                        color: color,
-                                        level: level,
-                                        parentName: parentName,
-                                        deleted: false,
-                                        hasChildren: false
-                                    };
-                                }
-                                presenceCounter++;
-                            }
-                        }
-
-
-                        //What if the protocolObject is empty -- ie., there is no previous protocolList!
-                        if (protocolKeyList.length == 0) {
-                            //add each protocol in the protocol list to the protocolObject
-                            //means the protocol is NEW!
-                            var color = getColor();
-
-                            //if (level != 1) {
-                            //    color = "";
-                            //}
-                            protocolObject[protocolName] = {
-                                color: color,
-                                level: level,
-                                parentName: parentName,
-                                deleted: false,
-                                hasChildren: false
-
-                            };
-                        }
-                    }
-
-                    //Now handle the deleted nodes? - not worrying about it now
-
-                    //D3 code for the tree!
-                    protocolList = depthFirstTraversalProtocolTree();
-                    protoViewSvg.selectAll("g").remove();
-
-                    var protoRect = protoViewSvg.selectAll("g")
-                              .data(protocolList)
-                              .enter().append("g")
-                              .attr("transform", function (d, i) {
-                                  var indents = protocolObject[d].level;
-                                  var yline = i * 16 +
-                                            10 +
-                                            protoViewPadding;
-
-                                  return "translate(" +
-                                        indents * 10 + "," +
-                                        yline + ")";
-
-                              });
-
-                    protoRect.append("rect")
-                   .attr("width", 15)
-                   .attr("height", 15)
-                   .attr("stroke-width", 1)
-                   .attr("fill", function (d, i) {
-                       var indents = protocolObject[d].level;
-                       var color = protocolObject[d].color;
-                       //if (protocolObject[d].hasChildren) {
-                       //    color = color + (0).toString() + ")";
-                       //} else {
-                       color = color + (0.5).toString() + ")";
-                       //}
-                       protocolColorList.push(color);
-                       return color;
-                   })
-                   .attr("stroke", transGraphColor);
-
-                    protoRect.append("text")
-                   .attr("x", function (d, i) {
-                       protocolObject[d].level;
-                   })
-                   .attr("y", function (d, i) {
-                       return i + 7;
-                   })
-                   .attr("dx", "2em")
-                   .text(function (d) {
-                       return d;
-                   });
-                }
-                protocolList.push("unassign");
-                protocolColorList.push("rgba(255,255,255,0.1)");
-            }); // end function for updating protocols from entered text
-
-            // Add total protocol distributions
-            $('ul.tabs li:eq(2)').on('click', function () {
-                // get the final list of assigned protocols
-                var protoTimeArray = [];
-                for (var i in protocolList) {
-                    if (protocolList[i] != "unassign") {
-                        protoTimeArray.push([protocolList[i],
-                                 protocolColorList[i],
-                                 0]);
-                    }
-                }
-                for (var pindex in protoTimeArray) {
-                    for (var ind in selectedIndices) {
-                        if (protoTimeArray[pindex][0] == selectedIndices[ind][3]) {
-                            var timeInSecs = hmsToSeconds(selectedIndices[ind][2]) -
-                               hmsToSeconds(selectedIndices[ind][1])
-                            protoTimeArray[pindex][2] += timeInSecs;
-                        }
-                    }
-                }
-
-                var maxTime = 0;
-                for (var j in protoTimeArray) {
-                    if (protoTimeArray[j][2] > maxTime) {
-                        maxTime = protoTimeArray[j][2];
-                    }
-                }
-                var chartWidth = $("#totalProtocols").width() - 20;
-                var chartHeight = $("#totalProtocols").height();
-
-                d3.select("#totalProtocols").selectAll("svg").remove();
-
-                var tSVG = d3.select("#totalProtocols")
-                     .append("svg")
-                     .attr("width", chartWidth)
-                     .attr("height", chartHeight)
-                     .append("g");
-
-                var protos = d3.scale.ordinal()
-                       .domain(protocolList)
-                       .rangePoints([10, chartWidth - 10], 0);
-
-                var xAxis = d3.svg.axis()
-                      .scale(protos)
-                      .orient("bottom");
-
-                tSVG.append("g")
-            .attr("class", "x axis")
-            .attr("transform", "translate(0," + (chartHeight + 5) + ")")
-            .call(xAxis)
-          .append("text")
-            .attr("class", "label")
-            .attr("x", chartWidth)
-            .attr("y", -6)
-            .style("text-anchor", "end")
-            .text("protocols");
-
-                tSVG.selectAll("rect")
-            .data(protoTimeArray)
-            .enter()
-            .append("rect")
-            .attr("x", function (d, i) {
-                return i / protoTimeArray.length * chartWidth;
-            })
-            .attr("y", function (d, i) {
-                return chartHeight - (d[2] / maxTime * chartHeight - 5);
-            })
-            .attr("width", chartWidth / protoTimeArray.length - 2)
-            .attr("height", function (d, i) {
-                return (d[2] / maxTime * chartHeight) - 5;
-            })
-            .attr("fill", function (d, i) {
-                return d[1];
-            });
-            });
-
-            // code to assign protocol codes with selected text
-            $('#transContent').on('contextmenu', function (e) {
-                e.preventDefault();
-                var t = '';
-                if (window.getSelection) {
-                    t = window.getSelection();
-                } else if (document.getSelection) {
-                    t = document.getSelection();
-                } else if (document.selection) {
-                    t = document.selection.createRange().text;
-                }
-                selectedText = String(t);
-                var menuItems = '<p> assign to code:</p>';
-                for (ind in protocolList) {
-                    menuItems += '<ul id="' + protocolList[ind] + '">' +
-            protocolList[ind] + '</ul>';
-                }
-                
-                // The code below makes sure the context menu is fully visible
-                // and doesn't overflow the displayed extents of the page
-                var menuXpos, menuYpos;
-                var bottomRightTopOffset = $('#bottomright').offset().top;
-                var bottomRightLeftOffset = $('#bottomright').offset().left;
-                var bottomRightWidth = $('#bottomright').width();
-                var bottomRightHeight = $('#bottomright').height();
-                var contextMenuWidth = $('.contextmenu').html(menuItems)
-                                                .width();
-                var contextMenuHeight = $('.contextmenu').html(menuItems)
-                                                 .height();
-                console.log(bottomRightLeftOffset +
-                    bottomRightWidth / 2);
-                console.log("menu width = " +
-                    contextMenuWidth);
-                if (pageXOffset + e.clientX <=
-            bottomRightLeftOffset +
-            bottomRightWidth / 2) {
-                    if (pageYOffset + e.clientY <=
-              bottomRightTopOffset +
-              bottomRightHeight / 2) {
-                        menuXpos = pageXOffset +
-                       e.clientX;
-                        menuYpos = pageYOffset +
-                       e.clientY;
-                    } else {
-                        menuXpos = pageXOffset +
-                       e.clientX;
-                        menuYpos = pageYOffset +
-                       e.clientY -
-                       contextMenuHeight;
-                    }
-                } else {
-                    if (pageYOffset + e.clientY <=
-              bottomRightTopOffset +
-              bottomRightHeight / 2) {
-                        menuXpos = pageXOffset +
-                       e.clientX -
-                       contextMenuWidth;
-                        menuYpos = pageYOffset +
-                       e.clientY;
-                    } else {
-                        menuXpos = pageXOffset +
-                       e.clientX -
-                       contextMenuWidth;
-                        menuYpos = pageYOffset +
-                       e.clientY -
-                       contextMenuHeight;
-                    }
-                }
-                console.log("menu x pos = " + menuXpos +
-                    ", menu y pos = " + menuYpos);
-                console.log("mouseX = " + e.clientX + ", mouseY = " + e.clientY);
-                $(".contextmenu").html(menuItems)
-           .css({
-               "visibility": "visible",
-               "left": menuXpos + "px",
-               "top": menuYpos + "px",
-               "background": "white",
-               "border": "solid 1px #c2c2c2",
-               "z-index": 100,
-               "box-shadow": "3px 3px 5px 0px " + shadowGrey
-           });
-                console.log($(".contextmenu").html(menuItems).is(":visible"));
-            });
-            // end of code for pop-up coding menu in transContent
-
-            selectedIndices = [];
-            // assign selected text to array under the clicked code
-            $(".contextmenu").on("click", "ul", function (evt) {
-                evt.stopPropagation(); // stops click from propagating to
-                // underlying div element.
-
-                if ($.contains(this, '#newCodeBtn')) {
-                    console.log("you can add a code here.");
-                    console.log($(this).has('button'));
-                    $('#newCodeBtn').on('click', function () {
-                        // If the textbox has text in it, add it to the existing
-                        // codes.
-                        var addedCode = $('#newCode').val();
-                        if (addedCode != "") {
-                            protocolList.push(addedCode);
-                            addedCode = "";
-                        }
-                    });
-                } else {
-                    // Based on selection, capture from original csv first
-                    var selectedArray = selectedText.split("\n");
-                    for (var i in captionArray) {
-                        for (var j in selectedArray) {
-                            selectedLine = selectedArray[j];
-                            if ((selectedLine != "") &&
-                  (captionArray[i][3].indexOf(selectedLine) > -1)) {
-                                if ($(this).text() == "unassign") {
-                                    for (var ksel in selectedIndices) {
-                                        if (selectedIndices[ksel][4] == captionArray[i][3]) {
-                                            selectedIndices.splice(ksel, 1);
-                                        }
-                                    }
-                                } else {
-                                    selectedIndices.push([
-                    i - 1, // compensate for 1st line of csv being header
-                    captionArray[i][0], // start time
-                    captionArray[i][1],  // end time
-                    $(this).text(),
-                    captionArray[i][3] + "\r"
-                  ]);
-                                }
-                                var sendData = {};
-                                sendData.data = selectedIndices;
-                                $("#transContent ul:eq(" + (i - 1) + ")")
-                    .css({ "background-color":
-                           protocolColorList[protocolList
-                                .indexOf($(this).text())]
-                    });
-                            }
-                            break;
-                        }
-                    }
-                    $.post("/userlog", sendData, function (data, error) { });
-                    // Note: the post request seems to take only JSON as data, but
-                    // read documentation to see if this is always the case. --
-                    // senthil
-
-                    d3.select("#protocolGraphContent")
+              d3.select("#protocolGraphContent")
                 .selectAll("svg")
                 .remove();
-                    var protoGraphWidth = $('#protocolGraphContent').width();
-                    var protoGraphHeight = $('#protocolGraphContent').height();
-                    var protocolSVG = d3.select("#protocolGraphContent")
-                .append("svg")
-                .attr("width", protoGraphWidth)
-                .attr("height", protoGraphHeight);
+              var protoGraphWidth = $('#protocolGraphContent').width();
+              var protoGraphHeight = $('#protocolGraphContent').height();
+              var protocolSVG = d3.select("#protocolGraphContent")
+                                  .append("svg")
+                                  .attr("width", protoGraphWidth)
+                                  .attr("height", protoGraphHeight);
 
-                    var margin = { top: 5, right: 0, bottom: 5, left: 0 };
-                    var videoLenSec = player.duration();
+              var margin = { top: 5, right: 0, bottom: 5, left: 0 };
+              var videoLenSec = player.duration();
 
-                    var protoX = d3.scale.linear()
-                    .domain([0, videoLenSec])
-                    // convert to scale that adapts
-                    .range([0,
-                           protoGraphWidth -
-                             margin.left -
-                             margin.right]);
-                    var protoY = d3.scale.ordinal()
-                    .domain(protocolList) // convert ditto
-                    .rangePoints([margin.top,
-                                 protoGraphHeight - margin.bottom], 0);
-                    var proSpace = 10;
-                    var rects = protocolSVG.selectAll("rect")
-                       .data(selectedIndices)
-                       .enter()
-                       .append("rect")
-                       .attr("x", function (d, i) {
-                           var startTimeScaled = protoX(hmsToSec(d[1]));
-                           return startTimeScaled;
-                       })
-                       .attr("y", function (d) {
-                           var yloc =
-                            protocolList.indexOf(d[3]);
-                           return (yloc *
-                                  (protoGraphHeight - proSpace) /
-                                  (protocolList.length - 1)) + proSpace / 2;
-                       })
-                       .attr("width", function (d) {
-                           return protoX(hmsToSec(d[2]) -
-                                        hmsToSec(d[1]));
-                       })
-                       .attr("height", (protoGraphHeight - proSpace) /
-                                       (protocolList.length - 1))
-                       .attr("stroke-width", 1)
-                       .attr("stroke", "rgba(255,255,255,1)")
-                       .attr("fill", function (d) {
-                           return protocolColorList[protocolList
-                                    .indexOf(d[3])];
-                       });
-                    // then get rid of the context menu
-                    $('.contextmenu')
-                      .css({ "box-shadow": "none",
-                             "border": "none",
-                             "background": "none" })
-                      .empty();
-                }
-            }); // end of code that decides what happens when an item is
-            // clicked on the context menu
+              var protoX = d3.scale.linear()
+              .domain([0, videoLenSec])
+              // convert to scale that adapts
+              .range([0,
+                     protoGraphWidth -
+                       margin.left -
+                       margin.right]);
+              var protoY = d3.scale.ordinal()
+              .domain(protocolList) // convert ditto
+              .rangePoints([margin.top,
+                           protoGraphHeight - margin.bottom], 0);
+              var proSpace = 10;
+              var rects = protocolSVG.selectAll("rect")
+                 .data(selectedIndices)
+                 .enter()
+                 .append("rect")
+                 .attr("x", function (d, i) {
+                     var startTimeScaled = protoX(hmsToSec(d[1]));
+                     return startTimeScaled;
+                 })
+                 .attr("y", function (d) {
+                     var yloc =
+                      protocolList.indexOf(d[3]);
+                     return (yloc *
+                            (protoGraphHeight - proSpace) /
+                            (protocolList.length - 1)) + proSpace / 2;
+                 })
+                 .attr("width", function (d) {
+                     return protoX(hmsToSec(d[2]) -
+                                  hmsToSec(d[1]));
+                 })
+                 .attr("height", (protoGraphHeight - proSpace) /
+                                 (protocolList.length - 1))
+                 .attr("stroke-width", 1)
+                 .attr("stroke", "rgba(255,255,255,1)")
+                 .attr("fill", function (d) {
+                     return protocolColorList[protocolList
+                              .indexOf(d[3])];
+                 });
+              // then get rid of the context menu
+              $('.contextmenu')
+                .css({ "box-shadow": "none",
+                       "border": "none",
+                       "background": "none" })
+                .empty();
+          }
+      }); // end of code that decides what happens when an item is
+      // clicked on the context menu
 
-            // remove context menu when clicked elsewhere
-            $('#transContent').on('click', function () {
-                $('.contextmenu')
-                  .css({ "box-shadow": "none",
-                         "border": "none",
-                         "background": "none" })
-                  .empty();
-            });
-        }); // end of file ajax code
+      // remove context menu when clicked elsewhere
+      $('#transContent').on('click', function () {
+          $('.contextmenu')
+            .css({ "box-shadow": "none",
+                   "border": "none",
+                   "background": "none" })
+            .empty();
+      });
+    }); // end of file ajax code
 
         // Function to read in the log file
         var logFile;
@@ -1408,7 +1392,7 @@ window.onload = function () {
           d3.select(this).transition()
                          .attr("r", 12);
           var imagePath = '<img src="/images/sketches/' +
-                d[3] + '.png" height="500">'
+                d[3] + '.png" height="500">';
           tooltip.transition()
                .duration(200)
                .style("opacity", 1);
