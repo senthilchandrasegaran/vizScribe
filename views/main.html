@@ -59,7 +59,7 @@
 
       #topleft{
         float:left;
-        height: 70%;
+        height: 55%;
         width: 50%;
         background:White;
       }
@@ -71,11 +71,6 @@
         visibility: visible !important;
         opacity: 1 !important;
         transition-duration: 0s!important;
-      }
-      #audiodiv{
-        height: 10%;
-        width: 100%;
-        padding: 0px;
       }
       #timeline{
         height: 15%;
@@ -91,7 +86,7 @@
         overflow: hidden;
       }
       #transGraph{
-        height:50px;
+        height:40px;
         width:100%;
         background:#FFFFFF;
         overflow: hidden;
@@ -123,7 +118,7 @@
       }
       #bottomleft{
         float: left;
-        height: 30%;
+        height: 45%;
         width: 50%;
         background:#F5F5F5;
         // font-size:12px;
@@ -150,12 +145,18 @@
         background:#FFFFFF;
         overflow: hidden;
       }
+      #annotDiv{
+        height: 100%;
+        width: 100%;
+        float: left;
+        overflow: auto;
+      }
       #transContent{
         float: left;
-        height:100%;
+        height:585px;
         width:100%;
         background:#FFFFFF;
-        overflow: scroll;
+        overflow: auto;
         box-shadow: 0 0 10px 2px rgba(0,0,0,0.3) inset;
       }
       #protocolTitle{
@@ -217,7 +218,7 @@
         overflow: hidden;
       }
       #sketches{
-        height: 45%; 
+        height: 25%; 
         width: 100%; 
         overflow: hidden;
         border:1px solid;
@@ -269,12 +270,13 @@
         overflow: hidden;
       }
       #protocolGraph{
-        height: 45%; 
+        height: 50%; 
         width: 100%;
         overflow: hidden;
         border:1px solid;
         border-color: #C9C9C9;
         background: #FFFFFF;
+        overflow: auto
       }
       #protocolGraph.minimize {
         height: 50px;
@@ -429,7 +431,7 @@
         margin: auto;
         padding: 1em;
         width: 50%;
-        height: 100%;
+        height: 300px;
       }
       h1 {
         text-align: left;
@@ -464,6 +466,16 @@
         border-top: gray solid 1px;
         padding: 0 1em;
       }
+      .block{
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+      }
+      #protoView{
+        width: 100%;
+        height: 400px;
+        overflow: auto;
+      }
       #totalProtocols{
         width: 100%;
         height: 100%;
@@ -493,6 +505,7 @@
         visibility: hidden;
         font-family: 'Courier New';
         border: 1px solid gray;
+        overflow: auto;
       }
         
        #concordance-view-content {    
@@ -555,7 +568,7 @@
       <div id="tagList"></div>
     </div>
     <div id="topright">
-    <section class="wrapper" style="{width: 100%; height: 100%}">
+    <section class="wrapper">
       <h2>Codes</h2>
       <p>Define and Edit Codes<p>
       <ul class="tabs">
@@ -619,7 +632,9 @@
         </div>
     </div>
     <div id="transcriptDiv"> 
+        <div id="annotDiv">
         <div id="transContent"> </div>
+        </div>
     </div>
   </div> 
   <div id="contextmenu" class="contextmenu"> </div>
@@ -654,6 +669,7 @@
    <div id="concordance-view-content">
        </div>
   </div>   
+  <script type="text/javascript" src="javascripts/mainFunctions.js"></script>
   <script type="text/javascript" src="javascripts/main.js"></script>
 
 </body>
