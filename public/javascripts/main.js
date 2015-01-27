@@ -192,7 +192,6 @@ function concordance(word) {
     //take the captionArray and put in one string
     var allCaptions = "";
     var window = 60; 
-
     captionArray.forEach(function (caption) {
         allCaptions += caption[3] + " ";
     });
@@ -201,15 +200,31 @@ function concordance(word) {
     var indices = getIndicesOf(word, allCaptions, false);
 
     //Array of the concordances
-    var concordances = [];
+    var concordances = ["<table id='concTable'>"];
 
     for (var i = 0; i < indices.length; i++) {
         var index = indices[i];
-
         var left = index - window < 0 ? 0 : index - window;
-        var right = index + window + word.length > allCaptions.length - 1 ? allCaptions.length - 1 : index + window + word.length;
-        concordances.push("<span>" + allCaptions.substring(left, index - 1) + " <b>" + allCaptions.substring(index, index + word.length - 1) + "</b> " + allCaptions.substring(index + word.length, right) + "</span>");
+        var right = index + window + word.length > 
+                    allCaptions.length-1 ? 
+                    allCaptions.length-1 : index + window + word.length;
+        concordances.push("<tr>" + 
+                          "<td align='right'>" + 
+                          allCaptions.substring(left, index - 1) + 
+                          "</td>" +
+                          "<td width=2%></td>" +
+                          "<td align='center'><b>" + 
+                          allCaptions.substring(index, 
+                                                index+word.length-1) + 
+                          " </b></td>" +
+                          "<td width=2%></td>" +
+                          "<td align='left'>" +
+                          allCaptions.substring(index + word.length, 
+                                                right) + 
+                          "</td>" + 
+                          "</tr>");
     }
+    concordances.push("</table>")
     return concordances; 
 }
 
@@ -483,10 +498,7 @@ window.onload = function () {
               var word = $(this).text();
               var allConcordances = concordance(word);
               console.log(allConcordances);
-
-              $('#concordance-view-content span').remove();
-
-              $('#concordance-view-content br').remove();
+              $('#concordance-view-content').children().remove();
               //now add it to the interface
               allConcordances.forEach(function (eachConcordance) {
                   $('#concordance-view-content').append(eachConcordance + "<br/>");
