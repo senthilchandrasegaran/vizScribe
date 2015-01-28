@@ -52,61 +52,53 @@ var mildHighlightColor = "rgba(255, 127, 0, 0.8)";
 var wordCloudColor = "rgba(10, 100, 70, 0.7)";
 var shadowGrey = "rgba(123,123,123,0.7)";
 
+/*
 var colorlist = [ "rgba(228,26,28,",
                   "rgba(55,126,184,",
                   "rgba(77,175,74,",
                   "rgba(152,78,163,",
                   "rgba(255,127,0," ];
+*/
 
+// Note: the color list below is instantiated in reverse order in the
+// interface.
 var colorlistFull = [ 
-      "rgba(166,206,227,",
-      "rgba(31,120,180,",
-      "rgba(178,223,138,",
-      "rgba(51,160,44,",
-      "rgba(251,154,153,",
-      "rgba(227,26,28,",
-      "rgba(253,191,111,",
-      "rgba(255,127,0,",
-      "rgba(202,178,214,",
-      "rgba(106,61,154,",
-      "rgba(255,255,153,",
-      "rgba(177,89,40,",
-      "rgba(166,206,227,",
-      "rgba(31,120,180,",
-      "rgba(178,223,138,",
-      "rgba(51,160,44,",
-      "rgba(251,154,153,",
-      "rgba(227,26,28,",
-      "rgba(253,191,111,",
-      "rgba(255,127,0,",
-      "rgba(202,178,214,",
-      "rgba(106,61,154,",
-      "rgba(255,255,153,",
-      "rgba(177,89,40,",
-      "rgba(166,206,227,",
-      "rgba(31,120,180,",
-      "rgba(178,223,138,",
-      "rgba(51,160,44,",
-      "rgba(251,154,153,",
-      "rgba(227,26,28,",
-      "rgba(253,191,111,",
-      "rgba(255,127,0,",
-      "rgba(202,178,214,",
-      "rgba(106,61,154,",
-      "rgba(255,255,153,",
-      "rgba(177,89,40,",
-      "rgba(166,206,227,",
-      "rgba(31,120,180,",
-      "rgba(178,223,138,",
-      "rgba(51,160,44,",
-      "rgba(251,154,153,",
-      "rgba(227,26,28,",
-      "rgba(253,191,111,",
-      "rgba(255,127,0,",
-      "rgba(202,178,214,",
-      "rgba(106,61,154,",
-      "rgba(255,255,153,",
-      "rgba(177,89,40,"
+      'rgba(177,89,40,',
+      'rgba(255,255,153,',
+      'rgba(106,61,154,',
+      'rgba(202,178,214,',
+      'rgba(255,127,0,',
+      'rgba(253,191,111,',
+      'rgba(227,26,28,',
+      'rgba(251,154,153,',
+      'rgba(51,160,44,',
+      'rgba(178,223,138,',
+      'rgba(31,120,180,',
+      'rgba(166,206,227,',
+      'rgba(177,89,40,',      // color list duplicates from here on.
+      'rgba(255,255,153,',
+      'rgba(106,61,154,',
+      'rgba(202,178,214,',
+      'rgba(255,127,0,',
+      'rgba(253,191,111,',
+      'rgba(227,26,28,',
+      'rgba(251,154,153,',
+      'rgba(51,160,44,',
+      'rgba(178,223,138,',
+      'rgba(31,120,180,',
+      'rgba(166,206,227,',
+      'rgba(177,89,40,',
+      'rgba(255,255,153,',
+      'rgba(106,61,154,',
+      'rgba(202,178,214,',
+      'rgba(255,127,0,',
+      'rgba(253,191,111,',
+      'rgba(227,26,28,',
+      'rgba(251,154,153,',
+      'rgba(51,160,44,',
+      'rgba(178,223,138,',
+      'rgba(31,120,180,',
+      'rgba(166,206,227,'
     ];
 
 // When a new protocol is added
@@ -1005,6 +997,7 @@ window.onload = function () {
               t = document.selection.createRange().text;
           }
           selectedText = String(t);
+          console.log("selected text = " + selectedText);
           var menuItems = '<p> assign to code:</p>';
           for (ind in protocolList) {
               menuItems += '<ul id="' + protocolList[ind] + '">' +
