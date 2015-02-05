@@ -115,6 +115,7 @@
         background:White;   
         font: 12px sans-serif;
         font-family:helvetica;
+        overflow: hidden;
       }
       #bottomleft{
         float: left;
@@ -153,11 +154,25 @@
       }
       #transContent{
         float: left;
-        height:585px;
+        height:100%;
         width:100%;
         background:#FFFFFF;
         overflow: auto;
         box-shadow: 0 0 10px 2px rgba(0,0,0,0.3) inset;
+        margin-bottom: 50px;
+      }
+      #transTable{
+        list-style: none;
+        list-style-type: none;
+        padding-left: 0px;
+      }
+
+      *.unselectable {
+         -moz-user-select: -moz-none;
+         -khtml-user-select: none;
+         -webkit-user-select: none;
+         -ms-user-select: none;
+         user-select: none;
       }
       #protocolTitle{
         height: 8%;
@@ -277,6 +292,9 @@
         border-color: #C9C9C9;
         background: #FFFFFF;
         overflow: auto
+      }
+      #protocolGraph::-webkit-scrollbar { 
+        display: none; 
       }
       #protocolGraph.minimize {
         height: 50px;
@@ -634,7 +652,9 @@
     </div>
     <div id="transcriptDiv"> 
         <div id="annotDiv">
-        <div id="transContent"> </div>
+          <div id="transContent"> 
+            <table id="transTable"></table>
+          </div>
         </div>
     </div>
   </div> 

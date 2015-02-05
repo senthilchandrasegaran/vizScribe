@@ -30,6 +30,7 @@ var protocolList = [];
 var protocolObject = {};
 var oldProtocolObject = {};
 var selectedText = '';
+var spanCollection = [];
 
 
 // this set of variables for path viewer
@@ -109,7 +110,7 @@ var getColor = function () {
 // When the protocol is deleted!
 var pushColor = function (color) {
     colorlistFull.push(color);
-}
+};
 
 var depthFirstTraversalProtocolTree = function () {
     var sortedList = [];
@@ -285,21 +286,22 @@ window.onload = function () {
             spanArray.push([i, k, words[k].toLowerCase()]);
           }
 
+          // this is the undo point!
           displayLines.push(
-                      '<ul style="padding-left:5px" id="line '
-                      + i +
-                      ' speaker ' + captionArray[i][2] + '">' +
-                      '<span style="color:#c3c3c3;' +
-                        'font-family:courier;' +
-                        'font-size:7pt">' +
-                      captionArray[i][0].split(".")[0] + " " +
-                      '</span>' +
-                      tempspan + '</ul>')
+             '<tr id="row' +i+ '">' +
+             '<td style="border: 1px solid rgba(200,200,200,0.8); '+
+             'color: rgba(100,100,100,0.5); ' +
+             'font-family:courier; font-size:7pt;"'+
+             'class="unselectable" id="time'+i+'">' + 
+              captionArray[i][0].split(".")[0] +  
+             '</td>' +
+             '<td id="line'+ i + '">' +
+              tempspan + '</td></tr>')
           tempspan = "";
         }
       }
       for (var j in displayLines) {
-        $("#transContent").append(displayLines[j]);
+        $("#transTable").append(displayLines[j]);
       }
       numLines = displayLines.length;
 
@@ -308,6 +310,9 @@ window.onload = function () {
       // sets up annotator in the 'default' mode.
       jQuery(function ($) {
         $('#bottomright').annotator().annotator('setupPlugins');
+        $('#transContent').height($('#bottomright').height()-80);
+        // the above line was added because the annotator-wrapper div
+        // seems to be overwriting the transContent height settings.
       });
 
       player.ready(function () {
@@ -327,7 +332,6 @@ window.onload = function () {
         var transcriptScale = d3.scale.linear()
                             .domain([0, Math.round(videoLenSec)])
                             .range([0, w]);
-        console.log(videoLenSec);
         // var maxvalue = Math.max.apply(Math, tagFreq);
         var transGraphPadding = 0;
         var rects = transSvg.selectAll("rect")
@@ -418,8 +422,8 @@ window.onload = function () {
             $("#tagList").append(makeWordList(lowerCaseLines,
                                               tagsToRemove));
             // Finally remove all highlights from transcript
-            $("#transContent ul").removeClass('hoverHighlight');
-            $("#transContent ul").removeClass('boldText');
+            $("#transTable").find("td").removeClass('hoverHighlight');
+            $("#transTable").find("span").removeClass('boldText');
           }
         } 
       }); // end function for remove tag on rightclick
@@ -432,10 +436,10 @@ window.onload = function () {
         videoDuration = player.duration();
         $(this).addClass('hoverHighlight');
         tagHoverText = $.trim($(this).text());
-        var transItems = $("#transContent ul span:containsNC('"
-                        + tagHoverText + "')").closest("ul");
+        var transItems = $("#transTable tr td span:containsNC('"
+                        + tagHoverText + "')").closest("td");
         transItems.addClass('hoverHighlight');
-        $("#transContent ul span:containsNC('" + 
+        $("#transTable tr td span:containsNC('" + 
           tagHoverText + "')").addClass('boldText');
 
         //----------------------------------------------   
@@ -443,8 +447,7 @@ window.onload = function () {
         //----------------------------------------------   
         var transItemIds = [];
         transItems.each(function (index, value) {
-          var idIndex = $('#transContent').children('ul')
-                                          .index(this);
+          var idIndex = value.rowIndex;
           transItemIds.push(idIndex);
           // change color of vertical text rep bars
           var hiRects = $("#transGraph svg").children('rect');
@@ -469,10 +472,14 @@ window.onload = function () {
       //---------------------------------------------------------------   
       tagListDOM.on('mouseleave', 'text', function () {
         $(this).removeClass('hoverHighlight');
-        $("#transContent ul span:containsNC('" + tagHoverText + "')")
-        .closest("ul").removeClass('hoverHighlight');
-        $("#transContent ul span:containsNC('" + tagHoverText + "')")
+        $("#transTable").find("td").removeClass('hoverHighlight');
+        $("#transTable").find("span").removeClass('boldText');
+        /*
+        $("#transContent ul li span:containsNC('" + tagHoverText + "')")
+        .closest("li").removeClass('hoverHighlight');
+        $("#transContent ul li span:containsNC('" + tagHoverText + "')")
         .removeClass('boldText');
+        */
         d3.select("#transGraph").selectAll("svg")
         .selectAll("rect")
         .attr("fill", transGraphColor);
@@ -485,11 +492,9 @@ window.onload = function () {
           // KB edits ----
           if (e.ctrlKey) {
               document.getElementById('concordance-view').style.visibility = 'visible';
-              console.log($(this).text());
               //get concordance
               var word = $(this).text();
               var allConcordances = concordance(word);
-              console.log(allConcordances);
               $('#concordance-view-content').children().remove();
               //now add it to the interface
               allConcordances.forEach(function (eachConcordance) {
@@ -506,18 +511,19 @@ window.onload = function () {
               tagHoverText = $.trim($(this).text());
               $('.textClickHighlight').removeClass('textClickHighlight');
               $('.boldClickText').removeClass('boldClickText');
-              var transItems = $("#transContent ul span:containsNC('"
-                          + tagHoverText + "')").closest("ul");
+              var transItems = $("#transTable tr td span:containsNC('"
+                              + tagHoverText + "')").closest("td");
               transItems.addClass('textClickHighlight');
-              $("#transContent ul span:containsNC('" + tagHoverText + "')")
-          .addClass('boldClickText');
+              $("#transTable tr td span:containsNC('" + 
+                tagHoverText + "')").addClass('boldClickText');
 
               //----------------------------------------------   
               // add bars of highlighted bits next to seekbar
               //----------------------------------------------   
               var transItemIds = []
               transItems.each(function (index, value) {
-                  var idIndex = $('#transContent').children('ul').index(this);
+                  // var idIndex = $('#transContent ul').children('li').index(this);
+                  var idIndex = value.rowIndex;
                   transItemIds.push(idIndex);
                   // change color of vertical text rep bars
                   var hiRects = $("#transGraph svg")
@@ -526,7 +532,7 @@ window.onload = function () {
             .attr("fill", boldHighlightColor);
               })
               var timeSegArray = [];
-              //load corresponding times of highlighted ul items in a list
+              //load corresponding times of highlighted li items in a list
               var ind = 0;
               for (ind in transItemIds) {
                   var numInd = transItemIds[ind];
@@ -544,11 +550,10 @@ window.onload = function () {
       //----------------------------------------------------------
       var videoDuration = 0
       player.ready(function () {
-          $('#transContent').on('click', 'ul', function (e) {
+          $('#transTable').on('click', 'tr', function (e) {
             if (e.ctrlKey) {
               e.preventDefault();
-              var captionIndex = $('#transContent').children('ul')
-                                                   .index(this);
+              var captionIndex = this.rowIndex;
               var captionStartTimeMin = 
                 captionArray[captionIndex][0];
               captionStartTimeSec = hmsToSec(captionStartTimeMin);
@@ -565,22 +570,21 @@ window.onload = function () {
       //---------------------------------------------------------------   
       
       // Add highlighting on mouseenter
-      $('#transContent').on('mouseenter', 'ul', function () {
-          $(this).addClass('transHighlight');
+      $('#transTable').on('mouseenter', 'tr', function () {
+          $(this).children().last().addClass('transHighlight');
           //----------------------------------------------   
           // add bars of highlighted bits next to seekbar
           //----------------------------------------------   
-          var transItem = $(this);
           var transItemIds = []
-          var idIndex = $('#transContent').children('ul').index(this);
+          var idIndex = this.rowIndex;
           transItemIds.push(idIndex);
           // change color of vertical text rep bars
           var hiRects = $("#transGraph svg")
-                        .children('rect');
+                          .children('rect');
           d3.select(hiRects[idIndex])
         .attr("fill", mildHighlightColor);
           var timeSegArray = [];
-          //load corresponding times of highlighted ul items in a list
+          //load corresponding times of highlighted li items in a list
           var ind = 0;
           for (ind in transItemIds) {
               var numInd = transItemIds[ind];
@@ -592,8 +596,8 @@ window.onload = function () {
       }); 
 
       // remove highlighting on mouse leave
-      $('#transContent').on('mouseleave', 'ul', function () {
-          $(this).removeClass('transHighlight');
+      $('#transTable').on('mouseleave', 'tr', function () {
+          $(this).children().removeClass('transHighlight');
           d3.select("#transGraph").selectAll("svg")
           .selectAll("rect")
           .attr("fill", transGraphColor);
@@ -611,8 +615,8 @@ window.onload = function () {
 
           // light highlighting of transcript
           videoDuration = player.duration();
-          var transItem = $('#transContent').children('ul')
-                                      .eq(transGraphIndex);
+          var transItem = $('#transTable tr').eq(transGraphIndex)
+                                             .children().last();
           transItem.addClass('hoverHighlight');
           // note: 'eq' returns jquery object at index. 
           // For DOM object at index use 'get'
@@ -622,7 +626,7 @@ window.onload = function () {
           $(this).attr("fill", transGraphColor);
 
           // remove light highlighting on mouse leave
-          $("#transContent ul").removeClass('hoverHighlight');
+          $("#transTable").find("td").removeClass('hoverHighlight');
       }); // end of transGraph onmouseleave function
 
       // var player = videojs('discussion-video');
@@ -637,14 +641,12 @@ window.onload = function () {
           e.preventDefault();
           player.currentTime(captionStartTimeSec);
           // wavesurfer.seek(captionStartTimeSec/player.duration());
-          var transClickItem = $('#transContent')
-                                  .children('ul')
-                                  .eq(transGraphIndex);
+          var transClickItem = $('#transTable tr').eq(transGraphIndex)
+                                                  .children().last();
           transClickItem.addClass('hoverHighlight');
           // this small snippet below to scroll the transcript to show
           // the line corresponding to the item selected in transgraph
-          var topPos = $("#transContent").offset.top;
-          console.log(topPos);
+          var topPos = $("#transTable").offset.top;
           transClickItem.scrollTo(topPos);
         });
       });
@@ -996,8 +998,12 @@ window.onload = function () {
           } else if (document.selection) {
               t = document.selection.createRange().text;
           }
+          var processedSelection = returnSpans(t);
+          spanCollection = processedSelection[0];
+          linesList = processedSelection[1];
+          orgSpanCollection = processedSelection[2];
+
           selectedText = String(t);
-          console.log("selected text = " + selectedText);
           var menuItems = '<p> assign to code:</p>';
           for (ind in protocolList) {
               menuItems += '<ul id="' + protocolList[ind] + '">' +
@@ -1020,10 +1026,6 @@ window.onload = function () {
           var contextMenuHeight = $('.contextmenu')
                                     .html(menuItems)
                                     .height();
-          console.log(bottomRightLeftOffset +
-              bottomRightWidth / 2);
-          console.log("menu width = " +
-              contextMenuWidth);
           if (pageXOffset + e.clientX <=
               bottomRightLeftOffset + bottomRightWidth / 2) {
               if (pageYOffset + e.clientY <=
@@ -1065,121 +1067,158 @@ window.onload = function () {
       selectedIndices = [];
       // assign selected text to array under the clicked code
       $(".contextmenu").on("click", "ul", function (evt) {
-          evt.stopPropagation(); // stops click from propagating to
-          // underlying div element.
+        evt.stopPropagation(); // stops click from propagating to
+        // underlying div element.
 
-          if ($.contains(this, '#newCodeBtn')) {
-              console.log("you can add a code here.");
-              console.log($(this).has('button'));
-              $('#newCodeBtn').on('click', function () {
-                  // If the textbox has text in it, add it to the existing
-                  // codes.
-                  var addedCode = $('#newCode').val();
-                  if (addedCode != "") {
-                      protocolList.push(addedCode);
-                      addedCode = "";
-                  }
-              });
-          } else {
-              // Based on selection, capture from original csv first
-              var selectedArray = selectedText.split("\n");
-              for (var i in captionArray) {
-                  for (var j in selectedArray) {
-                      selectedLine = selectedArray[j];
-                      if ((selectedLine != "") &&
-            (captionArray[i][3].indexOf(selectedLine) > -1)) {
-                          if ($(this).text() == "unassign") {
-                              for (var ksel in selectedIndices) {
-                                  if (selectedIndices[ksel][4] == captionArray[i][3]) {
-                                      selectedIndices.splice(ksel, 1);
-                                  }
-                              }
-                          } else {
-                              selectedIndices.push([
-              i - 1, // compensate for 1st line of csv being header
-              captionArray[i][0], // start time
-              captionArray[i][1],  // end time
-              $(this).text(),
-              captionArray[i][3] + "\r"
-            ]);
-                          }
-                          var sendData = {};
-                          sendData.data = selectedIndices;
-                          $("#transContent ul:eq(" + (i - 1) + ")")
-              .css({ "background-color":
-                     protocolColorList[protocolList
-                          .indexOf($(this).text())]
-              });
-                      }
-                      break;
-                  }
+        if ($.contains(this, '#newCodeBtn')) {
+          // this condition no longer needed, get rid of it
+          $('#newCodeBtn').on('click', function () {
+            // If the textbox has text in it, add it to the existing
+            // codes.
+            var addedCode = $('#newCode').val();
+            if (addedCode != "") {
+              protocolList.push(addedCode);
+              addedCode = "";
+            }
+          });
+        } else {
+          // Based on selection, capture from original csv first
+          var selectedArray = selectedText.split("\n");
+          for (var i in orgSpanCollection) {
+            var spansList = orgSpanCollection[i];
+            var lineIndex = Number(linesList[i].id.split("row")[1]);
+            if ($(this).text() == "unassign"){
+              for (var ksel in selectedIndices) {
+                var spanString = "";
+                for (var j in spansList){
+                  var tempSpan = $(spansList[j]);
+                  tempSpan.parent().children().css({
+                    "background-color":
+                     protocolColorList[
+                       protocolList.indexOf($(this).text())] });
+                  spanString += tempSpan.text();
+                }
+                if ((spanString
+                      .indexOf(selectedIndices[ksel][4]) > -1) ||
+                    (selectedIndices[ksel][4]
+                      .indexOf(spanString) > -1)){
+                  selectedIndices.splice(ksel, 1);
+                }
               }
-              $.post("/userlog", sendData, function (data, error) { });
-              // Note: the post request seems to take only JSON as data, but
-              // read documentation to see if this is always the case. --
-              // senthil
+            } else {
+              var spanString = "";
+              for (var j in spansList){
+                var tempSpan = $(spansList[j]);
+                spanString += tempSpan.text();
+                tempSpan.css({
+                  "background-color":
+                   protocolColorList[
+                     protocolList.indexOf($(this).text())] });
+              }
+              selectedIndices.push([lineIndex,
+                captionArray[lineIndex][0], // start time
+                captionArray[lineIndex][1], // start time
+                $(this).text(),
+                spanString + "\n" ]);
+            }
+            var sendData = {};
+            sendData.data = selectedIndices;
+          }
+          /*
+          for (var i in captionArray) {
+            for (var j in selectedArray) {
+              selectedLine = selectedArray[j];
+              if ((selectedLine != "") &&
+              (captionArray[i][3].indexOf(selectedLine) > -1)) {
+                if ($(this).text() == "unassign") {
+                  for (var ksel in selectedIndices) {
+                    if (selectedIndices[ksel][4] == captionArray[i][3]){
+                      selectedIndices.splice(ksel, 1);
+                    }
+                  }
+                } else {
+                  selectedIndices.push([
+                    i - 1, // compensate for 1st line of csv being header
+                    captionArray[i][0], // start time
+                    captionArray[i][1],  // end time
+                    $(this).text(),
+                    captionArray[i][3] + "\r"
+                  ]);
+                }
+                var sendData = {};
+                sendData.data = selectedIndices;
+                $("#transTable tr:eq(" + (i - 1) + ")")
+                  .css({ "background-color":
+                         protocolColorList[
+                           protocolList.indexOf($(this).text())]
+                       });
+              }
+              // break;
+            }
+          }
+          */
+          $.post("/userlog", sendData, function (data, error) { });
+          // Note: the post request seems to take only JSON as data, but
+          // read documentation to see if this is always the case. --
+          // senthil
 
-              d3.select("#protocolGraphContent")
-                .selectAll("svg")
-                .remove();
-              var protoGraphWidth = $('#protocolGraphContent').width();
-              var protoGraphHeight = $('#protocolGraphContent').height();
-              var protocolSVG = d3.select("#protocolGraphContent")
-                                  .append("svg")
-                                  .attr("width", protoGraphWidth)
-                                  .attr("height", protoGraphHeight);
+          d3.select("#protocolGraphContent")
+            .selectAll("svg")
+            .remove();
+          var protoGraphWidth = $('#protocolGraphContent').width();
+          var protoGraphHeight = $('#protocolGraphContent').height();
+          var protocolSVG = d3.select("#protocolGraphContent")
+                              .append("svg")
+                              .attr("width", protoGraphWidth)
+                              .attr("height", protoGraphHeight);
 
-              var margin = { top: 5, right: 0, bottom: 5, left: 0 };
-              var videoLenSec = player.duration();
+            var margin = { top: 5, right: 0, bottom: 5, left: 0 };
+            var videoLenSec = player.duration();
 
-              var protoX = d3.scale.linear()
+            var protoX = d3.scale.linear()
               .domain([0, videoLenSec])
               // convert to scale that adapts
-              .range([0,
-                     protoGraphWidth -
-                       margin.left -
-                       margin.right]);
-              var protoY = d3.scale.ordinal()
+              .range([0, protoGraphWidth-margin.left-margin.right]);
+            var protoY = d3.scale.ordinal()
               .domain(protocolList) // convert ditto
-              .rangePoints([margin.top,
+              .rangePoints([margin.top, 
                            protoGraphHeight - margin.bottom], 0);
-              var proSpace = 10;
-              var rects = protocolSVG.selectAll("rect")
-                 .data(selectedIndices)
-                 .enter()
-                 .append("rect")
-                 .attr("x", function (d, i) {
-                     var startTimeScaled = protoX(hmsToSec(d[1]));
-                     return startTimeScaled;
-                 })
-                 .attr("y", function (d) {
-                     var yloc =
-                      protocolList.indexOf(d[3]);
-                     return (yloc *
-                            (protoGraphHeight - proSpace) /
-                            (protocolList.length - 1)) + proSpace / 2;
-                 })
-                 .attr("width", function (d) {
-                     return protoX(hmsToSec(d[2]) -
-                                  hmsToSec(d[1]));
-                 })
-                 .attr("height", (protoGraphHeight - proSpace) /
-                                 (protocolList.length - 1))
-                 .attr("stroke-width", 1)
-                 .attr("stroke", "rgba(255,255,255,1)")
-                 .attr("fill", function (d) {
-                     return protocolColorList[protocolList
-                              .indexOf(d[3])];
-                 });
-              // then get rid of the context menu
-              $('.contextmenu')
-                .css({ "box-shadow": "none",
-                       "border": "none",
-                       "background": "none" })
-                .empty();
-          }
+            var proSpace = 10;
+            var rects = protocolSVG.selectAll("rect")
+              .data(selectedIndices)
+              .enter()
+              .append("rect")
+              .attr("x", function (d, i) {
+                var startTimeScaled = protoX(hmsToSec(d[1]));
+                return startTimeScaled;
+              })
+              .attr("y", function (d) {
+                var yloc =
+                protocolList.indexOf(d[3]);
+                return (yloc *
+                  (protoGraphHeight - proSpace) /
+                  (protocolList.length - 1)) + proSpace / 2;
+              })
+              .attr("width", function (d) {
+                return protoX(hmsToSec(d[2]) -
+                              hmsToSec(d[1]));
+              })
+              .attr("height", (protoGraphHeight - proSpace) /
+                              (protocolList.length - 1))
+              .attr("stroke-width", 1)
+              .attr("stroke", "rgba(255,255,255,1)")
+              .attr("fill", function (d) {
+                return protocolColorList[protocolList.indexOf(d[3])];
+              });
+          // then get rid of the context menu
+          $('.contextmenu')
+            .css({ "box-shadow": "none",
+                   "border": "none",
+                   "background": "none" })
+            .empty();
+        }
       }); // end of code that decides what happens when an item is
-      // clicked on the context menu
+          // clicked on the context menu
 
       // remove context menu when clicked elsewhere
       $('#transContent').on('click', function () {

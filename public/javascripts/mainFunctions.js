@@ -93,3 +93,51 @@ function makeWordList(lowerCaseLines, wordsToRemove) {
   return tagspans;
 }
 
+// Return a list of lines and spans from selected lines in transcript
+function returnSpans(selText){
+  var spanArray = [];
+  var spanLineArray = [];
+  var rangeObject = $(selText.getRangeAt(0)); 
+  var startSpan = rangeObject.attr("startContainer");
+  var endSpan = rangeObject.attr("endContainer");
+  var startLine = startSpan.parentNode.parentNode; // table row
+  var endLine = endSpan.parentNode.parentNode;
+  // collect all parent items in an array
+  var linesList = [];
+  var currentSpan = startSpan;
+  var currentLine = startLine;
+  if (currentSpan != null){
+    do {
+      // go through all the lines in the collection until the end
+      // of the selection is reached.
+      linesList.push(currentLine);
+      var lineEndSpan = currentLine.lastChild.lastChild;
+      var tempSpanLine = [];
+      do {
+        // In each line, go over all the spans until the end of
+        // the selection is reached.
+        spanArray.push(currentSpan);
+        tempSpanLine.push(currentSpan);
+        if (currentSpan == endSpan) {
+          break;
+        }
+        var prevSib = currentSpan;
+        currentSpan = currentSpan.nextSibling;
+        // Even if the last span of the current line is reached,
+        // the above process must be performed. So check for the
+        // "previous sibling" of the current span. If that is
+        // equal to the last span in the line, then break the
+        // loop.
+      } while (prevSib != lineEndSpan);
+      // create an organized array of spans, linewise
+      spanLineArray.push(tempSpanLine);
+      var prevLine = currentLine;
+      currentLine = currentLine.nextSibling;
+      var lineStartSpan = currentLine.lastChild.firstChild;
+      currentSpan = lineStartSpan;
+      // the same logic as above (with the previous sibling at the
+      // span-level) applies to the lines.
+    } while (prevLine != endLine);
+  }
+  return [spanArray, linesList, spanLineArray];
+}
