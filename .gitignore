@@ -5,5 +5,6 @@
 *.m4v
 *.zip
 *.gz
+*.swp
 
 node_modules/
