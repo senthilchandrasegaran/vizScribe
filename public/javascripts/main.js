@@ -375,38 +375,6 @@ window.onload = function () {
       // $("#tagList").append(tagspans);
       $("#tagList").append(makeWordList(lowerCaseLines));
 
-      /*
-      // bar chart of word frequencies, corresponds to taglist
-      d3.select("#barChart").selectAll("svg").remove();
-      var svg = d3.select("#barChart").append("svg");
-      var w = $('#barChart').width();
-      var h = $('#barChart').height();
-      svg.attr("width", w)
-      .attr("height", h);
-
-      var maxvalue = Math.max.apply(Math, tagFreq);
-      var barpadding = 1;                
-
-      var rects = svg.selectAll("rect")   
-      .data(tagFreq)       
-      .enter()             
-      .append("rect")
-      .attr("x", function(d,i) {
-      return i* (w/tagFreq.length);
-      })
-      .attr("y", function(d) {
-      return h - d*4;
-      })
-      .attr("rx", 1)
-      .attr("ry", 1)
-      .attr("width", w/tagFreq.length - barpadding)
-      .attr("height", function(d) {
-      return d*4;
-      })
-      .attr("fill", function(d) {
-      return "rgba(0, 120, 200, 1)";
-      });
-      */
       // Remove tag on right click
       var tagListDOM = $('#tagList');
       tagListDOM.oncontextmenu = function () { return false; }
@@ -418,7 +386,7 @@ window.onload = function () {
           if (isRemoveTag == true) {
             var tagToRemove = $(this).text();
             tagsToRemove.push(tagToRemove);
-            $("#tagList").empty()
+            $("#tagList").empty();
             $("#tagList").append(makeWordList(lowerCaseLines,
                                               tagsToRemove));
             // Finally remove all highlights from transcript
@@ -447,7 +415,7 @@ window.onload = function () {
         //----------------------------------------------   
         var transItemIds = [];
         transItems.each(function (index, value) {
-          var idIndex = value.rowIndex;
+          var idIndex = value.parentNode.rowIndex;
           transItemIds.push(idIndex);
           // change color of vertical text rep bars
           var hiRects = $("#transGraph svg").children('rect');
@@ -523,7 +491,7 @@ window.onload = function () {
               var transItemIds = []
               transItems.each(function (index, value) {
                   // var idIndex = $('#transContent ul').children('li').index(this);
-                  var idIndex = value.rowIndex;
+                  var idIndex = value.parentNode.rowIndex;
                   transItemIds.push(idIndex);
                   // change color of vertical text rep bars
                   var hiRects = $("#transGraph svg")
@@ -987,6 +955,34 @@ window.onload = function () {
               });
       });
 
+      // code to update word cloud based on user selection:
+      $('#transTable').on('mouseup', function (){
+        var t = '';
+        if (window.getSelection) {
+            t = window.getSelection();
+        } else if (document.getSelection) {
+            t = document.getSelection();
+        } else if (document.selection) {
+            t = document.selection.createRange().text;
+        }
+        selectedText = String(t);
+        if (selectedText.length > 0){
+          var rangeObject = $(t.getRangeAt(0)); 
+          var startSpan = rangeObject.attr("startContainer");
+          var endSpan = rangeObject.attr("endContainer");
+          var startLineID = startSpan.parentNode.parentNode.id; 
+          var endLineID = endSpan.parentNode.parentNode.id;          
+          var sliceStart = startLineID.split("line")[1] - 1; 
+          var sliceEnd = endLineID.split("line")[1]; 
+          var linesList = lowerCaseLines.slice(sliceStart, sliceEnd);
+          $("#tagList").empty();
+          $("#tagList").append(makeWordList(linesList, tagsToRemove));
+        } else {
+          $("#tagList").empty();
+          $("#tagList").append(makeWordList(lowerCaseLines, 
+                                            tagsToRemove));
+        }
+      });
       // code to assign protocol codes with selected text
       $('#transContent').on('contextmenu', function (e) {
           e.preventDefault();
@@ -1124,39 +1120,6 @@ window.onload = function () {
             var sendData = {};
             sendData.data = selectedIndices;
           }
-          /*
-          for (var i in captionArray) {
-            for (var j in selectedArray) {
-              selectedLine = selectedArray[j];
-              if ((selectedLine != "") &&
-              (captionArray[i][3].indexOf(selectedLine) > -1)) {
-                if ($(this).text() == "unassign") {
-                  for (var ksel in selectedIndices) {
-                    if (selectedIndices[ksel][4] == captionArray[i][3]){
-                      selectedIndices.splice(ksel, 1);
-                    }
-                  }
-                } else {
-                  selectedIndices.push([
-                    i - 1, // compensate for 1st line of csv being header
-                    captionArray[i][0], // start time
-                    captionArray[i][1],  // end time
-                    $(this).text(),
-                    captionArray[i][3] + "\r"
-                  ]);
-                }
-                var sendData = {};
-                sendData.data = selectedIndices;
-                $("#transTable tr:eq(" + (i - 1) + ")")
-                  .css({ "background-color":
-                         protocolColorList[
-                           protocolList.indexOf($(this).text())]
-                       });
-              }
-              // break;
-            }
-          }
-          */
           $.post("/userlog", sendData, function (data, error) { });
           // Note: the post request seems to take only JSON as data, but
           // read documentation to see if this is always the case. --
@@ -1429,14 +1392,19 @@ window.onload = function () {
           d3.select(this).transition()
                          .attr("r", 10);
           tooltip.transition()
-               .duration(500)
-               .style("opacity", 0);
+                     .duration(200)
+                     .style("opacity", 0);
       })
       .on("click", function (d, i) {
+          $('#imgPath-content').children().remove();
           d3.select(this).transition()
                          .attr("r", 12);
           var imagePath = '<img src="/images/sketches/' +
-                d[3] + '.png" height="500">';
+                d[3] + '.png" height="600">';
+          $("#imgPath-content").append(imagePath);
+          document.getElementById('imgPath').style.visibility =
+            'visible';
+          /*
           tooltip.transition()
                .duration(200)
                .style("opacity", 1);
@@ -1446,6 +1414,7 @@ window.onload = function () {
                .style('z-index', 600)
                .style("box-shadow",
                       "0px 3px 5px 5px" + shadowGrey);
+                      */
       });
 
       svgContent.selectAll("text")

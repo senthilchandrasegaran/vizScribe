@@ -539,20 +539,55 @@
       
         
       #concordance-close {
-            width: 25px;
-            height: 25px; 
-            float: right;
-            left: 99%;
-            top: 30px;
-            background-repeat: no-repeat;
-            background-image: url(images/close.png);
-            background-size: 25px 25px;
-            
-        }
+        width: 25px;
+        height: 25px; 
+        float: right;
+        left: 99%;
+        top: 30px;
+        background-repeat: no-repeat;
+        background-image: url(images/close.png);
+        background-size: 25px 25px;
+      }
         
-         #concordance-close:hover {
-            background-color: #9ecae1;
-        }
+      #concordance-close:hover {
+          background-color: #9ecae1;
+      }
+
+      #imgPath {    
+        left: 15%;
+        background: #FFFFFF;
+        margin: auto;
+        position: absolute;
+        top: 200px;
+        text-align: left;
+        visibility: hidden;
+        border: 1px solid gray;
+        box-shadow: 0 0 15px 8px rgba(0,0,0,0.4);
+        overflow: none;
+        z-index: 100;
+      }
+       #imgPath-content {    
+        background: #FFFFFF;
+        overflow-y: auto;
+        text-align: left;
+        font-size: 12px;
+        font-family: 'Courier New';
+        float: left;
+      }
+      #imgPath-close {
+        width: 25px;
+        height: 25px; 
+        float: right;
+        left: 99%;
+        top: 30px;
+        background-repeat: no-repeat;
+        background-image: url(images/close.png);
+        background-size: 25px 25px;
+      }
+        
+      #imgPath-close:hover {
+          background-color: #9ecae1;
+      }
         
 </style>
   <title>VizScribe</title>
@@ -690,6 +725,13 @@
    <div id="concordance-view-content">
        </div>
   </div>   
+  <div id="imgPath">
+    <div id="imgPath-close" 
+      onmousedown="document.getElementById('imgPath').style.visibility= 'hidden'">
+  </div>
+   <div id="imgPath-content">
+  </div>
+  </div>
   <script type="text/javascript" src="javascripts/mainFunctions.js"></script>
   <script type="text/javascript" src="javascripts/main.js"></script>
 
