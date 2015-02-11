@@ -1,3 +1,8 @@
+// VizScribe: A visual analytics tool for protocol analysis
+//    Code by: Senthil Chandrasegaran
+//             Sriram Karthik Badam
+///////////////////////////////////////////////////////////////
+
 // Extend the jquery "contains" selector to be case-insensitive. 
 // to call this, use ":containsNC" instead of ":contains"
 $.extend($.expr[":"], {
@@ -132,7 +137,9 @@ function returnSpans(selText){
       // create an organized array of spans, linewise
       spanLineArray.push(tempSpanLine);
       var prevLine = currentLine;
-      currentLine = currentLine.nextSibling;
+      if (currentLine != endLine){
+        currentLine = currentLine.nextSibling;
+      }
       var lineStartSpan = currentLine.lastChild.firstChild;
       currentSpan = lineStartSpan;
       // the same logic as above (with the previous sibling at the

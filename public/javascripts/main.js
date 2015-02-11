@@ -1103,18 +1103,24 @@ window.onload = function () {
               }
             } else {
               var spanString = "";
+              var spanIds = [];
               for (var j in spansList){
                 var tempSpan = $(spansList[j]);
                 spanString += tempSpan.text();
-                tempSpan.css({
-                  "background-color":
-                   protocolColorList[
-                     protocolList.indexOf($(this).text())] });
+                spanIds.push(tempSpan.attr("id"));
+                tempSpan
+                  .css({"background-color":
+                            protocolColorList[
+                            protocolList.indexOf($(this).text())]})
+                  .delay(1000)
+                  .animate({"background-color":
+                            "rgba(0,0,0,0)"}, 'slow');
               }
               selectedIndices.push([lineIndex,
                 captionArray[lineIndex][0], // start time
                 captionArray[lineIndex][1], // start time
                 $(this).text(),
+                spanIds,
                 spanString + "\n" ]);
             }
             var sendData = {};
@@ -1162,6 +1168,9 @@ window.onload = function () {
                   (protoGraphHeight - proSpace) /
                   (protocolList.length - 1)) + proSpace / 2;
               })
+              .attr("id", function (d) {
+                return (d[3]+"line"+d[0])
+              })
               .attr("width", function (d) {
                 return protoX(hmsToSec(d[2]) -
                               hmsToSec(d[1]));
@@ -1191,6 +1200,39 @@ window.onload = function () {
                    "background": "none" })
             .empty();
       });
+
+      // code for interacting with coded timeline view
+      $('#protocolGraphContent').on('mouseenter', 
+                                    'svg rect', 
+                                    function() {
+          var tempColor = $(this).attr("fill");
+          var rectId = parseInt($(this).attr("id").split("line")[1]);
+          var selCode = $(this).attr("id").split("line")[0];
+          var newArray = [];
+          var lineNums = [];
+          console.log(selectedIndices);
+          for (var ind in selectedIndices){
+            if (selectedIndices[ind][3] == selCode){
+              newArray.push(selectedIndices[ind]);
+              lineNums.push(selectedIndices[ind][0]);
+              if (selectedIndices[ind][0] == rectId){
+                var spanIdsList = selectedIndices[ind][4];
+                for (var si in spanIdsList){
+                  $("#"+spanIdsList[si]).css({"background-color":
+                                                     tempColor});
+                }
+              }
+            }
+          }
+      }); // end of protoGraph onmouseenter function.
+
+      $('#protocolGraphContent').on('mouseleave',
+                                    'svg rect',
+                                    function() {
+          $("#transTable").find("span")
+                          .css({"background-color":"rgba(0,0,0,0)"});
+      }); // end of protoGraph onmouseleave function
+
     }); // end of file ajax code
 
         // Function to read in the log file
