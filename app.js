@@ -110,15 +110,20 @@ io.sockets.on('connection', function (socket) {
                       {'Place': Files[Name]['FileSize']/ 524288, 
                        Percent: 100, 
                        'Name': Name  });
-              /* check if a zip file */
+          Files[Name]['Data'] = ""; //Reset The Buffer
+
+                /* check if a zip file */
           if (Name.indexOf(".zip") >= 0) {
             var zip = new admZip('public/video/' + Name);
             zip.extractAllTo("public/images/sketches", 
                              /*overwrite*/true);
           }
+
           socket.emit('Done', {'URL' : 'public/video/' + Name});
+
         });
-      } else if (Files[Name]['Data'].length > 10485760) { 
+
+      } else if (Files[Name]['Data'].length > 10485760) {
         //If the Data Buffer reaches 10MB
         fs.write(Files[Name]['Handler'], 
                  Files[Name]['Data'], null, 
@@ -132,6 +137,7 @@ io.sockets.on('connection', function (socket) {
                        'Percent': Percent, 
                        'Name': Name });
         });
+
       } else {
         var Place = Files[Name]['Downloaded'] / 524288;
         var Percent = (Files[Name]['Downloaded'] / 
