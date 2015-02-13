@@ -115,6 +115,7 @@
         background:White;   
         font: 12px sans-serif;
         font-family:helvetica;
+        overflow: hidden;
       }
       #bottomleft{
         float: left;
@@ -153,11 +154,25 @@
       }
       #transContent{
         float: left;
-        height:585px;
+        height:100%;
         width:100%;
         background:#FFFFFF;
         overflow: auto;
         box-shadow: 0 0 10px 2px rgba(0,0,0,0.3) inset;
+        margin-bottom: 50px;
+      }
+      #transTable{
+        list-style: none;
+        list-style-type: none;
+        padding-left: 0px;
+      }
+
+      *.unselectable {
+         -moz-user-select: -moz-none;
+         -khtml-user-select: none;
+         -webkit-user-select: none;
+         -ms-user-select: none;
+         user-select: none;
       }
       #protocolTitle{
         height: 8%;
@@ -277,6 +292,9 @@
         border-color: #C9C9C9;
         background: #FFFFFF;
         overflow: auto
+      }
+      #protocolGraph::-webkit-scrollbar { 
+        display: none; 
       }
       #protocolGraph.minimize {
         height: 50px;
@@ -496,7 +514,7 @@
         
       #concordance-view {    
         left: 12%;
-        background: #F5F5F5;
+        background: #FFFFFF;
         margin: auto;
         position: fixed;
         top: 200px;
@@ -505,11 +523,12 @@
         visibility: hidden;
         font-family: 'Courier New';
         border: 1px solid gray;
+        box-shadow: 0 0 15px 8px rgba(0,0,0,0.4);
         overflow: auto;
       }
         
        #concordance-view-content {    
-        background: #F5F5F5;
+        background: #FFFFFF;
         padding-top: 10px;
         padding-left: 10px;
         overflow-y: auto;
@@ -520,26 +539,62 @@
       
         
       #concordance-close {
-            width: 25px;
-            height: 25px; 
-            float: right;
-            left: 99%;
-            top: 30px;
-            background-repeat: no-repeat;
-            background-image: url(images/close.png);
-            background-size: 25px 25px;
-            
-        }
+        width: 25px;
+        height: 25px; 
+        float: right;
+        left: 99%;
+        top: 30px;
+        background-repeat: no-repeat;
+        background-image: url(images/close.png);
+        background-size: 25px 25px;
+      }
         
-         #concordance-close:hover {
-            background-color: #9ecae1;
-        }
+      #concordance-close:hover {
+          background-color: #9ecae1;
+      }
+
+      #imgPath {    
+        left: 15%;
+        background: #FFFFFF;
+        margin: auto;
+        position: absolute;
+        top: 200px;
+        text-align: left;
+        visibility: hidden;
+        border: 1px solid gray;
+        box-shadow: 0 0 15px 8px rgba(0,0,0,0.4);
+        overflow: none;
+        z-index: 100;
+      }
+       #imgPath-content {    
+        background: #FFFFFF;
+        overflow-y: auto;
+        text-align: left;
+        font-size: 12px;
+        font-family: 'Courier New';
+        float: left;
+      }
+      #imgPath-close {
+        width: 25px;
+        height: 25px; 
+        float: right;
+        left: 99%;
+        top: 30px;
+        background-repeat: no-repeat;
+        background-image: url(images/close.png);
+        background-size: 25px 25px;
+      }
+        
+      #imgPath-close:hover {
+          background-color: #9ecae1;
+      }
         
 </style>
   <title>VizScribe</title>
   <script src="javascripts/jquery.js"></script>
   <script src="javascripts/jquery.csv-0.71.min.js"></script>
   <script src="javascripts/jquery.scrollTo-min.js"></script>
+  <script src="javascripts/jquery-ui.min.js"></script>
   <script src="javascripts/byrei-dyndiv_1.0rc1.js"></script>
   <script src="javascripts/d3/d3.v3.js"></script>
   <!-- The annotator library at http://annotatorjs.org/ allows the
@@ -633,7 +688,9 @@
     </div>
     <div id="transcriptDiv"> 
         <div id="annotDiv">
-        <div id="transContent"> </div>
+          <div id="transContent"> 
+            <table id="transTable"></table>
+          </div>
         </div>
     </div>
   </div> 
@@ -669,6 +726,13 @@
    <div id="concordance-view-content">
        </div>
   </div>   
+  <div id="imgPath">
+    <div id="imgPath-close" 
+      onmousedown="document.getElementById('imgPath').style.visibility= 'hidden'">
+  </div>
+   <div id="imgPath-content">
+  </div>
+  </div>
   <script type="text/javascript" src="javascripts/mainFunctions.js"></script>
   <script type="text/javascript" src="javascripts/main.js"></script>
 
