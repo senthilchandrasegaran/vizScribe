@@ -16,6 +16,7 @@ var fs = require('fs'),
     exec = require('child_process').exec,
     util = require('util'),
     admZip = require('adm-zip');
+var PythonShell = require('python-shell');
 
 
 // all environments
@@ -268,6 +269,29 @@ app.post('/userlog', function (req, res){
   });
   // res.end();
 });
+
+var options = {
+  mode: 'text',
+  pythonOptions: ['-u'],
+  scriptPath: './public/pythonscripts/',
+};
+
+
+app.post('/infoContent', function (req, res){
+  // invoke this just once, and send all the data over to the client.
+  // This will make the code more responsive.
+  var pyShell = new PythonShell('infoContent.py', options)
+  pyShell.send(req.body.data);
+  pyShell.on('message', function(message){
+    res.send(200, {data: message});
+  });
+  pyShell.end(function(err){
+    if (err) throw err;
+  });
+});
+
+
+
 
 
 //http.createServer(app).listen(app.get('port'), function(){

@@ -20,7 +20,7 @@ $.extend($.expr[":"], {
 // words removed from the tagList. When this is passed to the
 // function, it removes these words from the list of unique words.
 // NOTE: Use the wordsToRemove to populate a div for the user.
-function makeWordList(lowerCaseLines, wordsToRemove) {
+function makeWordList(lowerCaseLines, wordsToRemove, sortMethod) {
 
 // list of stopwords from www.jasondavies.com
 // stop word removal code from the same source, but modified to suit
@@ -46,13 +46,26 @@ function makeWordList(lowerCaseLines, wordsToRemove) {
 
   // create an object array of type {word: frequency, word:
   // frequency,...}
-  var wordObj = [];
-  for (var i = 0, j = conceptList.length; i < j; i++) {
-    if (wordObj[conceptList[i]]) {
-        wordObj[conceptList[i]]++;
-    }
-    else {
-        wordObj[conceptList[i]] = 1;
+  var wordObj = {};
+  if (sortMethod == 'ic'){
+    //the method needs to be sorted based on information content
+    var sendList = {};
+    sendList.data = conceptList;
+    $.post("/infoContent", sendList, function (data, error) {
+      console.log(data.data);
+      for (var i in data.data) {
+            wordObj[data[i][0]] = data[i][1];
+      }
+    });
+  } else {
+  // if no method is specified, sort it based on frequency.
+    for (var i = 0, j = conceptList.length; i < j; i++) {
+      if (wordObj[conceptList[i]]) {
+          wordObj[conceptList[i]]++;
+      }
+      else {
+          wordObj[conceptList[i]] = 1;
+      }
     }
   }
   

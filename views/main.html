@@ -601,6 +601,7 @@
        creation of annotations, useful in our case for the analyst to
        annotate the transcript text -->
   <script src="javascripts/annotator-full.min.js"></script>
+  <script src="javascripts/fisheye.js"></script>
   <!-- Change URLs to wherever Video.js files will be hosted -->
   <link href="images/video/video-js.css" rel="stylesheet" type="text/css">
   <!-- video.js must be in the <head> for older IEs to work. -->
@@ -721,14 +722,17 @@
   </div>   
     
   <div id="concordance-view">
-  <div id="concordance-close" onmousedown="document.getElementById('concordance-view').style.visibility= 'hidden'">
+  <div id="concordance-close" 
+       onclick="document.getElementById('concordance-view')
+                        .style
+                        .visibility= 'hidden'">
   </div>
    <div id="concordance-view-content">
        </div>
   </div>   
   <div id="imgPath">
     <div id="imgPath-close" 
-      onmousedown="document.getElementById('imgPath').style.visibility= 'hidden'">
+      onclick="document.getElementById('imgPath').style.visibility= 'hidden'">
   </div>
    <div id="imgPath-content">
   </div>

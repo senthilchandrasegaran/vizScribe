@@ -31,6 +31,7 @@ var protocolObject = {};
 var oldProtocolObject = {};
 var selectedText = '';
 var spanCollection = [];
+var transGraphData = []; // data structure for transGraph display
 
 
 // this set of variables for path viewer
@@ -45,9 +46,9 @@ var selectedIndices = [];
 
 // list of colors used
 var oldHighlighting = "rgba(220, 138, 12, 0.3)";
-var greenHighlight = "rgba(232, 138, 12, 0.7)";
+var greenHighlight = "rgba(232, 138, 12, 1)";
 
-var transGraphColor = "rgba(123, 123, 123, 0.3)";
+var transGraphColor = "rgba(123, 123, 123, 0.2)";
 var boldHighlightColor = "rgba(255, 127, 0, 0.8)";
 var mildHighlightColor = "rgba(255, 127, 0, 0.8)";
 var wordCloudColor = "rgba(10, 100, 70, 0.7)";
@@ -65,10 +66,8 @@ var colorlist = [ "rgba(228,26,28,",
 // interface.
 var colorlistFull = [ 
       'rgba(177,89,40,',
-      'rgba(255,255,153,',
       'rgba(106,61,154,',
       'rgba(202,178,214,',
-      'rgba(255,127,0,',
       'rgba(253,191,111,',
       'rgba(227,26,28,',
       'rgba(251,154,153,',
@@ -77,10 +76,8 @@ var colorlistFull = [
       'rgba(31,120,180,',
       'rgba(166,206,227,',
       'rgba(177,89,40,',      // color list duplicates from here on.
-      'rgba(255,255,153,',
       'rgba(106,61,154,',
       'rgba(202,178,214,',
-      'rgba(255,127,0,',
       'rgba(253,191,111,',
       'rgba(227,26,28,',
       'rgba(251,154,153,',
@@ -89,10 +86,8 @@ var colorlistFull = [
       'rgba(31,120,180,',
       'rgba(166,206,227,',
       'rgba(177,89,40,',
-      'rgba(255,255,153,',
       'rgba(106,61,154,',
       'rgba(202,178,214,',
-      'rgba(255,127,0,',
       'rgba(253,191,111,',
       'rgba(227,26,28,',
       'rgba(251,154,153,',
@@ -267,7 +262,10 @@ window.onload = function () {
       captionArray = $.csv.toArrays(data);
       var longestLineLength = 0; // num words in the longest line
       for (var i in captionArray) {
-        if (captionArray[i][0].toLowerCase() !== "start time") {
+        if ((captionArray[i].length > 1) &&
+            (captionArray[i][0].toLowerCase() !== "start time")) {
+          var tempLine = captionArray[i][3];
+          console.log(tempLine);
           var words = captionArray[i][3].split(wordSeparators);
           if (words.length > longestLineLength) {
             longestLineLength = words.length;
@@ -334,40 +332,47 @@ window.onload = function () {
                             .range([0, w]);
         // var maxvalue = Math.max.apply(Math, tagFreq);
         var transGraphPadding = 0;
+        var scaleHeights = 0;
+        var constantWidth = 1;
+        for (i=0; i < lowerCaseLines.length; i++){
+          var d = {};
+          var xSec = hmsToSec(captionArray[i+1][0]);
+          var xloc = transcriptScale(xSec);
+          d.x = xloc;
+          d.y = 0;
+          if (constantWidth != 0){
+            d.width = 5;
+          } else {
+            var endSec = hmsToSec(captionArray[i + 1][1]);
+            var startSec = hmsToSec(captionArray[i + 1][0]);
+            d.width = transcriptScale(endSec - startSec);
+          }
+          if (scaleHeights == 0){
+            d.height = h;
+          } else {
+            // scales line height proportional to the number of
+            // words in the line, but it makes short utterances
+            // difficult to make out.
+            var lineRatio = d.length / longestLineLength;
+            d.height = lineRatio * h;
+          }
+          transGraphData.push(d);
+        }
+
         var rects = transSvg.selectAll("rect")
-                 .data(lowerCaseLines)
+                 .data(transGraphData)
                  .enter()
                  .append("rect")
-                 .attr("x", function (d, i) {
-                     // return i* (w/numLines);
-                     var xSec =
-                     hmsToSec(captionArray[i + 1][0]);
-                     var xloc = transcriptScale(xSec);
-                     return (xloc);
-                 })
-                 .attr("y", function (d) {
-                     return 0;
-                 })
-                 .attr("width", w / numLines - transGraphPadding)
-                 .attr("width", function (d, i) {
-                   var endSec = hmsToSec(captionArray[i + 1][1]);
-                   var startSec =
-                     hmsToSec(captionArray[i + 1][0]);
-                   var wScaled =
-                     transcriptScale(endSec - startSec);
-                   return wScaled;
-                 })
-                 .attr("height", function (d) {
-                   var lineRatio = d.length / longestLineLength;
-                   var boxHeight = lineRatio * h;
-                   return boxHeight;
-                 })
+                 .attr("x", function (d) { return d.x; })
+                 .attr("y", function (d) { return d.y; })
+                 .attr("width", function (d) { return d.width; })
+                 .attr("z", 1)
+                 .attr("height", function (d) { return d.height; })
                  .attr("stroke-width", 1)
                  .attr("stroke", "rgba(255,255,255,1)")
                  .attr("fill", function (d) {
                      return transGraphColor;
                  });
-        var halfWidth = (w / numLines - transGraphPadding) / 2;
         // end representation of lines
       }); // end player.ready()
 
@@ -576,8 +581,28 @@ window.onload = function () {
       //---------------------------------------------------------------   
 
       // Allow interaction with seesoft-like visualization
-      $('#transGraph').on('mouseenter', 'svg rect', function () {
+      $('#transGraph').find('svg').first()
+                      .on('mouseenter', 'rect', function () {
+          // implementing fisheye distortion
+          var localDistort = 1;
+          if (localDistort != 0){
+            var fisheyesvg = d3.select("#transGraph").selectAll("svg");
+            var frects = fisheyesvg.selectAll("rect");
+            var fisheye = d3.fisheye.circular()
+                            .radius(50)
+                            .distortion(20);
+            fisheyesvg.on("mousemove", function(){
+              fisheye.focus(d3.mouse(this));
+              frects.each(function(d){
+                        d.fisheye = fisheye(d);
+                     })
+                     .attr("x", function (d) {
+                       return d.fisheye.x;
+                     });
+            });
+          }
           $(this).attr("fill", greenHighlight);
+          $(this).attr("z", 50);
           var transGraphIndex = $('#transGraph svg')
                             .children('rect').index(this);
 
@@ -592,6 +617,7 @@ window.onload = function () {
 
       $('#transGraph').on('mouseleave', 'svg rect', function () {
           $(this).attr("fill", transGraphColor);
+          $(this).attr("z", 1);
 
           // remove light highlighting on mouse leave
           $("#transTable").find("td").removeClass('hoverHighlight');
@@ -614,8 +640,10 @@ window.onload = function () {
           transClickItem.addClass('hoverHighlight');
           // this small snippet below to scroll the transcript to show
           // the line corresponding to the item selected in transgraph
-          var topPos = $("#transTable").offset.top;
-          transClickItem.scrollTo(topPos);
+          var topPos = $(transClickItem).offset().top;
+          $('#transContent').scrollTo($(transClickItem),
+                                      {duration: 'slow',
+                                       transition: 'ease-in-out'});
         });
       });
 
@@ -834,6 +862,7 @@ window.onload = function () {
               var protoRect = protoViewSvg.selectAll("g")
                         .data(protocolList)
                         .enter().append("g")
+                        .attr("height", "15")
                         .attr("transform", function (d, i) {
                             var indents = protocolObject[d].level;
                             var yline = i * 16 +
@@ -853,26 +882,29 @@ window.onload = function () {
              .attr("fill", function (d, i) {
                  var indents = protocolObject[d].level;
                  var color = protocolObject[d].color;
-                 //if (protocolObject[d].hasChildren) {
-                 //    color = color + (0).toString() + ")";
-                 //} else {
                  color = color + (0.5).toString() + ")";
-                 //}
                  protocolColorList.push(color);
                  return color;
              })
-             .attr("stroke", transGraphColor);
+             .attr("stroke", "#ffffff");
 
               protoRect.append("text")
              .attr("x", function (d, i) {
                  protocolObject[d].level;
              })
              .attr("y", function (d, i) {
-                 return i + 7;
+                 return 10;
              })
              .attr("dx", "2em")
              .text(function (d) {
                  return d;
+             })
+             .style("background-color", function(d,i){
+                 var indents = protocolObject[d].level;
+                 var color = protocolObject[d].color;
+                 color = color + (0.5).toString() + ")";
+                 protocolColorList.push(color);
+                 return color;
              });
           }
           protocolList.push("unassign");

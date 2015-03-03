@@ -18,6 +18,7 @@
     "path": "*",
     "socket.io": "*", 
     "adm-zip": "*",
+    "python-shell": "*",
     "express-jwt" : "*"
   }
 }
