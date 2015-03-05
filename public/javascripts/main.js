@@ -356,9 +356,15 @@ window.onload = function () {
             var lineRatio = d.length / longestLineLength;
             d.height = lineRatio * h;
           }
+          d.dialog = captionArray[i+1][3];
           transGraphData.push(d);
         }
 
+        var tip = d3.tip()
+                    .attr('class', 'd3-tip')
+                    .direction('s')
+                    .html(function(d){return d.dialog;});
+        transSvg.call(tip);
         var rects = transSvg.selectAll("rect")
                  .data(transGraphData)
                  .enter()
@@ -372,7 +378,9 @@ window.onload = function () {
                  .attr("stroke", "rgba(255,255,255,1)")
                  .attr("fill", function (d) {
                      return transGraphColor;
-                 });
+                 })
+                 .on("mouseover", tip.show)
+                 .on("mouseout", tip.hide);
         // end representation of lines
       }); // end player.ready()
 

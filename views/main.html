@@ -588,6 +588,37 @@
       #imgPath-close:hover {
           background-color: #9ecae1;
       }
+
+      .d3-tip {
+        line-height: 1;
+        font-weight: bold;
+        padding: 12px;
+        background: rgba(0, 0, 0, 0.8);
+        color: #fff;
+        border-radius: 2px;
+        word-wrap: break-word;
+        max-width: 250px;
+      }
+
+      /* Creates a small triangle extender for the tooltip 
+      .d3-tip:before {
+        box-sizing: border-box;
+        display: inline;
+        font-size: 10px;
+        width: 100%;
+        line-height: 1;
+        color: rgba(0, 0, 0, 0.8);
+        content: "\25B2";
+        position: absolute;
+        text-align: center;
+      }
+
+      .d3-tip.n:after {
+        margin: -1px 0 0 0;
+        top: 100%;
+        left: 0;
+      }
+      */
         
 </style>
   <title>VizScribe</title>
@@ -597,6 +628,7 @@
   <script src="javascripts/jquery-ui.min.js"></script>
   <script src="javascripts/byrei-dyndiv_1.0rc1.js"></script>
   <script src="javascripts/d3/d3.v3.js"></script>
+  <script src="javascripts/d3.tooltip.js"></script>
   <!-- The annotator library at http://annotatorjs.org/ allows the
        creation of annotations, useful in our case for the analyst to
        annotate the transcript text -->
