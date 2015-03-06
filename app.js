@@ -229,7 +229,7 @@ app.get('/receive_log_file', function (req, res) {
     res.end()
 });
 
-app.get('/speechLog_file', function (req, res) {
+app.post('/speechLog_file', function (req, res) {
     var selectedURL = url.parse(req.url, true); //creates object
     var speechLogFileParams = selectedURL.query;
     console.log(speechLogFileParams.speechLogFile);
@@ -244,7 +244,7 @@ app.get('/receive_speechLog_file', function (req, res) {
     res.end()
 });
 
-app.get('/activityLog_file', function (req, res) {
+app.post('/activityLog_file', function (req, res) {
     var selectedURL = url.parse(req.url, true); //creates object
     var activityLogFileParams = selectedURL.query;
     console.log(activityLogFileParams.activityLogFile);

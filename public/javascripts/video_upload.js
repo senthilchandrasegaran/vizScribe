@@ -245,7 +245,7 @@ window.onload = function() {
                     console.log("speechLog file: " +
                                 textFile.result.toString());
                     $.ajax({
-                      type: "GET",
+                      type: "POST",
                       url: "/speechLog_file",
                       data: { speechLogFile: textFile.result.toString() }
                     }).done(function (msg) {
@@ -272,7 +272,7 @@ window.onload = function() {
                                 textFile.result.toString());
 
                     $.ajax({
-                        type: "GET",
+                        type: "POST",
                         url: "/activityLog_file",
                         data: { activityLogFile: textFile.result.toString() }
                     }).done(function (msg) {
