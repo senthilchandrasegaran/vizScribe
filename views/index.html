@@ -86,7 +86,7 @@
   </tr>
   <tr>
     <td>
-      <label for=<%= sketchlog.id %> >Select a log file: </label>
+      <label for=<%= sketchlog.id %> >Select a sketch log file: </label>
       <input id=<%= sketchlog.id %> type="file" />
       <output id=<%= outputlog.id %> />
     </td>
@@ -95,7 +95,7 @@
   </tr>
   <tr>
     <td>
-      <label for="zipFileId" >Select images: </label>
+      <label for="zipFileId" >Select zip file for sketches: </label>
       <input id="ZipFileBox" type="file" />
       <output id="zipFileOutput" />
     </td>
@@ -107,6 +107,24 @@
         <span id=imageMB></span>
       </div>
     </td>
+  </tr>
+  <tr>
+    <td>
+      <label for=<%= speechlog.id %> >Select speech log file: </label>
+      <input id=<%= speechlog.id %> type="file" />
+      <output id=<%= outputSpeechLog.id %> />
+    </td>
+    <td>CSV File</td>		
+    <td><div id='speechLogProgress'></div></td>
+  </tr>
+  <tr>
+    <td>
+      <label for=<%= activitylog.id %> >Select activity log file: </label>
+      <input id=<%= activitylog.id %> type="file" />
+      <output id=<%= outputActivityLog.id %> />
+    </td>
+    <td>CSV File</td>		
+    <td><div id='activityLogProgress'></div></td>
   </tr>
 </table>
 

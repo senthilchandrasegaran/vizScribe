@@ -64,7 +64,7 @@
         background:White;
       }
       #videodiv{
-        height: 85%;
+        height: 90%;
         width: 100%;
       }
       .vjs-default-skin.vjs-has-started.vjs-user-inactive.vjs-playing .vjs-control-bar {
@@ -73,7 +73,7 @@
         transition-duration: 0s!important;
       }
       #timeline{
-        height: 15%;
+        height: 10%;
         width: 100%;
         padding: 0px;
       }
@@ -255,6 +255,67 @@
         pointer-events: none;
       }
         
+      #speechLogTitle{
+        height:5%;
+        width:100%;
+        background:#FFFFFF;
+        font-size: 11px;
+        font-family:helvetica;
+        overflow: hidden;
+      }
+      #speechLog{
+        height: 25%; 
+        width: 100%; 
+        overflow: hidden;
+        border:1px solid;
+        border-color: #C9C9C9;
+      }
+      #speechLog.minimize {
+        height: 50px;
+        font-size: 15px;
+      }
+      #speechLogScrubber{
+        height: 100%; 
+        width: 0;
+        margin-right: 0;
+        margin-top: 0;
+        overflow: hidden;
+        border:1px solid;
+        border-color: rgba(0,0,0,0);
+        border-right-color: red;
+        pointer-events: none;
+      }
+
+      #activityLogTitle{
+        height:5%;
+        width:100%;
+        background:#FFFFFF;
+        font-size: 11px;
+        font-family:helvetica;
+        overflow: hidden;
+      }
+      #activityLog{
+        height: 25%; 
+        width: 100%; 
+        overflow: hidden;
+        border:1px solid;
+        border-color: #C9C9C9;
+      }
+      #activityLog.minimize {
+        height: 50px;
+        font-size: 15px;
+      }
+      #activityLogScrubber{
+        height: 100%; 
+        width: 0;
+        margin-right: 0;
+        margin-top: 0;
+        overflow: hidden;
+        border:1px solid;
+        border-color: rgba(0,0,0,0);
+        border-right-color: red;
+        pointer-events: none;
+      }
       /*
       #waveScrubber{
         height: 100%
@@ -706,7 +767,8 @@
       -->
       <div id="timeline">
         <div id="transGraphTitle">
-        Graphical View of Transcript [click to minimize]
+        Graphical View of Transcript [hover for preview, click to scroll
+        transcript]
         </div>
         <div id="transGraph"> 
         </div>
@@ -731,7 +793,7 @@
     
   <div id="bottomleft">
       <div id="sketchTitle">
-        Graphical Representation of Sketches [click to minimize]
+        Graphical Representation of Sketches [click to contract view]
       </div>
       <div id="sketches">
         <div id="sketchContent">
@@ -739,8 +801,26 @@
         <svg id="sketchScrubber">
         </svg>
       </div>
+      <div id="speechLogTitle">
+        Graphical Representation of speech [click to contract view]
+      </div>
+      <div id="speechLog">
+        <div id="speechLogContent">
+        </div>
+        <svg id="speechLogScrubber">
+        </svg>
+      </div>
+      <div id="activityLogTitle">
+        Graphical Representation of Activity [click to contract view]
+      </div>
+      <div id="activityLog">
+        <div id="activityLogContent">
+        </div>
+        <svg id="activityLogScrubber">
+        </svg>
+      </div>
       <div id="protocolGraphTitle">
-        Code Timeline [click to minimize]
+        Code Timeline [click to toggle transcript highlighting]
       </div>
       <div id="protocolGraph">
         <div id="protocolGraphContent">

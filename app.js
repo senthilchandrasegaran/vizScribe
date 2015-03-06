@@ -46,9 +46,13 @@ if ('development' == app.get('env')) {
 var inputvideo = { id: 'inputvideo' };
 var inputtrans = { id: 'inputtrans' };
 var sketchlog = { id: 'sketchlog' };
+var speechlog = { id: 'speechlog' };
+var activitylog = { id: 'activitylog' };
 var outputvideo = { id: 'outputvideo', src: '' };
 var outputtrans = { id: 'outputtrans', target: '' };
 var outputlog = { id: 'outputlog', target: '' };
+var outputSpeechLog = { id: 'outputSpeechLog', target: '' };
+var outputActivityLog = { id: 'outputActivityLog', target: '' };
 var userlog = { id: 'userlog' };
 
 /* listen */
@@ -162,7 +166,11 @@ app.get('/', function (req, res) {
     outputvideo: outputvideo,
     outputtrans: outputtrans,
     sketchlog: sketchlog,
-    outputlog: outputlog
+    speechlog: speechlog,
+    activitylog: activitylog,
+    outputlog: outputlog,
+    outputSpeechLog: outputSpeechLog,
+    outputActivityLog: outputActivityLog
   });
 });
 
@@ -178,7 +186,11 @@ app.get('/main.html', function (req, res) {
         outputvideo: outputvideo,
         outputtrans: outputtrans,
         sketchlog: sketchlog,
-        outputlog: outputlog
+        speechlog: speechlog,
+        activitylog: activitylog,
+        outputlog: outputlog,
+        outputSpeechLog: outputSpeechLog,
+        outputActivityLog: outputActivityLog
     });
 });
 
@@ -190,7 +202,7 @@ app.get('/main.html', function (req, res) {
 app.get('/transcript_file', function (req, res) {
     var selectedURL = url.parse(req.url, true); //creates object
     var transcriptParams = selectedURL.query;
-    console.log(transcriptParams.transcript);
+    // console.log(transcriptParams.transcript);
     outputtrans.target = transcriptParams.transcript;
     // this sets the above defined variables
     res.end();
@@ -205,7 +217,7 @@ app.get('/receive_transcript_file', function (req, res) {
 app.get('/log_file', function (req, res) {
     var selectedURL = url.parse(req.url, true); //creates object
     var logFileParams = selectedURL.query;
-    console.log(logFileParams.logFile);
+    // console.log(logFileParams.logFile);
     outputlog.target = logFileParams.logFile;
     // this sets the above defined variables
     res.end();
@@ -214,6 +226,36 @@ app.get('/log_file', function (req, res) {
 app.get('/receive_log_file', function (req, res) {
     res.writeHead(200);
     res.write(outputlog.target);
+    res.end()
+});
+
+app.get('/speechLog_file', function (req, res) {
+    var selectedURL = url.parse(req.url, true); //creates object
+    var speechLogFileParams = selectedURL.query;
+    console.log(speechLogFileParams.speechLogFile);
+    outputSpeechLog.target = speechLogFileParams.speechLogFile;
+    // this sets the above defined variables
+    res.end();
+});
+
+app.get('/receive_speechLog_file', function (req, res) {
+    res.writeHead(200);
+    res.write(outputSpeechLog.target);
+    res.end()
+});
+
+app.get('/activityLog_file', function (req, res) {
+    var selectedURL = url.parse(req.url, true); //creates object
+    var activityLogFileParams = selectedURL.query;
+    console.log(activityLogFileParams.activityLogFile);
+    outputactivityLog.target = activityLogFileParams.activityLogFile;
+    // this sets the above defined variables
+    res.end();
+});
+
+app.get('/receive_activityLog_file', function (req, res) {
+    res.writeHead(200);
+    res.write(outputactivityLog.target);
     res.end()
 });
 
@@ -238,7 +280,11 @@ app.get('/main', function (req, res) {
         outputvideo: outputvideo,
         outputtrans: outputtrans,
         sketchlog: sketchlog,
-        outputlog: outputlog
+        speechlog: speechlog,
+        activitylog: activitylog,
+        outputlog: outputlog,
+        outputSpeechLog: outputSpeechLog,
+        outputActivityLog: outputActivityLog
     });
 });
 
@@ -264,7 +310,7 @@ app.post('/userlog', function (req, res){
   fs.writeFile('public/userlog/userlog.csv', String(req.body.data),
                function (err) {
     if (err) throw err;
-    console.log('outputlog.csv was written');
+    console.log('userlog.csv was written');
     res.send(200);
   });
   // res.end();

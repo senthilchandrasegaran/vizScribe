@@ -1275,252 +1275,274 @@ window.onload = function () {
 
     }); // end of file ajax code
 
-        // Function to read in the log file
-        var logFile;
-        var fileTemp1 = $.ajax({
-            type: "GET", // can remove this to avoid confusion
-            url: "/receive_log_file", // change to send_trn_fil
-            // note: "send" from POV of client
-            dataType: "text"
-        }).done(function (data) {
-            var logArray = $.csv.toArrays(data);
-            var prevSketch = [0, 0, 0, 0]; // these need to initialize based on
-            // number of users.
-            startTime = hmsToSeconds(logArray[1][0]);
-            var commitIndex = 0;
-            var player = videojs('discussion-video');
-            var videoLenSec = player.duration();
+    // Function to read in the log file
+    var logFile;
+    var fileTemp1 = $.ajax({
+        type: "GET", // can remove this to avoid confusion
+        url: "/receive_log_file", // change to send_trn_fil
+        // note: "send" from POV of client
+        dataType: "text"
+    }).done(function (data) {
+        if (data.typeof == 'object'){
+          console.log("sketch log file received!");
+          var logArray = $.csv.toArrays(data);
+          var prevSketch = [0, 0, 0, 0]; // these need to initialize based on
+          // number of users.
+          startTime = hmsToSeconds(logArray[1][0]);
+          var commitIndex = 0;
+          var player = videojs('discussion-video');
+          var videoLenSec = player.duration();
 
-            for (var i in logArray) {
-                if (i > 0) {
-                    timeStampSec = hmsToSeconds(logArray[i][0]) - startTime;
-                    if (timeStampSec < videoLenSec) {
-                        logData.push([timeStampSec,
-                         logArray[i][1].toLowerCase(),
-                         logArray[i][2].toLowerCase(),
-                         logArray[i][3]
-                       ]);
-                        timeStamps.push(logArray[i][0]);
-                        operations.push(logArray[i][1]);
-                        users.push(logArray[i][2].toLowerCase());
-                        sketchNum.push(logArray[i][3]);
-                        var op = logArray[i][1];
-                        // If there was a refresh since the last commit, reset prev
-                        // sketch counter to 0
-                        if (op == 'checkid') {
-                            // if there was a refresh since the last commit or checkout,
-                            // then reset previous sketch by that user to 0
-                            prevSketch[+logArray[i][2]
-                          .toLowerCase()
-                          .split("f")[1] - 1] = 0;
-                        } else if (op == 'checkout') {
-                            // if a user checks out a sketch, remember that last checkout
-                            // by that last user
-                            prevSketch[+logArray[i][2]
-                          .toLowerCase()
-                          .split("h")[1] - 1] = logArray[i][3];
-                        } else if (op == 'commit') {
-                            var tempArray = [timeStampSec,
-                             logArray[i][1].toLowerCase(), //operation
-                             logArray[i][2].toLowerCase(), //user ID
-                             logArray[i][3], //sketch Number
-                             prevSketch[+logArray[i][2]
-                                          .toLowerCase()
-                                          .split("h")[1] - 1] //prev sketch
-                            ];
-                            commitLog.push(tempArray);
-                            commitIndex += 1;
-                            // set the previous sketch ID to the currently committed
-                            // sketch ID
-                            prevSketch[+logArray[i][2].toLowerCase().split("f")[1] - 1] =
-              commitIndex;
-                        }
-                    }
+          for (var i in logArray) {
+            if (i > 0) {
+              timeStampSec = hmsToSeconds(logArray[i][0]) - startTime;
+              if (timeStampSec < videoLenSec) {
+                logData.push([timeStampSec,
+                              logArray[i][1].toLowerCase(),
+                              logArray[i][2].toLowerCase(),
+                              logArray[i][3]
+                              ]);
+                timeStamps.push(logArray[i][0]);
+                operations.push(logArray[i][1]);
+                users.push(logArray[i][2].toLowerCase());
+                sketchNum.push(logArray[i][3]);
+                var op = logArray[i][1];
+                // If there was a refresh since the last commit, reset prev
+                // sketch counter to 0
+                if (op == 'checkid') {
+                  // if there was a refresh since the last commit or checkout,
+                  // then reset previous sketch by that user to 0
+                  prevSketch[+logArray[i][2]
+                    .toLowerCase()
+                    .split("f")[1] - 1] = 0;
+                } else if (op == 'checkout') {
+                    // if a user checks out a sketch, remember that last checkout
+                    // by that last user
+                    prevSketch[+logArray[i][2]
+                      .toLowerCase()
+                      .split("h")[1] - 1] = logArray[i][3];
+                } else if (op == 'commit') {
+                    var tempArray = [timeStampSec,
+                         logArray[i][1].toLowerCase(), //operation
+                         logArray[i][2].toLowerCase(), //user ID
+                         logArray[i][3], //sketch Number
+                         prevSketch[+logArray[i][2]
+                                      .toLowerCase()
+                                      .split("h")[1] - 1] //prev sketch
+                        ];
+                    commitLog.push(tempArray);
+                    commitIndex += 1;
+                    // set the previous sketch ID to the currently committed
+                    // sketch ID
+                    prevSketch[+logArray[i][2].toLowerCase()
+                               .split("f")[1] - 1] = commitIndex;
                 }
-                else {
-                    logData.push(logArray[0]);
-                }
+              }
             }
+            else {
+                logData.push(logArray[0]);
+            }
+          }
 
-            // Code to generate paths
-            var margin = { top: 5, right: 5, bottom: 5, left: 25 },
-      sketchesWidth = $('#sketches').width();
-            sketchesHeight = $('#sketches').height();
-            $('#sketchContent').width(sketchesWidth);
-            $('#sketchContent').height(sketchesHeight);
-            var sketchesPosition = $('#sketches').position();
-            $('#sketchScrubber').css({ height: $('#sketches').height(),
-                'margin-top': -($('#sketches').height()),
-                'z-index': 5
+          // Code to generate paths
+          var margin = { top: 5, right: 5, bottom: 5, left: 25 },
+              sketchesWidth = $('#sketches').width(),
+              sketchesHeight = $('#sketches').height();
+          $('#sketchContent').width(sketchesWidth);
+          $('#sketchContent').height(sketchesHeight);
+          var sketchesPosition = $('#sketches').position();
+          $('#sketchScrubber').css({ height: $('#sketches').height(),
+              'margin-top': -($('#sketches').height()),
+              'z-index': 5
+          });
+          $('#sketchScrubber').attr('top', sketchesPosition.top);
+
+          var protosPosition = $('#protocolGraph').position();
+          $('#protocolGraphScrubber').css({ height: $('#protocolGraph').height(),
+              'margin-top': -($('#protocolGraph').height()),
+              'z-index': 5
+          });
+          $('#protocolGraphScrubber').attr('top', protosPosition.top);
+
+          var svg = d3.select("#sketchContent").append("svg")
+                      .data(logData)
+                      .attr("width", sketchesWidth)
+                      .attr("height", sketchesHeight)
+                      .style({ 'z-index': 1 })
+                      .append("g")
+                      .attr("transform",
+                            "translate(" + 
+                              margin.left + "," + 
+                              margin.top + ")");
+
+          var x = d3.scale.linear()
+                    .domain([0, videoLenSec]) 
+                    .range([0, sketchesWidth - 
+                               margin.left - 
+                               margin.right]);
+          var y = d3.scale.ordinal()
+                    .domain(['h1', 'h2', 'h3', 'h4'])
+                    .rangePoints([margin.top*2,
+                                  sketchesHeight-margin.bottom*5], 
+                                  0);
+          var color = d3.scale.category10();
+          var xAxis = d3.svg.axis()
+                        .scale(x)
+                        .orient("bottom");
+          var yAxis = d3.svg.axis()
+                        .scale(y)
+                        .orient("left");
+          svg.append("g")
+               .attr("class", "x axis")
+               .attr("transform", "translate(0,"+sketchesHeight+")")
+               .call(xAxis)
+             .append("text")
+               .attr("class", "label")
+               .attr("x", sketchesWidth)
+               .attr("y", -6)
+               .style("text-anchor", "end")
+               .text("time (sec)");
+          svg.append("g")
+               .attr("class", "y axis")
+               .call(yAxis)
+             .append("text")
+               .attr("class", "label")
+               .attr("y", 0)
+               .attr("dy", ".40em")
+               .attr("x", 10)
+               .style("text-anchor", "end")
+               .text("user ID");
+          var svgContent = svg.append("g");
+
+
+          svgContent.selectAll(".pathTrace")
+                    .data(commitLog)
+                    .enter()
+                    .append("svg:line")
+                    .attr("class", "pathTrace")
+                    .attr("stroke-width", 2)
+                    .attr("stroke", sketchPathColor)
+                    .attr("x1", function (d, i) {
+                        if (d[4] != 0) {
+                            return x(d[0]);
+                        }
+                    })
+                    .attr("y1", function (d, i) {
+                        if (d[4] != 0) {
+                            return y(d[2]);
+                        }
+                    })
+                    .attr("x2", function (d, i) {
+                        if (d[4] != 0){ 
+                          return x(commitLog[d[4] - 1][0]); 
+                        }
+                    })
+                    .attr("y2", function (d, i) {
+                        if (d[4] != 0){
+                          return y(commitLog[d[4] - 1][2]); 
+                        }
+                    });
+
+          // add the tooltip area to the webpage
+          var tooltip = d3.select("#sketchContent").append("div")
+                          .attr("class", "tooltip")
+                          .style("opacity", 0);
+          var largeTooltip = d3.select("#sketchContent").append("div")
+                          .attr("class", "tooltip")
+                          .style("opacity", 0);
+
+          // add nodes to path viewer
+          svgContent.selectAll(".dot")
+                    .data(commitLog)
+                    .enter().append("circle")
+                    .attr("class", "dot")
+                    .attr("r", 10)
+                    .attr("cx", function (d) {
+                        return x(d[0]);
+                    })
+                    .attr("cy", function (d) { return y(d[2]); })
+                    .on("mouseover", function (d, i) {
+                        d3.select(this).transition()
+                                       .attr("r", 15);
+                        var imagePath = '<img src="/images/sketches/'+
+                                        d[3] + '.png" height="100">';
+                        tooltip.transition()
+                               .duration(200)
+                               .style("opacity", 1);
+                        tooltip.html(imagePath)
+                               .style("left", (d3.event.pageX) + "px")
+                               .style("top", (d3.event.pageY) + "px")
+                               .style('z-index', 100)
+                               .style("box-shadow",
+                                      "0px 3px 5px 5px " + 
+                                        shadowGrey);
+                    })
+                    .on("mouseout", function (d, i) {
+                        d3.select(this).transition()
+                                       .attr("r", 10);
+                        tooltip.transition()
+                                   .duration(200)
+                                   .style("opacity", 0);
+                    })
+                    .on("click", function (d, i) {
+                        $('#imgPath-content').children().remove();
+                        d3.select(this).transition()
+                                       .attr("r", 12);
+                        var imagePath = '<img src="/images/sketches/'+
+                                        d[3] + '.png" height="600">';
+                        $("#imgPath-content").append(imagePath);
+                        document.getElementById('imgPath')
+                                .style.visibility = 'visible';
             });
-            $('#sketchScrubber').attr('top', sketchesPosition.top);
 
-            var protosPosition = $('#protocolGraph').position();
-            $('#protocolGraphScrubber').css({ height: $('#protocolGraph').height(),
-                'margin-top': -($('#protocolGraph').height()),
-                'z-index': 5
-            });
-            $('#protocolGraphScrubber').attr('top', protosPosition.top);
-
-            var svg = d3.select("#sketchContent").append("svg")
-      .data(logData)
-      .attr("width", sketchesWidth)
-      .attr("height", sketchesHeight)
-      .style({ 'z-index': 1 })
-    .append("g")
-      .attr("transform",
-            "translate(" + margin.left + "," + margin.top + ")");
-
-            var x = d3.scale.linear()
-            .domain([0, videoLenSec]) // convert to scale that adapts
-            .range([0, sketchesWidth - margin.left - margin.right]);
-            var y = d3.scale.ordinal()
-            .domain(['h1', 'h2', 'h3', 'h4']) // convert ditto
-            .rangePoints([margin.top * 2,
-                          sketchesHeight - margin.bottom * 5], 0);
-
-            var color = d3.scale.category10();
-
-            var xAxis = d3.svg.axis()
-    .scale(x)
-    .orient("bottom");
-
-            var yAxis = d3.svg.axis()
-      .scale(y)
-      .orient("left");
-
-            svg.append("g")
-      .attr("class", "x axis")
-      .attr("transform", "translate(0," + sketchesHeight + ")")
-      .call(xAxis)
-    .append("text")
-      .attr("class", "label")
-      .attr("x", sketchesWidth)
-      .attr("y", -6)
-      .style("text-anchor", "end")
-      .text("time (sec)");
-
-            svg.append("g")
-      .attr("class", "y axis")
-      .call(yAxis)
-    .append("text")
-      .attr("class", "label")
-      .attr("y", 0)
-      .attr("dy", ".40em")
-      .attr("x", 10)
-      .style("text-anchor", "end")
-      .text("user ID");
-            var svgContent = svg.append("g");
-
-
-            svgContent.selectAll(".pathTrace")
-    .data(commitLog)
-    .enter()
-    .append("svg:line")
-    .attr("class", "pathTrace")
-    .attr("stroke-width", 2)
-    .attr("stroke", sketchPathColor)
-    .attr("x1", function (d, i) {
-        if (d[4] != 0) {
-            return x(d[0]);
+          svgContent.selectAll("text")
+                     .data(commitLog)
+                     .enter()
+                     .append("text")
+                     .text(function (d) {
+                         return d[3];
+                     })
+                     .attr("x", function (d) { return x(d[0]); })
+                     .attr("y", function (d) { return y(d[2]) + 5; })
+                     .attr("font-family", "sans-serif")
+                     .attr("font-size", "11px")
+                     .style("text-anchor", "middle")
+                     .attr("fill", "white");
+          
+        } else {
+          $('#sketchTitle').hide();
+          $('#sketches').hide();
+          console.log("sketch divs are now hidden");
         }
-    })
-    .attr("y1", function (d, i) {
-        if (d[4] != 0) {
-            return y(d[2]);
-        }
-    })
-    .attr("x2", function (d, i) {
-        if (d[4] != 0) { return x(commitLog[d[4] - 1][0]); }
-    })
-    .attr("y2", function (d, i) {
-        if (d[4] != 0) { return y(commitLog[d[4] - 1][2]); }
-    });
+    }); // End code to generate paths
+    // End Stuff to execute when log file loaded
 
-            // add the tooltip area to the webpage
-            var tooltip = d3.select("#sketchContent").append("div")
-      .attr("class", "tooltip")
-      .style("opacity", 0);
-            var largeTooltip = d3.select("#sketchContent").append("div")
-      .attr("class", "tooltip")
-      .style("opacity", 0);
+    // Function to read in the speech log file
+    var speechLogFile;
+    var fileTemp2 = $.ajax({
+        type: "GET", // can remove this to avoid confusion
+        url: "/receive_speechLog_file", // change to send_trn_fil
+        // note: "send" from POV of client
+        dataType: "text"
+    }).done(function (speechdata) {
+      if (speechdata.typeof == "object"){
+        console.log("speech log file received!");
+        // generate beautiful visuals
+      } else {
+        // hide everything!
+        $('#speechLogTitle').hide();
+        $('#speechLog').hide();
+        console.log("speech divs are now hidden");
+      }
 
-            // add nodes to path viewer
-            svgContent.selectAll(".dot")
-      .data(commitLog)
-    .enter().append("circle")
-      .attr("class", "dot")
-      .attr("r", 10)
-      .attr("cx", function (d) {
-          return x(d[0]);
-      })
-      .attr("cy", function (d) { return y(d[2]); })
-      .on("mouseover", function (d, i) {
-          d3.select(this).transition()
-                               .attr("r", 15);
-          var imagePath = '<img src="/images/sketches/' +
-                                d[3] + '.png" height="100">'
-          tooltip.transition()
-                     .duration(200)
-                     .style("opacity", 1);
-          tooltip.html(imagePath)
-                     .style("left", (d3.event.pageX) + "px")
-                     .style("top", (d3.event.pageY) + "px")
-                     .style('z-index', 100)
-                     .style("box-shadow",
-                            "0px 3px 5px 5px " + shadowGrey);
-      })
-      .on("mouseout", function (d, i) {
-          d3.select(this).transition()
-                         .attr("r", 10);
-          tooltip.transition()
-                     .duration(200)
-                     .style("opacity", 0);
-      })
-      .on("click", function (d, i) {
-          $('#imgPath-content').children().remove();
-          d3.select(this).transition()
-                         .attr("r", 12);
-          var imagePath = '<img src="/images/sketches/' +
-                d[3] + '.png" height="600">';
-          $("#imgPath-content").append(imagePath);
-          document.getElementById('imgPath').style.visibility =
-            'visible';
-          /*
-          tooltip.transition()
-               .duration(200)
-               .style("opacity", 1);
-          tooltip.html(imagePath)
-               .style("left", "300px")
-               .style("top", "100px")
-               .style('z-index', 600)
-               .style("box-shadow",
-                      "0px 3px 5px 5px" + shadowGrey);
-                      */
-      });
-
-      svgContent.selectAll("text")
-                 .data(commitLog)
-                 .enter()
-                 .append("text")
-                 .text(function (d) {
-                     return d[3];
-                 })
-                 .attr("x", function (d) { return x(d[0]); })
-                 .attr("y", function (d) { return y(d[2]) + 5; })
-                 .attr("font-family", "sans-serif")
-                 .attr("font-size", "11px")
-                 .style("text-anchor", "middle")
-                 .attr("fill", "white");
-      }); // End code to generate paths
-        // End Stuff to execute when log file loaded
+    }); // end of stuff to do with speechLog
         // NOTES FOR CODE FOLDING in VIM:
         // zc -- close fold
         // zo -- open fold
         // zM -- close all folds
         // zR -- open all folds
         // set foldmethod = syntax
-    }); //player.ready attempt for the whole code chunk
-}                               // end of window.onload code
+  }); //player.ready attempt for the whole code chunk
+} // end of window.onload code
 
 

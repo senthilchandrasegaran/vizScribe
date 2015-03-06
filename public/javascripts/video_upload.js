@@ -10,6 +10,8 @@ window.onload = function() {
         var filesInput2 = document.getElementById(inputtrans.id);
         var filesInput3 = document.getElementById("ZipFileBox");
         var filesInput4 = document.getElementById(sketchlog.id);
+        var filesInput5 = document.getElementById(speechlog.id);
+        var filesInput6 = document.getElementById(activitylog.id);
 
         // Read video
         filesInput.addEventListener("change", function (event) {
@@ -204,10 +206,10 @@ window.onload = function() {
             }
         });
 
-        // Read transcript and print result on the same page
+        // Read log and print result on the same page
         filesInput4.addEventListener("change", function (event) {
             var files = event.target.files; //FileList object
-            var output = document.getElementById(outputtrans.id);
+            var output = document.getElementById(outputlog.id);
             for (var i = 0; i < files.length; i++) {
                 var file = files[i];
                 var logReader = new FileReader();
@@ -230,8 +232,60 @@ window.onload = function() {
                 console.log("logfile read!");
             }
         });
-    }
-    else {
+
+        // Read speech log and print result on the same page
+        filesInput5.addEventListener("change", function (event) {
+            var files = event.target.files; //FileList object
+            var output = document.getElementById(speechlog.id);
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+                var logReader = new FileReader();
+                logReader.addEventListener("load", function (event) {
+                    var textFile = event.target;
+                    console.log("speechLog file: " +
+                                textFile.result.toString());
+                    $.ajax({
+                      type: "GET",
+                      url: "/speechLog_file",
+                      data: { speechLogFile: textFile.result.toString() }
+                    }).done(function (msg) {
+                      console.log("speechLogfile Saved: " + msg);
+                    });
+                });
+
+                //Read the text file
+                logReader.readAsText(file);
+                console.log("speechLogfile read!");
+            }
+        });
+
+        // Read activity log and print result on the same page
+        filesInput6.addEventListener("change", function (event) {
+            var files = event.target.files; //FileList object
+            var output = document.getElementById(activitylog.id);
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+                var logReader = new FileReader();
+                logReader.addEventListener("load", function (event) {
+                    var textFile = event.target;
+                    console.log("activityLog file: " +
+                                textFile.result.toString());
+
+                    $.ajax({
+                        type: "GET",
+                        url: "/activityLog_file",
+                        data: { activityLogFile: textFile.result.toString() }
+                    }).done(function (msg) {
+                        console.log("activityLogfile Saved: " + msg);
+                    });
+                });
+
+                //Read the text file
+                logReader.readAsText(file);
+                console.log("activityLogfile read!");
+            }
+        });
+    } else {
         console.log("Your browser does not support File API");
     }
 }
