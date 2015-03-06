@@ -80,7 +80,7 @@ io.sockets.on('connection', function (socket) {
         }
         var Place = 0;
         try {
-            var Stat = fs.statSync('public/video' + Name);
+            var Stat = fs.statSync('public/video/' + Name);
             if (Stat.isFile()) {
                 Files[Name]['Downloaded'] = Stat.size;
                 Place = Stat.size / 524288;
@@ -230,32 +230,35 @@ app.get('/receive_log_file', function (req, res) {
 });
 
 app.post('/speechLog_file', function (req, res) {
-    var selectedURL = url.parse(req.url, true); //creates object
-    var speechLogFileParams = selectedURL.query;
-    console.log(speechLogFileParams.speechLogFile);
+    //var selectedURL = url.parse(req.url, true); //creates object
+    //var speechLogFileParams = selectedURL.query;
+    var speechLogFileParams = req.body;
     outputSpeechLog.target = speechLogFileParams.speechLogFile;
+    
     // this sets the above defined variables
+    console.log(outputSpeechLog.target);
     res.end();
 });
 
 app.get('/receive_speechLog_file', function (req, res) {
     res.writeHead(200);
     res.write(outputSpeechLog.target);
-    res.end()
+    res.end();
 });
 
 app.post('/activityLog_file', function (req, res) {
-    var selectedURL = url.parse(req.url, true); //creates object
-    var activityLogFileParams = selectedURL.query;
-    console.log(activityLogFileParams.activityLogFile);
-    outputactivityLog.target = activityLogFileParams.activityLogFile;
+    //var selectedURL = url.parse(req.url, true); //creates object
+    //var activityLogFileParams = selectedURL.query;
+    //console.log(activityLogFileParams.activityLogFile);
+    var activityLogFileParams = req.body;
+    outputActivityLog.target = activityLogFileParams.activityLogFile;
     // this sets the above defined variables
     res.end();
 });
 
 app.get('/receive_activityLog_file', function (req, res) {
     res.writeHead(200);
-    res.write(outputactivityLog.target);
+    res.write(outputActivityLog.target);
     res.end()
 });
 
