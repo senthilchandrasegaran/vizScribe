@@ -1,0 +1,11 @@
+Options for graphical display of transcript
+  * horizontal series of rectangles for each line spoken equally spaced,
+    equal width, equal height.
+    ADVANTAGES:
+      - effective use of space. 
+      - MagicLens-type zooming is easier and less confusing.
+    DISADVANTAGES: 
+      - pauses in conversation are not shown
+      - difficult to obtain a temporal correspondence to timeline
+  * Horizontal series of rectangles for each line spoken, width
+    proportional to timespan of line spoken, equal height.

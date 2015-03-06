@@ -64,7 +64,7 @@
         background:White;
       }
       #videodiv{
-        height: 85%;
+        height: 90%;
         width: 100%;
       }
       .vjs-default-skin.vjs-has-started.vjs-user-inactive.vjs-playing .vjs-control-bar {
@@ -73,7 +73,7 @@
         transition-duration: 0s!important;
       }
       #timeline{
-        height: 15%;
+        height: 10%;
         width: 100%;
         padding: 0px;
       }
@@ -255,6 +255,67 @@
         pointer-events: none;
       }
         
+      #speechLogTitle{
+        height:5%;
+        width:100%;
+        background:#FFFFFF;
+        font-size: 11px;
+        font-family:helvetica;
+        overflow: hidden;
+      }
+      #speechLog{
+        height: 25%; 
+        width: 100%; 
+        overflow: hidden;
+        border:1px solid;
+        border-color: #C9C9C9;
+      }
+      #speechLog.minimize {
+        height: 50px;
+        font-size: 15px;
+      }
+      #speechLogScrubber{
+        height: 100%; 
+        width: 0;
+        margin-right: 0;
+        margin-top: 0;
+        overflow: hidden;
+        border:1px solid;
+        border-color: rgba(0,0,0,0);
+        border-right-color: red;
+        pointer-events: none;
+      }
+
+      #activityLogTitle{
+        height:5%;
+        width:100%;
+        background:#FFFFFF;
+        font-size: 11px;
+        font-family:helvetica;
+        overflow: hidden;
+      }
+      #activityLog{
+        height: 25%; 
+        width: 100%; 
+        overflow: hidden;
+        border:1px solid;
+        border-color: #C9C9C9;
+      }
+      #activityLog.minimize {
+        height: 50px;
+        font-size: 15px;
+      }
+      #activityLogScrubber{
+        height: 100%; 
+        width: 0;
+        margin-right: 0;
+        margin-top: 0;
+        overflow: hidden;
+        border:1px solid;
+        border-color: rgba(0,0,0,0);
+        border-right-color: red;
+        pointer-events: none;
+      }
       /*
       #waveScrubber{
         height: 100%
@@ -588,6 +649,37 @@
       #imgPath-close:hover {
           background-color: #9ecae1;
       }
+
+      .d3-tip {
+        line-height: 1;
+        font-weight: bold;
+        padding: 12px;
+        background: rgba(0, 0, 0, 0.8);
+        color: #fff;
+        border-radius: 2px;
+        word-wrap: break-word;
+        max-width: 250px;
+      }
+
+      /* Creates a small triangle extender for the tooltip 
+      .d3-tip:before {
+        box-sizing: border-box;
+        display: inline;
+        font-size: 10px;
+        width: 100%;
+        line-height: 1;
+        color: rgba(0, 0, 0, 0.8);
+        content: "\25B2";
+        position: absolute;
+        text-align: center;
+      }
+
+      .d3-tip.n:after {
+        margin: -1px 0 0 0;
+        top: 100%;
+        left: 0;
+      }
+      */
         
 </style>
   <title>VizScribe</title>
@@ -597,10 +689,12 @@
   <script src="javascripts/jquery-ui.min.js"></script>
   <script src="javascripts/byrei-dyndiv_1.0rc1.js"></script>
   <script src="javascripts/d3/d3.v3.js"></script>
+  <script src="javascripts/d3.tooltip.js"></script>
   <!-- The annotator library at http://annotatorjs.org/ allows the
        creation of annotations, useful in our case for the analyst to
        annotate the transcript text -->
   <script src="javascripts/annotator-full.min.js"></script>
+  <script src="javascripts/fisheye.js"></script>
   <!-- Change URLs to wherever Video.js files will be hosted -->
   <link href="images/video/video-js.css" rel="stylesheet" type="text/css">
   <!-- video.js must be in the <head> for older IEs to work. -->
@@ -673,7 +767,8 @@
       -->
       <div id="timeline">
         <div id="transGraphTitle">
-        Graphical View of Transcript [click to minimize]
+        Graphical View of Transcript [hover for preview, click to scroll
+        transcript]
         </div>
         <div id="transGraph"> 
         </div>
@@ -698,7 +793,7 @@
     
   <div id="bottomleft">
       <div id="sketchTitle">
-        Graphical Representation of Sketches [click to minimize]
+        Graphical Representation of Sketches [click to contract view]
       </div>
       <div id="sketches">
         <div id="sketchContent">
@@ -706,8 +801,26 @@
         <svg id="sketchScrubber">
         </svg>
       </div>
+      <div id="speechLogTitle">
+        Graphical Representation of speech [click to contract view]
+      </div>
+      <div id="speechLog">
+        <div id="speechLogContent">
+        </div>
+        <svg id="speechLogScrubber">
+        </svg>
+      </div>
+      <div id="activityLogTitle">
+        Graphical Representation of Activity [click to contract view]
+      </div>
+      <div id="activityLog">
+        <div id="activityLogContent">
+        </div>
+        <svg id="activityLogScrubber">
+        </svg>
+      </div>
       <div id="protocolGraphTitle">
-        Code Timeline [click to minimize]
+        Code Timeline [click to toggle transcript highlighting]
       </div>
       <div id="protocolGraph">
         <div id="protocolGraphContent">
@@ -721,14 +834,17 @@
   </div>   
     
   <div id="concordance-view">
-  <div id="concordance-close" onmousedown="document.getElementById('concordance-view').style.visibility= 'hidden'">
+  <div id="concordance-close" 
+       onclick="document.getElementById('concordance-view')
+                        .style
+                        .visibility= 'hidden'">
   </div>
    <div id="concordance-view-content">
        </div>
   </div>   
   <div id="imgPath">
     <div id="imgPath-close" 
-      onmousedown="document.getElementById('imgPath').style.visibility= 'hidden'">
+      onclick="document.getElementById('imgPath').style.visibility= 'hidden'">
   </div>
    <div id="imgPath-content">
   </div>
