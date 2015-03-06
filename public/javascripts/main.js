@@ -1525,7 +1525,8 @@ window.onload = function () {
         // note: "send" from POV of client
         dataType: "text"
     }).done(function (speechdata) {
-      if (speechdata.typeof == "object"){
+      speechdata = JSON.parse(speechdata);
+      if (typeof speechdata == "string"){
         console.log("speech log file received!");
         // generate beautiful visuals
       } else {
