@@ -1629,6 +1629,84 @@ window.onload = function () {
       if (typeof activitydata == "string"){
         console.log("activity log file received!");
         // generate beautiful visuals
+        // parse activity data
+        var activityArray = activitydata.split("\n");
+        var numSpeakers = activityArray[0].split(",").length - 1;
+        var speakerList = activityArray[0].split(",")
+                                        .slice(1, numSpeakers);
+        // generate beautiful visuals
+        var maxAct = 0;
+        for (var i=1;i<activityArray.length; i++){
+          var row = activityArray[i].split(",");
+          var rowMax = Math.max.apply(Math, row.slice(1,row.length-1));
+          if (maxAct < rowMax){
+            maxAct = rowMax;
+          }
+        }
+
+        d3.select("#activityLogContent").selectAll("svg").remove();
+        var activityW = $("#activityLogContent").width();
+        var activityH = $("#activityLog").height();
+
+        var activitySVG = d3.select("#activityLogContent").append("svg")
+                          .attr("width", activityW)
+                          .attr("height", activityH);
+        var activityScaleX = d3.scale.linear()
+                            .domain([0, videoLenSec])
+                            .range([0, activityW]);
+        var activityScaleY = d3.scale.linear()
+                            .domain([0, numSpeakers])
+                            .range([0, activityH]);
+        var activityScaleSp = d3.scale.linear()
+                              .domain([0,1])
+                              .range([0, activityH/numSpeakers]);
+        var activityPlotData = [];
+
+        for (speakerIndex=0; speakerIndex<numSpeakers; speakerIndex++){
+          var prevTime = 0;
+          for (var i=1; i<activityArray.length; i++){
+            var spRow = activityArray[i].split(",");
+            if (spRow.length > 1){
+              var d = {};
+              var timeStampSec = hmsToSec(spRow[0]);
+              d.x = activityScaleX(timeStampSec);
+              d.width = activityScaleX(timeStampSec - prevTime);
+              d.height = activityScaleY(spRow[speakerIndex+1]/maxAct);
+              d.y = activityScaleY(numSpeakers-speakerIndex) - d.height;
+              d.y0 = activityScaleY(numSpeakers-speakerIndex-1);
+              d.timeStamp = timeStampSec;
+              d.speaker = speakerList[speakerIndex];
+              d.participationValue = parseFloat(spRow[speakerIndex+1]); 
+              activityPlotData.push(d);
+              prevTime = timeStampSec;
+            }
+          }
+        }
+        var activityRects = activitySVG.selectAll("rect")
+              .data(activityPlotData)
+              .enter()
+              .append("rect")
+              .attr("x", function(d){return d.x;})
+              .attr("y", function(d){return d.y;})
+              .attr("width", function(d){return d.width;})
+              .attr("height", function(d){return d.height;})
+              .attr("fill", "rgba(0,0,0,1)")
+              .attr("z-index", "10")
+              .on('mouseover', function(d){
+                d3.select(this).attr('height', activityScaleY(1));
+                d3.select(this).attr('width', 2);
+                d3.select(this).attr('y', d.y0);
+                d3.select(this).attr('fill', greenHighlight);
+              })
+              .on('mouseout', function(d){
+                d3.select(this).attr('height', d.height);
+                d3.select(this).attr('width', d.width);
+                d3.select(this).attr('y', d.y);
+                d3.select(this).attr('fill', 'rgba(0,0,0,1)');
+              })
+              .on('click', function(d){
+                player.currentTime(d.timeStamp);
+              });
       } else {
         // hide everything!
         $('#activityLogTitle').hide();
