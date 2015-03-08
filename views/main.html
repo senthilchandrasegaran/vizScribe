@@ -125,8 +125,10 @@
         // font-size:12px;
         font: 10px sans-serif;
         font-family:helvetica;
-        // overflow: scroll;
-        overflow: hidden;
+        overflow: scroll;
+      }
+      #bottomleft::-webkit-scrollbar { 
+        display: none; 
       }
       #transTitle{
         height: 8%;
@@ -284,6 +286,7 @@
         border-color: rgba(0,0,0,0);
         border-right-color: red;
         pointer-events: none;
+        z-index: 100;
       }
 
       #activityLogTitle{
@@ -352,10 +355,7 @@
         border:1px solid;
         border-color: #C9C9C9;
         background: #FFFFFF;
-        overflow: auto
-      }
-      #protocolGraph::-webkit-scrollbar { 
-        display: none; 
+        overflow: hidden;
       }
       #protocolGraph.minimize {
         height: 50px;

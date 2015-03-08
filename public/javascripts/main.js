@@ -32,6 +32,7 @@ var oldProtocolObject = {};
 var selectedText = '';
 var spanCollection = [];
 var transGraphData = []; // data structure for transGraph display
+var videoLenSec;
 
 
 // this set of variables for path viewer
@@ -265,7 +266,6 @@ window.onload = function () {
         if ((captionArray[i].length > 1) &&
             (captionArray[i][0].toLowerCase() !== "start time")) {
           var tempLine = captionArray[i][3];
-          console.log(tempLine);
           var words = captionArray[i][3].split(wordSeparators);
           if (words.length > longestLineLength) {
             longestLineLength = words.length;
@@ -314,7 +314,7 @@ window.onload = function () {
       });
 
       player.ready(function () {
-        var videoLenSec = player.duration();
+        videoLenSec = player.duration();
         // representation of lines in transcript overall window
         d3.select("#transGraph").selectAll("svg").remove();
         var w = $('#transGraph').width();
@@ -681,11 +681,25 @@ window.onload = function () {
       var vidPlayer = videojs("discussion-video");
       vidPlayer.ready(function () {
           var $sketchScrubberProgress = $("#sketchScrubber");
+          var $speechLogScrubberProgress = $("#speechLogScrubber");
+          spOffsetMargin = $("#speechLog").height() + 
+                           parseFloat(
+                             $("#speechLog").css("border-top-width")
+                                            .split("px")[0])+
+                           parseFloat(
+                             $("#speechLog").css("border-bottom-width")
+                                          .split("px")[0]);
+          console.log("margin = " + spOffsetMargin);
+          $speechLogScrubberProgress.css({"margin-top": 
+                                          0-spOffsetMargin});
+          var $activityLogScrubberProgress = $("#activityLogScrubber");
           var $waveScrubberProgress = $("#waveScrubber");
           var $protocolScrubberProgress = $("#protocolGraphScrubber");
           vidPlayer.on('timeupdate', function (e) {
               var percent = this.currentTime() / this.duration();
               $sketchScrubberProgress.width((percent * 100) + "%");
+              $speechLogScrubberProgress.width((percent * 100) + "%");
+              $activityLogScrubberProgress.width((percent * 100) + "%");
               $waveScrubberProgress.width((percent * 100) + "%");
               $protocolScrubberProgress.width((percent * 100) + "%");
           });
@@ -1182,7 +1196,6 @@ window.onload = function () {
                               .attr("height", protoGraphHeight);
 
             var margin = { top: 5, right: 0, bottom: 5, left: 0 };
-            var videoLenSec = player.duration();
 
             var protoX = d3.scale.linear()
               .domain([0, videoLenSec])
@@ -1250,7 +1263,6 @@ window.onload = function () {
           var selCode = $(this).attr("id").split("line")[0];
           var newArray = [];
           var lineNums = [];
-          console.log(selectedIndices);
           for (var ind in selectedIndices){
             if (selectedIndices[ind][3] == selCode){
               newArray.push(selectedIndices[ind]);
@@ -1291,7 +1303,6 @@ window.onload = function () {
           startTime = hmsToSeconds(logArray[1][0]);
           var commitIndex = 0;
           var player = videojs('discussion-video');
-          var videoLenSec = player.duration();
 
           for (var i in logArray) {
             if (i > 0) {
@@ -1528,7 +1539,75 @@ window.onload = function () {
       speechdata = JSON.parse(speechdata);
       if (typeof speechdata == "string"){
         console.log("speech log file received!");
+        // parse speech data
+        var speechArray = speechdata.split("\n");
+        var numSpeakers = speechArray[0].split(",").length - 1;
+        var speakerList = speechArray[0].split(",")
+                                        .slice(1, numSpeakers);
         // generate beautiful visuals
+        d3.select("#speechLogContent").selectAll("svg").remove();
+        var speechW = $("#speechLogContent").width();
+        var speechH = $("#speechLog").height();
+
+        var speechSVG = d3.select("#speechLogContent").append("svg")
+                          .attr("width", speechW)
+                          .attr("height", speechH);
+        var speechScaleX = d3.scale.linear()
+                            .domain([0, videoLenSec])
+                            .range([0, speechW]);
+        var speechScaleY = d3.scale.linear()
+                            .domain([0, numSpeakers])
+                            .range([0, speechH]);
+        var speechScaleSp = d3.scale.linear()
+                              .domain([0,1])
+                              .range([0, speechH/numSpeakers]);
+        var speechPlotData = [];
+        for (speakerIndex=0; speakerIndex<numSpeakers; speakerIndex++){
+          var prevTime = 0;
+          for (var i=1; i<speechArray.length; i++){
+            var spRow = speechArray[i].split(",");
+            if (spRow.length > 1){
+              var d = {};
+              var timeStampSec = hmsToSec(spRow[0]);
+              d.x = speechScaleX(timeStampSec);
+              d.width = speechScaleX(timeStampSec - prevTime);
+              d.height = speechScaleY(spRow[speakerIndex+1]);
+              d.y = speechScaleY(numSpeakers-speakerIndex) - d.height;
+              d.y0 = speechScaleY(numSpeakers-speakerIndex-1);
+              d.timeStamp = timeStampSec;
+              d.speaker = speakerList[speakerIndex];
+              d.participationValue = parseFloat(spRow[speakerIndex+1]); 
+              speechPlotData.push(d);
+              prevTime = timeStampSec;
+            }
+          }
+        }
+        var speechRects = speechSVG.selectAll("rect")
+              .data(speechPlotData)
+              .enter()
+              .append("rect")
+              .attr("x", function(d){return d.x;})
+              .attr("y", function(d){return d.y;})
+              .attr("width", function(d){return d.width;})
+              .attr("height", function(d){return d.height;})
+              .attr("fill", "rgba(0,0,0,1)")
+              .attr("z-index", "10")
+              .on('mouseover', function(d){
+                d3.select(this).attr('height', speechScaleY(1));
+                d3.select(this).attr('width', 2);
+                d3.select(this).attr('y', d.y0);
+                d3.select(this).attr('fill', greenHighlight);
+              })
+              .on('mouseout', function(d){
+                d3.select(this).attr('height', d.height);
+                d3.select(this).attr('width', d.width);
+                d3.select(this).attr('y', d.y);
+                d3.select(this).attr('fill', 'rgba(0,0,0,1)');
+              })
+              .on('click', function(d){
+                player.currentTime(d.timeStamp);
+              });
+
       } else {
         // hide everything!
         $('#speechLogTitle').hide();
@@ -1537,6 +1616,27 @@ window.onload = function () {
       }
 
     }); // end of stuff to do with speechLog
+
+    // Function to read in the activity log file
+    var activityLogFile;
+    var fileTemp2 = $.ajax({
+        type: "GET", // can remove this to avoid confusion
+        url: "/receive_activityLog_file", // change to send_trn_fil
+        // note: "send" from POV of client
+        dataType: "text"
+    }).done(function (activitydata) {
+      activitydata = JSON.parse(activitydata);
+      if (typeof activitydata == "string"){
+        console.log("activity log file received!");
+        // generate beautiful visuals
+      } else {
+        // hide everything!
+        $('#activityLogTitle').hide();
+        $('#activityLog').hide();
+        console.log("activity divs are now hidden");
+      }
+
+    }); // end of stuff to do with activityLog
         // NOTES FOR CODE FOLDING in VIM:
         // zc -- close fold
         // zo -- open fold
