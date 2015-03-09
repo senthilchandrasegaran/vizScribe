@@ -317,11 +317,12 @@ window.onload = function () {
         videoLenSec = player.duration();
         // representation of lines in transcript overall window
         d3.select("#transGraph").selectAll("svg").remove();
-        var w = $('#transGraph').width();
-        var h = $('#transGraph').height() - 5;
+        var w = $('#transGraph').width()-2; //because of the border
+        var h = $('#transGraph').height()-2; //because of the border
         var transSvg = d3.select("#transGraph").append("svg")
                    .attr("width", w)
-                   .attr("height", h);
+                   .attr("height", h)
+                   .style({"border" : "1px solid #d0d0d0"});
         /*
         transSvg.attr("width", w)
         .attr("height", h);

@@ -10,6 +10,7 @@
         height: 100%;
         width: 100%;
         overflow: hidden;
+        margin: 0px;
       }
       p {
         font-family: helvetica;
@@ -17,26 +18,30 @@
       }
       #right{
         float:right;
-        width:50%;
+        width:45%;
         height:100%;
         background:White;   
       }
-      #left{
-        float:left;
-        width:50%;
-        height:100%;
-      }
       #topright{
         float:right;
-        width:25%;
+        width:50%;
         height:40%;
         background:White;
 
       }
       #topfarright{
         float: right;
-        width: 25%;
+        width: 50%;
         height:40%;
+      }
+      #bottomright{
+        float: right;
+        width:100%;
+        height: 60%;
+        background:White;   
+        font: 12px sans-serif;
+        font-family:helvetica;
+        overflow: hidden;
       }
       // node rect, node text, and path link are for the indented,
       // hierarchical tree that shows protocols defined.
@@ -55,80 +60,6 @@
         fill: none;
         stroke: #9ecae1;
         stroke-width: 1.5px;
-      }
-
-      #topleft{
-        float:left;
-        height: 55%;
-        width: 50%;
-        background:White;
-      }
-      #videodiv{
-        height: 90%;
-        width: 100%;
-      }
-      .vjs-default-skin.vjs-has-started.vjs-user-inactive.vjs-playing .vjs-control-bar {
-        visibility: visible !important;
-        opacity: 1 !important;
-        transition-duration: 0s!important;
-      }
-      #timeline{
-        height: 10%;
-        width: 100%;
-        padding: 0px;
-      }
-      #transGraphTitle{
-        height:15px;
-        width:100%;
-        background:#FFFFFF;
-        font-size: 11px;
-        font-family:helvetica;
-        overflow: hidden;
-      }
-      #transGraph{
-        height:40px;
-        width:100%;
-        background:#FFFFFF;
-        overflow: hidden;
-      }
-      /*
-      #timelineHover{
-        height: 10px;
-        width: 100%;
-        padding: 0px;
-      }
-      #timelineSelect{
-        height: 10px;
-        width: 100%;
-        padding: 0px;
-      }
-      #timelineProtocols{
-        height: 10px;
-        width: 100%;
-        padding: 0px;
-      }
-      */
-      #bottomright{
-        float: right;
-        width:50%;
-        height: 60%;
-        background:White;   
-        font: 12px sans-serif;
-        font-family:helvetica;
-        overflow: hidden;
-      }
-      #bottomleft{
-        float: left;
-        height: 45%;
-        width: 50%;
-        background:#F5F5F5;
-        // font-size:12px;
-        font: 10px sans-serif;
-        font-family:helvetica;
-        overflow: scroll;
-      }
-      #bottomleft::-webkit-scrollbar { 
-        display: none; 
       }
       #transTitle{
         height: 8%;
@@ -226,6 +157,63 @@
         white-space: nowrap;
         font-size: 15px;
       }
+
+
+      #left{
+        float:left;
+        width:54%;
+        margin-left: 0.5%;
+        margin-right: 0.5%;
+        height:100%;
+      }
+      #topleft{
+        float:left;
+        height: 60%;
+        width: 100%;
+        background:White;
+      }
+      #videodiv{
+        height: 90%;
+        width: 100%;
+      }
+      .vjs-default-skin.vjs-has-started.vjs-user-inactive.vjs-playing .vjs-control-bar {
+        visibility: visible !important;
+        opacity: 1 !important;
+        transition-duration: 0s!important;
+      }
+      #timeline{
+        height: 10%;
+        width: 100%;
+        padding: 0px;
+      }
+      #transGraphTitle{
+        height: 25%;
+        width:100%;
+        background:#FFFFFF;
+        font-size: 11px;
+        font-family:helvetica;
+        overflow: hidden;
+      }
+      #transGraph{
+        height:75%;
+        width:100%;
+        background:#FFFFFF;
+        overflow: hidden;
+      }
+
+      #bottomleft{
+        float: left;
+        height: 40%;
+        width: 100%;
+        background:#F5F5F5;
+        // font-size:12px;
+        font: 10px sans-serif;
+        font-family:helvetica;
+        overflow: scroll;
+      }
+      #bottomleft::-webkit-scrollbar { 
+        display: none; 
+      }
       #sketchTitle{
         height:5%;
         width:100%;
@@ -319,19 +307,6 @@
         border-right-color: red;
         pointer-events: none;
       }
-      /*
-      #waveScrubber{
-        height: 100%
-        width: 0;
-        margin-right: 0;
-        margin-top: 0;
-        overflow: hidden;
-        border:1px solid;
-        border-color: rgba(0,0,0,0);
-        border-right-color: red;
-        pointer-events: none;
-      }
-      */
       #sketchContent{
         height: 100%; 
         width: 100%; 
@@ -709,6 +684,7 @@
   </script>
 </head>
 <body>
+  <div id="right">
     <div id="topfarright">
       <div id="tagListTitle">
         <h2>Word Cloud from Transcript</h2>
@@ -748,91 +724,91 @@
         </article>
       </section>
     </section>
-    </div>
-     
-    <div id="topleft">
-      <div id="videodiv">
-        <video id="discussion-video" class="video-js vjs-default-skin"
-          controls autoplay preload="auto" height=100% width=100%
-          data-setup="{}">
-          <source src=<%-JSON.stringify(outputvideo.src)%> 
-                  type='video/mp4' />
-        </video>
-      </div>
-      <!--
-      <div id="audiodiv">
-        <svg id="waveScrubber">
-        </svg>
-      </div>
-      -->
-      <div id="timeline">
-        <div id="transGraphTitle">
-        Graphical View of Transcript [hover for preview, click to scroll
-        transcript]
-        </div>
-        <div id="transGraph"> 
-        </div>
-      </div>
-    </div>
-
-  <div id="bottomright">
-    <div id="transTitle">
+  </div>
+    <div id="bottomright">
+      <div id="transTitle">
         <div id="transTitleText"> 
-          Transcript
+        Transcript
         </div>
-    </div>
-    <div id="transcriptDiv"> 
+      </div>
+      <div id="transcriptDiv"> 
         <div id="annotDiv">
           <div id="transContent"> 
             <table id="transTable"></table>
           </div>
         </div>
+      </div>
+    </div> 
+  </div>
+
+    <div id = "left">
+      <div id="topleft">
+        <div id="videodiv">
+          <video id="discussion-video" class="video-js vjs-default-skin"
+            controls autoplay preload="auto" height=100% width=100%
+            data-setup="{}">
+            <source src=<%-JSON.stringify(outputvideo.src)%> 
+                    type='video/mp4' />
+          </video>
+        </div>
+        <!--
+        <div id="audiodiv">
+          <svg id="waveScrubber">
+          </svg>
+        </div>
+        -->
+        <div id="timeline">
+          <div id="transGraphTitle">
+          Graphical View of Transcript [hover for preview, click to scroll
+          transcript]
+          </div>
+          <div id="transGraph"> 
+          </div>
+        </div>
+      </div>
+      <div id="bottomleft">
+          <div id="sketchTitle">
+            Graphical Representation of Sketches [click to contract view]
+          </div>
+          <div id="sketches">
+            <div id="sketchContent">
+            </div>
+            <svg id="sketchScrubber">
+            </svg>
+          </div>
+          <div id="speechLogTitle">
+            Graphical Representation of speech [click to contract view]
+          </div>
+          <div id="speechLog">
+            <div id="speechLogContent">
+            </div>
+            <svg id="speechLogScrubber">
+            </svg>
+          </div>
+          <div id="activityLogTitle">
+            Graphical Representation of Activity [click to contract view]
+          </div>
+          <div id="activityLog">
+            <div id="activityLogContent">
+            </div>
+            <svg id="activityLogScrubber">
+            </svg>
+          </div>
+          <div id="protocolGraphTitle">
+            Code Timeline [click to toggle transcript highlighting]
+          </div>
+          <div id="protocolGraph">
+            <div id="protocolGraphContent">
+            </div>
+            <div id="protocolGraphScrubber">
+            </div>
+          </div>
+      </div>   
     </div>
-  </div> 
+
+    
+    
   <div id="contextmenu" class="contextmenu"> </div>
-    
-  <div id="bottomleft">
-      <div id="sketchTitle">
-        Graphical Representation of Sketches [click to contract view]
-      </div>
-      <div id="sketches">
-        <div id="sketchContent">
-        </div>
-        <svg id="sketchScrubber">
-        </svg>
-      </div>
-      <div id="speechLogTitle">
-        Graphical Representation of speech [click to contract view]
-      </div>
-      <div id="speechLog">
-        <div id="speechLogContent">
-        </div>
-        <svg id="speechLogScrubber">
-        </svg>
-      </div>
-      <div id="activityLogTitle">
-        Graphical Representation of Activity [click to contract view]
-      </div>
-      <div id="activityLog">
-        <div id="activityLogContent">
-        </div>
-        <svg id="activityLogScrubber">
-        </svg>
-      </div>
-      <div id="protocolGraphTitle">
-        Code Timeline [click to toggle transcript highlighting]
-      </div>
-      <div id="protocolGraph">
-        <div id="protocolGraphContent">
-        </div>
-        <div id="protocolGraphScrubber">
-        </div>
-      </div>
-      <!--
-      <div id="barChart"></div>
-      -->
-  </div>   
-    
   <div id="concordance-view">
   <div id="concordance-close" 
        onclick="document.getElementById('concordance-view')
