@@ -136,7 +136,15 @@
         overflow: hidden;
         border:1px solid;
         border-color: #C9C9C9;
-        
+      }
+      #protoEdit{
+       margin: 0px;
+       padding: 0px;
+      }
+      .textinput{
+        -webkit-box-sizing: border-box;
+        margin: 0;
+        padding: 0;
       }
       h3{
             margin: 0px;
@@ -217,9 +225,8 @@
 
       #bottomleft{
         float: left;
-        height: 40%;
+        height: 35%;
         width: 100%;
-        background:#F5F5F5;
         // font-size:12px;
         font: 10px sans-serif;
         font-family:helvetica;
@@ -257,6 +264,14 @@
         border-color: rgba(0,0,0,0);
         border-right-color: red;
         pointer-events: none;
+      }
+      #sketchContent{
+        height: 100%; 
+        width: 100%; 
+        margin-right: 0;
+        margin-top: 0;
+        overflow: hidden;
+        z-index: 1;
       }
         
       #speechLogTitle{
@@ -323,14 +338,6 @@
         border-right-color: red;
         pointer-events: none;
       }
-      #sketchContent{
-        height: 100%; 
-        width: 100%; 
-        margin-right: 0;
-        margin-top: 0;
-        overflow: hidden;
-        z-index: 1;
-      }
       #protocolGraphTitle{
         height:5%;
         width:100%;
@@ -340,7 +347,7 @@
         overflow: hidden;
       }
       #protocolGraph{
-        height: 50%; 
+        height: 25%; 
         width: 100%;
         overflow: hidden;
         background: #FFFFFF;
@@ -726,10 +733,11 @@
         <article id="tab2">
           <div id="protoEdit">
               <textarea id="protocolTextArea" 
-                        rows="10"
-                        cols="40"
-                        style="-webkit-box-sizing: border-box" 
-                        aria-valuetext=""
+                        class = "textinput"
+                        rows="20"
+                        cols="35"
+                        value = ""
+                        placeholder="Enter each code on a new line."
                         spellcheck="true">
               </textarea>
           </div>

@@ -55,6 +55,13 @@ var mildHighlightColor = "rgba(255, 127, 0, 0.8)";
 var wordCloudColor = "rgba(10, 100, 70, 0.7)";
 var shadowGrey = "rgba(123,123,123,0.7)";
 
+var speakerColors = [
+  "#e41a1c",
+  "#377eb8",
+  "#4daf4a",
+  "#984ea3"
+  ]
+
 /*
 var colorlist = [ "rgba(228,26,28,",
                   "rgba(55,126,184,",
@@ -1272,6 +1279,7 @@ window.onload = function () {
       });
 
       // code for interacting with coded timeline view
+      var clickStatus = 0;
       $('#protocolGraphContent').on('mouseenter', 
                                     'svg rect', 
                                     function() {
@@ -1298,9 +1306,39 @@ window.onload = function () {
       $('#protocolGraphContent').on('mouseleave',
                                     'svg rect',
                                     function() {
-          $("#transTable").find("span")
-                          .css({"background-color":"rgba(0,0,0,0)"});
+          if (clickStatus == 0){
+            $("#transTable").find("span")
+                            .css({"background-color":"rgba(0,0,0,0)"});
+          }
       }); // end of protoGraph onmouseleave function
+      $('#protocolGraphContent').on('click', 
+                                    'svg rect', 
+                                    function() {
+          console.log(selectedIndices);
+          if (clickStatus==0){
+            var tempColor = $(this).attr("fill");
+            var rectId = parseInt($(this).attr("id").split("line")[1]);
+            var selCode = $(this).attr("id").split("line")[0];
+            var newArray = [];
+            var lineNums = [];
+            for (var ind in selectedIndices){
+              if (selectedIndices[ind][3] == selCode){
+                newArray.push(selectedIndices[ind]);
+                lineNums.push(selectedIndices[ind][0]);
+                  var spanIdsList = selectedIndices[ind][4];
+                  for (var si in spanIdsList){
+                    $("#"+spanIdsList[si]).css({"background-color":
+                                                       tempColor});
+                  }
+              }
+            }
+            clickStatus = 1;
+          } else {
+            $("#transTable").find("span")
+                            .css({"background-color":"rgba(0,0,0,0)"});
+            clickStatus = 0;
+          }
+      }); // end of protoGraph onmouseenter function.
 
     }); // end of file ajax code
 
@@ -1559,8 +1597,9 @@ window.onload = function () {
         // parse speech data
         var speechArray = speechdata.split("\n");
         var numSpeakers = speechArray[0].split(",").length - 1;
-        var speakerList = speechArray[0].split(",")
-                                        .slice(1, numSpeakers);
+        var speakerList = speechArray[0]
+                            .split(",")
+                            .slice(1, speechArray[0].length-1);
         // generate beautiful visuals
         d3.select("#speechLogContent").selectAll("svg").remove();
         var speechW = $("#speechLogContent").width()-2;
@@ -1581,6 +1620,7 @@ window.onload = function () {
                               .range([0, speechH/numSpeakers]);
         var speechPlotData = [];
         for (speakerIndex=0; speakerIndex<numSpeakers; speakerIndex++){
+          console.log(speakerIndex);
           var prevTime = 0;
           for (var i=1; i<speechArray.length; i++){
             var spRow = speechArray[i].split(",");
@@ -1595,11 +1635,17 @@ window.onload = function () {
               d.timeStamp = timeStampSec;
               d.speaker = speakerList[speakerIndex];
               d.participationValue = parseFloat(spRow[speakerIndex+1]); 
+              d.fillColor = speakerColors[speakerIndex];
               speechPlotData.push(d);
               prevTime = timeStampSec;
             }
           }
         }
+
+        var speechTip = d3.tip()
+                          .attr('class', 'd3-tip')
+                          .direction('s');
+        speechSVG.call(speechTip);
         var speechRects = speechSVG.selectAll("rect")
               .data(speechPlotData)
               .enter()
@@ -1608,19 +1654,22 @@ window.onload = function () {
               .attr("y", function(d){return d.y;})
               .attr("width", function(d){return d.width;})
               .attr("height", function(d){return d.height;})
-              .attr("fill", "rgba(0,0,0,1)")
+              .attr("fill", function(d){return d.fillColor;})
               .attr("z-index", "10")
               .on('mouseover', function(d){
                 d3.select(this).attr('height', speechScaleY(1));
                 d3.select(this).attr('width', 2);
                 d3.select(this).attr('y', d.y0);
                 d3.select(this).attr('fill', greenHighlight);
+                speechTip.html(d.speaker).show();
               })
               .on('mouseout', function(d){
                 d3.select(this).attr('height', d.height);
                 d3.select(this).attr('width', d.width);
                 d3.select(this).attr('y', d.y);
-                d3.select(this).attr('fill', 'rgba(0,0,0,1)');
+                d3.select(this)
+                  .attr("fill", function(d){return d.fillColor;});
+                speechTip.hide();
               })
               .on('click', function(d){
                 player.currentTime(d.timeStamp);
@@ -1650,8 +1699,9 @@ window.onload = function () {
         // parse activity data
         var activityArray = activitydata.split("\n");
         var numSpeakers = activityArray[0].split(",").length - 1;
-        var speakerList = activityArray[0].split(",")
-                                        .slice(1, numSpeakers);
+        var speakerList = activityArray[0]
+                            .split(",")
+                            .slice(1, activityArray[0].length-1);
         // generate beautiful visuals
         var maxAct = 0;
         for (var i=1;i<activityArray.length; i++){
@@ -1696,11 +1746,16 @@ window.onload = function () {
               d.timeStamp = timeStampSec;
               d.speaker = speakerList[speakerIndex];
               d.participationValue = parseFloat(spRow[speakerIndex+1]); 
+              d.fillColor = speakerColors[speakerIndex];
               activityPlotData.push(d);
               prevTime = timeStampSec;
             }
           }
         }
+        var activityTip = d3.tip()
+                          .attr('class', 'd3-tip')
+                          .direction('s');
+        activitySVG.call(activityTip);
         var activityRects = activitySVG.selectAll("rect")
               .data(activityPlotData)
               .enter()
@@ -1709,19 +1764,21 @@ window.onload = function () {
               .attr("y", function(d){return d.y;})
               .attr("width", function(d){return d.width;})
               .attr("height", function(d){return d.height;})
-              .attr("fill", "rgba(0,0,0,1)")
+              .attr("fill", function(d){return d.fillColor;})
               .attr("z-index", "10")
               .on('mouseover', function(d){
                 d3.select(this).attr('height', activityScaleY(1));
                 d3.select(this).attr('width', 2);
                 d3.select(this).attr('y', d.y0);
                 d3.select(this).attr('fill', greenHighlight);
+                activityTip.html(d.speaker).show();
               })
               .on('mouseout', function(d){
                 d3.select(this).attr('height', d.height);
                 d3.select(this).attr('width', d.width);
                 d3.select(this).attr('y', d.y);
-                d3.select(this).attr('fill', 'rgba(0,0,0,1)');
+                d3.select(this).attr("fill", function(d){return d.fillColor;})
+                activityTip.hide();
               })
               .on('click', function(d){
                 player.currentTime(d.timeStamp);
