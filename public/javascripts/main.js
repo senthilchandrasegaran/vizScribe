@@ -690,18 +690,33 @@ window.onload = function () {
                            parseFloat(
                              $("#speechLog").css("border-bottom-width")
                                           .split("px")[0]);
-          console.log("margin = " + spOffsetMargin);
           $speechLogScrubberProgress.css({"margin-top": 
                                           0-spOffsetMargin});
           var $activityLogScrubberProgress = $("#activityLogScrubber");
-          var $waveScrubberProgress = $("#waveScrubber");
+          actOffsetMargin = $("#activityLog").height() + 
+                           parseFloat(
+                             $("#activityLog").css("border-top-width")
+                                              .split("px")[0])+
+                           parseFloat(
+                             $("#activityLog").css("border-bottom-width")
+                                              .split("px")[0]);
+          $activityLogScrubberProgress.css({"margin-top": 
+                                            0-actOffsetMargin});
           var $protocolScrubberProgress = $("#protocolGraphScrubber");
+          protocolOffsetMargin = $("#protocolGraph").height() + 
+                           parseFloat(
+                             $("#protocolGraph").css("border-top-width")
+                                              .split("px")[0])+
+                           parseFloat(
+                             $("#protocolGraph").css("border-bottom-width")
+                                              .split("px")[0]);
+          $protocolScrubberProgress.css({"margin-top": 
+                                            0-protocolOffsetMargin});
           vidPlayer.on('timeupdate', function (e) {
               var percent = this.currentTime() / this.duration();
               $sketchScrubberProgress.width((percent * 100) + "%");
               $speechLogScrubberProgress.width((percent * 100) + "%");
               $activityLogScrubberProgress.width((percent * 100) + "%");
-              $waveScrubberProgress.width((percent * 100) + "%");
               $protocolScrubberProgress.width((percent * 100) + "%");
           });
       });
@@ -1189,12 +1204,13 @@ window.onload = function () {
           d3.select("#protocolGraphContent")
             .selectAll("svg")
             .remove();
-          var protoGraphWidth = $('#protocolGraphContent').width();
-          var protoGraphHeight = $('#protocolGraphContent').height();
+          var protoGraphWidth = $('#protocolGraphContent').width()-2;
+          var protoGraphHeight = $('#protocolGraphContent').height()-2;
           var protocolSVG = d3.select("#protocolGraphContent")
                               .append("svg")
                               .attr("width", protoGraphWidth)
-                              .attr("height", protoGraphHeight);
+                              .attr("height", protoGraphHeight)
+                              .style({"border" : "1px solid #d0d0d0"});
 
             var margin = { top: 5, right: 0, bottom: 5, left: 0 };
 
@@ -1547,12 +1563,13 @@ window.onload = function () {
                                         .slice(1, numSpeakers);
         // generate beautiful visuals
         d3.select("#speechLogContent").selectAll("svg").remove();
-        var speechW = $("#speechLogContent").width();
-        var speechH = $("#speechLog").height();
+        var speechW = $("#speechLogContent").width()-2;
+        var speechH = $("#speechLog").height()-2;
 
         var speechSVG = d3.select("#speechLogContent").append("svg")
-                          .attr("width", speechW)
-                          .attr("height", speechH);
+                          .attr("width", speechW) //for border
+                          .attr("height", speechH) //for border
+                          .style({"border" : "1px solid #d0d0d0"});
         var speechScaleX = d3.scale.linear()
                             .domain([0, videoLenSec])
                             .range([0, speechW]);
@@ -1646,12 +1663,13 @@ window.onload = function () {
         }
 
         d3.select("#activityLogContent").selectAll("svg").remove();
-        var activityW = $("#activityLogContent").width();
-        var activityH = $("#activityLog").height();
+        var activityW = $("#activityLogContent").width()-2;
+        var activityH = $("#activityLog").height()-2;
 
         var activitySVG = d3.select("#activityLogContent").append("svg")
                           .attr("width", activityW)
-                          .attr("height", activityH);
+                          .attr("height", activityH)
+                          .style({"border" : "1px solid #d0d0d0"});
         var activityScaleX = d3.scale.linear()
                             .domain([0, videoLenSec])
                             .range([0, activityW]);
