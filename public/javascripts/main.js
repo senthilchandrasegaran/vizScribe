@@ -666,7 +666,7 @@ window.onload = function () {
       // toggle the size of the sketches div (pathViewer)
       $("#sketchTitle").click(function () {
           if ($("#sketches").hasClass('minimize')) {
-              $("#sketches").animate({ height: "45%" }, 200)
+              $("#sketches").animate({ height: "25%" }, 200)
                 .removeClass('minimize');
           } else {
               $("#sketches").animate({ height: 50 }, 200)
@@ -677,7 +677,7 @@ window.onload = function () {
       // toggle the size of the protocolGraph div 
       $("#protocolGraphTitle").click(function () {
           if ($("#protocolGraph").hasClass('minimize')) {
-              $("#protocolGraph").animate({ height: "45%" }, 200)
+              $("#protocolGraph").animate({ height: "25%" }, 200)
                 .removeClass('minimize');
           } else {
               $("#protocolGraph").animate({ height: 50 }, 200)
@@ -1350,7 +1350,8 @@ window.onload = function () {
         // note: "send" from POV of client
         dataType: "text"
     }).done(function (data) {
-        if (data.typeof == 'object'){
+        console.log(typeof data);
+        if (typeof data == 'string'){
           console.log("sketch log file received!");
           var logArray = $.csv.toArrays(data);
           var prevSketch = [0, 0, 0, 0]; // these need to initialize based on

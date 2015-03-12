@@ -30,7 +30,6 @@
         width:50%;
         height:40%;
         background:White;
-
       }
       #topfarright{
         float: right;
@@ -169,14 +168,6 @@
         box-shadow: inset  0  8px 8px -8px #696868, 
                     inset  0 -8px 8px -8px #696868;
       }
-      #tagList.minimize {
-          height: 50px;
-        overflow-y: hidden;
-        overflow-x: auto;
-        white-space: nowrap;
-        font-size: 15px;
-      }
-
 
       #left{
         position: absolute;
@@ -252,7 +243,6 @@
       }
       #sketches.minimize {
         height: 50px;
-        font-size: 15px;
       }
       #sketchScrubber{
         height: 100%; 
@@ -469,6 +459,8 @@
         font-size:1em;
         opacity:1;
         padding: 5px;
+        max-height: 250px;
+        overflow: auto;
       }
       .contextmenu>ul{
         display: block;
@@ -483,23 +475,6 @@
         color: #fff;
       }
       .contextmenu>ul:last-child {border:none};
-
-
-      // alternate css for context menu
-      // http://css-tricks.com/snippets/jquery/styled-popup-menu/
-      /*
-      .contextmenu { 
-        position:absolute;
-        visibility: hidden;
-        background:#EC6603;
-        padding:5px;
-        cursor:pointer;
-        border:none;
-        font-size:1em;
-        -webkit-transition: all .4s ease-in-out;
-        transition: all .4s ease-in-out;
-      }
-      */
 
       // CSS code for tabs from http://codepen.io/CesarGabriel/pen/tKaxq
       .wrapper {
@@ -552,6 +527,11 @@
         height: 400px;
         overflow: auto;
       }
+
+      #protoView::-webkit-scrollbar { 
+        display: none; 
+      }
+
       #totalProtocols{
         width: 100%;
         height: 100%;
