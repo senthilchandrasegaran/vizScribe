@@ -1354,12 +1354,25 @@ window.onload = function () {
         if (typeof data == 'string'){
           console.log("sketch log file received!");
           var logArray = $.csv.toArrays(data);
-          var prevSketch = [0, 0, 0, 0]; // these need to initialize based on
-          // number of users.
+          console.log(logArray);
+          var numUsers = 0;
+          var userIds = [];
+          var prevSketch = [];
+          for (var ind=0; ind < logArray.length-1; ind++){
+            tempUser = logArray[ind][2];
+            if (userIds.indexOf(tempUser) == -1 &&
+                tempUser != "user"){
+              userIds.push(tempUser.toLowerCase());
+              numUsers++;
+              prevSketch.push(0);
+            }
+          }
+          userAlpha = userIds[0].split("")[0];
+          // var prevSketch = [0, 0, 0, 0]; // these need to initialize
+                                            // based on number of users.
           startTime = hmsToSeconds(logArray[1][0]);
           var commitIndex = 0;
           var player = videojs('discussion-video');
-
           for (var i in logArray) {
             if (i > 0) {
               timeStampSec = hmsToSeconds(logArray[i][0]) - startTime;
@@ -1381,13 +1394,13 @@ window.onload = function () {
                   // then reset previous sketch by that user to 0
                   prevSketch[+logArray[i][2]
                     .toLowerCase()
-                    .split("f")[1] - 1] = 0;
+                    .split(userAlpha)[1] - 1] = 0;
                 } else if (op == 'checkout') {
                     // if a user checks out a sketch, remember that last checkout
                     // by that last user
                     prevSketch[+logArray[i][2]
                       .toLowerCase()
-                      .split("h")[1] - 1] = logArray[i][3];
+                      .split(userAlpha)[1] - 1] = logArray[i][3];
                 } else if (op == 'commit') {
                     var tempArray = [timeStampSec,
                          logArray[i][1].toLowerCase(), //operation
@@ -1395,14 +1408,14 @@ window.onload = function () {
                          logArray[i][3], //sketch Number
                          prevSketch[+logArray[i][2]
                                       .toLowerCase()
-                                      .split("h")[1] - 1] //prev sketch
+                                      .split(userAlpha)[1] - 1] //prev sketch
                         ];
                     commitLog.push(tempArray);
                     commitIndex += 1;
                     // set the previous sketch ID to the currently committed
                     // sketch ID
                     prevSketch[+logArray[i][2].toLowerCase()
-                               .split("f")[1] - 1] = commitIndex;
+                               .split(userAlpha)[1] - 1] = commitIndex;
                 }
               }
             }
@@ -1412,17 +1425,18 @@ window.onload = function () {
           }
 
           // Code to generate paths
-          var margin = { top: 5, right: 5, bottom: 5, left: 25 },
+          // var margin = { top: 5, right: 5, bottom: 5, left: 5 },
+          var margin = { top: 5, right: 0, bottom: 5, left: 0 },
               sketchesWidth = $('#sketches').width(),
               sketchesHeight = $('#sketches').height();
           $('#sketchContent').width(sketchesWidth);
           $('#sketchContent').height(sketchesHeight);
           var sketchesPosition = $('#sketches').position();
           $('#sketchScrubber').css({ height: $('#sketches').height(),
-              'margin-top': -($('#sketches').height()),
-              'z-index': 5
-          });
-          $('#sketchScrubber').attr('top', sketchesPosition.top);
+                            'margin-top': -($('#sketches').height()),
+                            'z-index': 5
+                            });
+          //$('#sketchScrubber').attr('top', sketchesPosition.top);
 
           var protosPosition = $('#protocolGraph').position();
           $('#protocolGraphScrubber').css({ height: $('#protocolGraph').height(),
@@ -1436,6 +1450,7 @@ window.onload = function () {
                       .attr("width", sketchesWidth)
                       .attr("height", sketchesHeight)
                       .style({ 'z-index': 1 })
+                      .style({"border" : "1px solid #d0d0d0"})
                       .append("g")
                       .attr("transform",
                             "translate(" + 
@@ -1448,11 +1463,12 @@ window.onload = function () {
                                margin.left - 
                                margin.right]);
           var y = d3.scale.ordinal()
-                    .domain(['h1', 'h2', 'h3', 'h4'])
+                    .domain(userIds)
                     .rangePoints([margin.top*2,
                                   sketchesHeight-margin.bottom*5], 
                                   0);
           var color = d3.scale.category10();
+          /*
           var xAxis = d3.svg.axis()
                         .scale(x)
                         .orient("bottom");
@@ -1479,6 +1495,7 @@ window.onload = function () {
                .attr("x", 10)
                .style("text-anchor", "end")
                .text("user ID");
+               */
           var svgContent = svg.append("g");
 
 
@@ -1490,23 +1507,23 @@ window.onload = function () {
                     .attr("stroke-width", 2)
                     .attr("stroke", sketchPathColor)
                     .attr("x1", function (d, i) {
-                        if (d[4] != 0) {
+                        if (d[3] != 0) {
                             return x(d[0]);
                         }
                     })
                     .attr("y1", function (d, i) {
-                        if (d[4] != 0) {
+                        if (d[3] != 0) {
                             return y(d[2]);
                         }
                     })
                     .attr("x2", function (d, i) {
                         if (d[4] != 0){ 
-                          return x(commitLog[d[4] - 1][0]); 
+                          return x(commitLog[d[3] - 1][0]); 
                         }
                     })
                     .attr("y2", function (d, i) {
-                        if (d[4] != 0){
-                          return y(commitLog[d[4] - 1][2]); 
+                        if (d[3] != 0){
+                          return y(commitLog[d[3] - 1][2]); 
                         }
                     });
 
@@ -1524,6 +1541,10 @@ window.onload = function () {
                     .enter().append("circle")
                     .attr("class", "dot")
                     .attr("r", 10)
+                    .attr("fill", function(d) {
+                      var cInd = parseInt(d[2].split(userAlpha)[1]);
+                      return speakerColors[cInd-1];
+                    })
                     .attr("cx", function (d) {
                         return x(d[0]);
                     })
@@ -1532,7 +1553,8 @@ window.onload = function () {
                         d3.select(this).transition()
                                        .attr("r", 15);
                         var imagePath = '<img src="/images/sketches/'+
-                                        d[3] + '.png" height="100">';
+                                        ("0"+ d[3]).slice(-2) + 
+                                        '.png" height="100">';
                         tooltip.transition()
                                .duration(200)
                                .style("opacity", 1);
@@ -1556,7 +1578,8 @@ window.onload = function () {
                         d3.select(this).transition()
                                        .attr("r", 12);
                         var imagePath = '<img src="/images/sketches/'+
-                                        d[3] + '.png" height="600">';
+                                        ("0"+ d[3]).slice(-2) + 
+                                        '.png" height="600">';
                         $("#imgPath-content").append(imagePath);
                         document.getElementById('imgPath')
                                 .style.visibility = 'visible';
