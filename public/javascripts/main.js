@@ -55,6 +55,13 @@ var mildHighlightColor = "rgba(255, 127, 0, 0.8)";
 var wordCloudColor = "rgba(10, 100, 70, 0.7)";
 var shadowGrey = "rgba(123,123,123,0.7)";
 
+// div values
+var bottomLeftHeight = 0;
+var sketchesHeight = 0;
+var speechLogHeight = 0;
+var activityLogHeight = 0;
+var protocolGraphHeight = 0;
+
 var speakerColors = [
   "#e41a1c",
   "#377eb8",
@@ -256,6 +263,13 @@ function hmsToSeconds(str) {
 // removed and the resulting tags are scaled by frequency and showed on
 // the right pane.
 window.onload = function () {
+  // determine div heights as specified in the html file
+  bottomLeftHeight = $("#bottomleft").height();
+  sketchesHeight = $("#sketches").height();
+  speechLogHeight = $("#speechLog").height();
+  activityLogHeight = $("#activityLog").height();
+  protocolGraphHeight = $("#protocolGraph").height();
+  
   var player = videojs('discussion-video');
   player.on('loadedmetadata', function () {
     // var files = evt.target.files; // FileList object
@@ -666,22 +680,77 @@ window.onload = function () {
       // toggle the size of the sketches div (pathViewer)
       $("#sketchTitle").click(function () {
           if ($("#sketches").hasClass('minimize')) {
-              $("#sketches").animate({ height: "25%" }, 200)
-                .removeClass('minimize');
+              $("#sketches").animate({ height: sketchesHeight }, 200,
+                  function(){
+                    $("#sketchTitle")
+                      .text("Graphical Representation of Sketches "+
+                            "[click to contract view]");
+                  }).removeClass('minimize');
           } else {
-              $("#sketches").animate({ height: 50 }, 200)
-                .addClass('minimize');
+              $("#sketches").animate({ height: 1 }, 200, "swing",
+                  function(){
+                    $("#sketchTitle")
+                      .text("Graphical Representation of Sketches "+
+                            "[click to expand view]");
+                  }).addClass('minimize');
+          }
+      });
+
+      // toggle the size of the speechLog div 
+      $("#speechLogTitle").click(function () {
+          if ($("#speechLog").hasClass('minimize')) {
+              $("#speechLog").animate({ height: speechLogHeight }, 200,
+                  function(){
+                    $("#speechLogTitle")
+                      .text("Speech Participation Chart "+
+                            "[click to contract view]");
+                  }).removeClass('minimize');
+          } else {
+              $("#speechLog").animate({ height: 1 }, 200, "swing",
+                  function(){
+                    $("#speechLogTitle")
+                      .text("Speech Participation Chart "+
+                            "[click to expand view]");
+                  }).addClass('minimize');
+          }
+      });
+
+      // toggle the size of the activityLog div 
+      $("#activityLogTitle").click(function () {
+          if ($("#activityLog").hasClass('minimize')) {
+              $("#activityLog").animate({height:activityLogHeight},200,
+                  function(){
+                    $("#activityLogTitle")
+                      .text("Activity Level Chart "+
+                            "[click to contract view]");
+                  }).removeClass('minimize');
+          } else {
+              $("#activityLog").animate({ height: 1 }, 200, "swing",
+                  function(){
+                    $("#activityLogTitle")
+                      .text("Activity Level Chart "+
+                            "[click to expand view]");
+                  }).addClass('minimize');
           }
       });
 
       // toggle the size of the protocolGraph div 
       $("#protocolGraphTitle").click(function () {
           if ($("#protocolGraph").hasClass('minimize')) {
-              $("#protocolGraph").animate({ height: "25%" }, 200)
-                .removeClass('minimize');
+              $("#protocolGraph").animate({height:protocolGraphHeight},
+                                          200,
+                  function(){
+                    $("#protocolGraphTitle")
+                      .text("Code Timeline "+
+                            "[click to contract view]");
+                  }).removeClass('minimize');
           } else {
-              $("#protocolGraph").animate({ height: 50 }, 200)
-                .addClass('minimize');
+              $("#protocolGraph").animate({ height: 1}, 200, "swing",
+                  function(){
+                    $("#protocolGraphTitle")
+                      .text("Code Timeline "+
+                            "[click to expand view]");
+                  }).addClass('minimize');
           }
       });
 
