@@ -266,6 +266,7 @@ window.onload = function () {
   // determine div heights as specified in the html file
   bottomLeftHeight = $("#bottomleft").height();
   sketchesHeight = $("#sketches").height();
+  sketchLogHeight = $("#sketchLog").height();
   speechLogHeight = $("#speechLog").height();
   activityLogHeight = $("#activityLog").height();
   protocolGraphHeight = $("#protocolGraph").height();
@@ -696,6 +697,25 @@ window.onload = function () {
           }
       });
 
+      // toggle the size of the sketchLog div 
+      $("#sketchLogTitle").click(function () {
+          if ($("#sketchLog").hasClass('minimize')) {
+              $("#sketchLog").animate({ height: sketchLogHeight }, 200,
+                  function(){
+                    $("#sketchLogTitle")
+                      .text("sketch Participation Chart "+
+                            "[click to contract view]");
+                  }).removeClass('minimize');
+          } else {
+              $("#sketchLog").animate({ height: 1 }, 200, "swing",
+                  function(){
+                    $("#sketchLogTitle")
+                      .text("sketch Participation Chart "+
+                            "[click to expand view]");
+                  }).addClass('minimize');
+          }
+      });
+
       // toggle the size of the speechLog div 
       $("#speechLogTitle").click(function () {
           if ($("#speechLog").hasClass('minimize')) {
@@ -758,8 +778,20 @@ window.onload = function () {
       var vidPlayer = videojs("discussion-video");
       vidPlayer.ready(function () {
           var $sketchScrubberProgress = $("#sketchScrubber");
+          // this is for the new sketch div
+          var $sketchLogScrubberProgress = $("#sketchLogScrubber");
+          var skOffsetMargin = $("#sketchLog").height() + 
+                           parseFloat(
+                             $("#sketchLog").css("border-top-width")
+                                            .split("px")[0])+
+                           parseFloat(
+                             $("#sketchLog").css("border-bottom-width")
+                                          .split("px")[0]);
+          $sketchLogScrubberProgress.css({"margin-top": 
+                                          0-skOffsetMargin});
+          // scrubber for speech div
           var $speechLogScrubberProgress = $("#speechLogScrubber");
-          spOffsetMargin = $("#speechLog").height() + 
+          var spOffsetMargin = $("#speechLog").height() + 
                            parseFloat(
                              $("#speechLog").css("border-top-width")
                                             .split("px")[0])+
@@ -768,6 +800,7 @@ window.onload = function () {
                                           .split("px")[0]);
           $speechLogScrubberProgress.css({"margin-top": 
                                           0-spOffsetMargin});
+          // scrubber for activity div
           var $activityLogScrubberProgress = $("#activityLogScrubber");
           actOffsetMargin = $("#activityLog").height() + 
                            parseFloat(
@@ -791,6 +824,7 @@ window.onload = function () {
           vidPlayer.on('timeupdate', function (e) {
               var percent = this.currentTime() / this.duration();
               $sketchScrubberProgress.width((percent * 100) + "%");
+              $sketchLogScrubberProgress.width((percent * 100) + "%");
               $speechLogScrubberProgress.width((percent * 100) + "%");
               $activityLogScrubberProgress.width((percent * 100) + "%");
               $protocolScrubberProgress.width((percent * 100) + "%");
@@ -1423,7 +1457,6 @@ window.onload = function () {
         if (typeof data == 'string'){
           console.log("sketch log file received!");
           var logArray = $.csv.toArrays(data);
-          console.log(logArray);
           var numUsers = 0;
           var userIds = [];
           var prevSketch = [];
@@ -1667,6 +1700,113 @@ window.onload = function () {
                      .attr("font-size", "11px")
                      .style("text-anchor", "middle")
                      .attr("fill", "white");
+
+          // NEW CODE FOR PATHS!
+          // parse sketch data
+          var sketchArray = logArray;
+          var speakerList = [];
+          // find the total number of people who committed sketches.
+          for (var ind=1; ind<sketchArray.length; ind++){
+            var speakerID = sketchArray[ind][2];
+            if (speakerList.indexOf(speakerID) == -1){
+              speakerList.push(speakerID);
+            }
+          }
+          speakerList.sort();
+          var numSpeakers = speakerList.length;
+          // generate beautiful visuals
+          d3.select("#sketchLogContent").selectAll("svg").remove();
+          var sketchW = $("#sketchLogContent").width()-2;
+          var sketchH = $("#sketchLog").height()-2;
+
+          var sketchSVG = d3.select("#sketchLogContent").append("svg")
+                            .attr("width", sketchW) //for border
+                            .attr("height", sketchH) //for border
+                            .style({"border" : "1px solid #d0d0d0"});
+          var sketchScaleX = d3.scale.linear()
+                              .domain([0, videoLenSec])
+                              .range([0, sketchW]);
+          var sketchScaleY = d3.scale.linear()
+                              .domain([0, numSpeakers])
+                              .range([0, sketchH]);
+          var sketchScaleSp = d3.scale.linear()
+                                .domain([0,1])
+                                .range([0, sketchH/numSpeakers]);
+          var sketchPlotData = [];
+          for (speakerIndex=0; speakerIndex<numSpeakers; speakerIndex++){
+            for (var i=1; i<sketchArray.length; i++){
+              var spRow = sketchArray[i];
+              var spID = spRow[2];
+              var action = spRow[1];
+              if (spRow.length > 1 && 
+                  speakerList[speakerIndex]==spID &&
+                  action == "commit"){
+                var d = {};
+                var timeStampSec = hmsToSec(spRow[0]);
+                d.x = sketchScaleX(timeStampSec);
+                d.width = 5;
+                d.height = sketchScaleY(1);
+                d.y = sketchScaleY(numSpeakers-speakerIndex) - d.height;
+                d.y0 = sketchScaleY(numSpeakers-speakerIndex-1);
+                d.timeStamp = timeStampSec;
+                d.speaker = spID;
+                d.sketchID = spRow[3]; 
+                var imagePath = '<img src="/images/sketches/'+
+                                ("0"+ spRow[3]).slice(-2) + 
+                                '.png" height="100">';
+                d.info = spID + ": sketch " + spRow[3] + 
+                         '<br>' + imagePath;
+                d.fillColor = speakerColors[speakerIndex];
+                sketchPlotData.push(d);
+                prevTime = timeStampSec;
+              }
+            }
+            console.log(sketchPlotData);
+          }
+          var sketchTip = d3.tip()
+                            .attr('class', 'd3-tip')
+                            .direction('s');
+          sketchSVG.call(sketchTip);
+          var sketchRects = sketchSVG.selectAll("rect")
+                .data(sketchPlotData)
+                .enter()
+                .append("rect")
+                .attr("x", function(d){return d.x;})
+                .attr("y", function(d){return d.y;})
+                .attr("width", function(d){return d.width;})
+                .attr("height", function(d){return d.height;})
+                .attr("fill", function(d){return d.fillColor;})
+                .attr("z-index", "10")
+                .on('mouseover', function(d){
+                  d3.select(this).attr('y', d.y0);
+                  d3.select(this).attr('fill', greenHighlight);
+                  sketchTip.html(d.info).show();
+                })
+                .on('mouseout', function(d){
+                  d3.select(this).attr('height', d.height);
+                  d3.select(this).attr('width', d.width);
+                  d3.select(this).attr('y', d.y);
+                  d3.select(this)
+                    .attr("fill", function(d){return d.fillColor;});
+                  sketchTip.hide();
+                })
+                .on('click', function(d){
+                  if (d3.event.ctrlKey){
+                    $('#imgPath-content').children().remove();
+                    d3.select(this).transition()
+                                   .attr("r", 12);
+                    var imagePath = '<img src="/images/sketches/'+
+                                    ("0"+ d.sketchID).slice(-2) + 
+                                    '.png" height="600">';
+                    $("#imgPath-content").append(imagePath);
+                    document.getElementById('imgPath')
+                            .style.visibility = 'visible';
+                    
+                  } else {
+                    player.currentTime(d.timeStamp);
+                  }
+                });
+          
           
         } else {
           $('#sketchTitle').hide();
@@ -1675,7 +1815,7 @@ window.onload = function () {
         }
     }); // End code to generate paths
     // End Stuff to execute when log file loaded
-
+      
     // Function to read in the speech log file
     var speechLogFile;
     var fileTemp2 = $.ajax({

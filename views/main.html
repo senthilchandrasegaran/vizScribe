@@ -264,6 +264,40 @@
         z-index: 1;
       }
         
+      #sketchLogTitle{
+        height:5%;
+        width:100%;
+        background:#FFFFFF;
+        font-size: 11px;
+        font-family:helvetica;
+        overflow: hidden;
+      }
+      #sketchLog{
+        height: 25%; 
+        width: 100%; 
+        overflow: hidden;
+      }
+      #sketchLog.minimize {
+        height: 1px;
+      }
+      #sketchLogContent{
+        height: 100%;
+        width: 100%;
+      }
+      #sketchLogScrubber{
+        height: 100%; 
+        width: 0;
+        display: block;
+        margin-right: 0;
+        margin-top: 0;
+        overflow: hidden;
+        border:1px solid;
+        border-color: rgba(0,0,0,0);
+        border-right-color: red;
+        pointer-events: none;
+        z-index: 100;
+      }
+
       #speechLogTitle{
         height:5%;
         width:100%;
@@ -278,7 +312,7 @@
         overflow: hidden;
       }
       #speechLog.minimize {
-        height: 0px;
+        height: 1px;
       }
       #speechLogContent{
         height: 100%;
@@ -773,6 +807,15 @@
             <div id="sketchContent">
             </div>
             <svg id="sketchScrubber">
+            </svg>
+          </div>
+          <div id="sketchLogTitle">
+            sketch Participation Chart [click to contract view]
+          </div>
+          <div id="sketchLog">
+            <div id="sketchLogContent">
+            </div>
+            <svg id="sketchLogScrubber">
             </svg>
           </div>
           <div id="speechLogTitle">

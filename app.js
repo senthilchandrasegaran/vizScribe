@@ -223,12 +223,6 @@ app.get('/log_file', function (req, res) {
     res.end();
 });
 
-app.get('/receive_log_file', function (req, res) {
-    res.writeHead(200);
-    res.write(outputlog.target);
-    res.end()
-});
-
 app.post('/speechLog_file', function (req, res) {
     //var selectedURL = url.parse(req.url, true); //creates object
     //var speechLogFileParams = selectedURL.query;
