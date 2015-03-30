@@ -1733,6 +1733,7 @@ window.onload = function () {
                                 .domain([0,1])
                                 .range([0, sketchH/numSpeakers]);
           var sketchPlotData = [];
+          // begin loop to plot sketches on timeline
           for (speakerIndex=0; speakerIndex<numSpeakers; speakerIndex++){
             for (var i=1; i<sketchArray.length; i++){
               var spRow = sketchArray[i];
@@ -1741,7 +1742,7 @@ window.onload = function () {
               if (spRow.length > 1 && 
                   speakerList[speakerIndex]==spID &&
                   action == "commit"){
-                var d = {};
+                var d = {}; // data for sketches
                 var timeStampSec = hmsToSec(spRow[0]);
                 d.x = sketchScaleX(timeStampSec);
                 d.width = 5;
@@ -1759,10 +1760,15 @@ window.onload = function () {
                 d.fillColor = speakerColors[speakerIndex];
                 sketchPlotData.push(d);
                 prevTime = timeStampSec;
-              }
+              } 
             }
-            console.log(sketchPlotData);
+          } // end loop to plot sketches on timeline
+          //begin loop to plot paths on timeline
+          var pathData = [];
+          for (var i=1; i<sketchArray.length; i++){
+            var p = {}; // data for paths
           }
+
           var sketchTip = d3.tip()
                             .attr('class', 'd3-tip')
                             .direction('s');
