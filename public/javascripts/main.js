@@ -1766,8 +1766,60 @@ window.onload = function () {
           //begin loop to plot paths on timeline
           var pathData = [];
           for (var i=1; i<sketchArray.length; i++){
+            var commitRow = sketchArray[i];
             var p = {}; // data for paths
+            /*
+               format: {p.x1, p.y1, p.x2, p.y2}
+             */
+            if (commitRow[1] == "commit"){
+              // this means there was a commit.
+              // save the sketch number
+              var committedSketch = commitRow[3];
+              var spID = spRow[2];
+              var commitTimeSec = hmsToSec(commitRow[0]);
+              // then check the subsequent sketches to see if there is a
+              // checkout of the same sketch 
+              for (var j=i+1; j<sketchArray.length; j++){
+                var currentRow = sketchArray[j];
+                if (currentRow[3] == committedSketch){
+                  // this means the sketch is checked out.
+                  var checkerOuter = currentRow[2];
+                  for (var k=j+1; k<sketchArray.length; k++){
+                   var nextRow = sketchArray[k];
+                   if (nextRow[2] == checkerOuter){
+                     if (nextRow[1] != "commit"){
+                      break;
+                     } else {
+                      p.x1 = sketchScaleX(commitTimeSec);
+                      p.y1 = sketchScaleY(numSpeakers - 
+                                          speakerList.indexOf(spID) -
+                                          1);
+                      p.x2 = sketchScaleX(nextRow[0]);
+                      p.y2 = sketchScaleY(numSpeakers - 
+                                          speakerList.indexOf(nextRow[2])
+                                          - 1);
+                      pathData.push(p);
+                      break;
+                     }
+                   }
+                  }
+                }
+              }
+            }
           }
+
+          var sketchPaths = sketchSVG.selectAll(".pathTrace")
+                    .data(pathData)
+                    .enter()
+                    .append("svg:line")
+                    .attr("class", "pathTrace")
+                    .attr("stroke-width", 2)
+                    .attr("stroke", sketchPathColor)
+                    .attr("x1", d.x1)
+                    .attr("y1", d.y1)
+                    .attr("x2", d.x2)
+                    .attr("y2", d.y2);
+
 
           var sketchTip = d3.tip()
                             .attr('class', 'd3-tip')
