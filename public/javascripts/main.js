@@ -370,7 +370,7 @@ window.onload = function () {
             var startSec = hmsToSec(captionArray[i + 1][0]);
             d.width = transcriptScale(endSec - startSec);
           }
-          if (scaleHeights == 0){
+          if (scaleHeights === 0){
             d.height = h;
           } else {
             // scales line height proportional to the number of
@@ -678,25 +678,6 @@ window.onload = function () {
         });
       });
 
-      // toggle the size of the sketches div (pathViewer)
-      $("#sketchTitle").click(function () {
-          if ($("#sketches").hasClass('minimize')) {
-              $("#sketches").animate({ height: sketchesHeight }, 200,
-                  function(){
-                    $("#sketchTitle")
-                      .text("Graphical Representation of Sketches "+
-                            "[click to contract view]");
-                  }).removeClass('minimize');
-          } else {
-              $("#sketches").animate({ height: 1 }, 200, "swing",
-                  function(){
-                    $("#sketchTitle")
-                      .text("Graphical Representation of Sketches "+
-                            "[click to expand view]");
-                  }).addClass('minimize');
-          }
-      });
-
       // toggle the size of the sketchLog div 
       $("#sketchLogTitle").click(function () {
           if ($("#sketchLog").hasClass('minimize')) {
@@ -777,7 +758,6 @@ window.onload = function () {
       // show Video Progress on the sketch and Protocol Divs
       var vidPlayer = videojs("discussion-video");
       vidPlayer.ready(function () {
-          var $sketchScrubberProgress = $("#sketchScrubber");
           // this is for the new sketch div
           var $sketchLogScrubberProgress = $("#sketchLogScrubber");
           var skOffsetMargin = $("#sketchLog").height() + 
@@ -823,7 +803,6 @@ window.onload = function () {
                                             0-protocolOffsetMargin});
           vidPlayer.on('timeupdate', function (e) {
               var percent = this.currentTime() / this.duration();
-              $sketchScrubberProgress.width((percent * 100) + "%");
               $sketchLogScrubberProgress.width((percent * 100) + "%");
               $speechLogScrubberProgress.width((percent * 100) + "%");
               $activityLogScrubberProgress.width((percent * 100) + "%");
@@ -1263,7 +1242,7 @@ window.onload = function () {
           for (var i in orgSpanCollection) {
             var spansList = orgSpanCollection[i];
             var lineIndex = Number(linesList[i].id.split("row")[1]);
-            if ($(this).text() == "unassign"){
+            if ($(this).text() === "unassign"){
               for (var ksel in selectedIndices) {
                 var spanString = "";
                 for (var j in spansList){
@@ -1392,10 +1371,10 @@ window.onload = function () {
           var newArray = [];
           var lineNums = [];
           for (var ind in selectedIndices){
-            if (selectedIndices[ind][3] == selCode){
+            if (selectedIndices[ind][3] === selCode){
               newArray.push(selectedIndices[ind]);
               lineNums.push(selectedIndices[ind][0]);
-              if (selectedIndices[ind][0] == rectId){
+              if (selectedIndices[ind][0] === rectId){
                 var spanIdsList = selectedIndices[ind][4];
                 for (var si in spanIdsList){
                   $("#"+spanIdsList[si]).css({"background-color":
@@ -1409,7 +1388,7 @@ window.onload = function () {
       $('#protocolGraphContent').on('mouseleave',
                                     'svg rect',
                                     function() {
-          if (clickStatus == 0){
+          if (clickStatus === 0){
             $("#transTable").find("span")
                             .css({"background-color":"rgba(0,0,0,0)"});
           }
@@ -1418,14 +1397,14 @@ window.onload = function () {
                                     'svg rect', 
                                     function() {
           console.log(selectedIndices);
-          if (clickStatus==0){
+          if (clickStatus===0){
             var tempColor = $(this).attr("fill");
             var rectId = parseInt($(this).attr("id").split("line")[1]);
             var selCode = $(this).attr("id").split("line")[0];
             var newArray = [];
             var lineNums = [];
             for (var ind in selectedIndices){
-              if (selectedIndices[ind][3] == selCode){
+              if (selectedIndices[ind][3] === selCode){
                 newArray.push(selectedIndices[ind]);
                 lineNums.push(selectedIndices[ind][0]);
                   var spanIdsList = selectedIndices[ind][4];
@@ -1456,254 +1435,7 @@ window.onload = function () {
         console.log(typeof data);
         if (typeof data == 'string'){
           console.log("sketch log file received!");
-          var logArray = $.csv.toArrays(data);
-          var numUsers = 0;
-          var userIds = [];
-          var prevSketch = [];
-          for (var ind=0; ind < logArray.length-1; ind++){
-            tempUser = logArray[ind][2];
-            if (userIds.indexOf(tempUser) == -1 &&
-                tempUser != "user"){
-              userIds.push(tempUser.toLowerCase());
-              numUsers++;
-              prevSketch.push(0);
-            }
-          }
-          userAlpha = userIds[0].split("")[0];
-          // var prevSketch = [0, 0, 0, 0]; // these need to initialize
-                                            // based on number of users.
-          startTime = hmsToSeconds(logArray[1][0]);
-          var commitIndex = 0;
-          var player = videojs('discussion-video');
-          for (var i in logArray) {
-            if (i > 0) {
-              timeStampSec = hmsToSeconds(logArray[i][0]) - startTime;
-              if (timeStampSec < videoLenSec) {
-                logData.push([timeStampSec,
-                              logArray[i][1].toLowerCase(),
-                              logArray[i][2].toLowerCase(),
-                              logArray[i][3]
-                              ]);
-                timeStamps.push(logArray[i][0]);
-                operations.push(logArray[i][1]);
-                users.push(logArray[i][2].toLowerCase());
-                sketchNum.push(logArray[i][3]);
-                var op = logArray[i][1];
-                // If there was a refresh since the last commit, reset prev
-                // sketch counter to 0
-                if (op == 'checkid') {
-                  // if there was a refresh since the last commit or checkout,
-                  // then reset previous sketch by that user to 0
-                  prevSketch[+logArray[i][2]
-                    .toLowerCase()
-                    .split(userAlpha)[1] - 1] = 0;
-                } else if (op == 'checkout') {
-                    // if a user checks out a sketch, remember that last checkout
-                    // by that last user
-                    prevSketch[+logArray[i][2]
-                      .toLowerCase()
-                      .split(userAlpha)[1] - 1] = logArray[i][3];
-                } else if (op == 'commit') {
-                    var tempArray = [timeStampSec,
-                         logArray[i][1].toLowerCase(), //operation
-                         logArray[i][2].toLowerCase(), //user ID
-                         logArray[i][3], //sketch Number
-                         prevSketch[+logArray[i][2]
-                                      .toLowerCase()
-                                      .split(userAlpha)[1] - 1] //prev sketch
-                        ];
-                    commitLog.push(tempArray);
-                    commitIndex += 1;
-                    // set the previous sketch ID to the currently committed
-                    // sketch ID
-                    prevSketch[+logArray[i][2].toLowerCase()
-                               .split(userAlpha)[1] - 1] = commitIndex;
-                }
-              }
-            }
-            else {
-                logData.push(logArray[0]);
-            }
-          }
-
-          // Code to generate paths
-          // var margin = { top: 5, right: 5, bottom: 5, left: 5 },
-          var margin = { top: 5, right: 0, bottom: 5, left: 0 },
-              sketchesWidth = $('#sketches').width(),
-              sketchesHeight = $('#sketches').height();
-          $('#sketchContent').width(sketchesWidth);
-          $('#sketchContent').height(sketchesHeight);
-          var sketchesPosition = $('#sketches').position();
-          $('#sketchScrubber').css({ height: $('#sketches').height(),
-                            'margin-top': -($('#sketches').height()),
-                            'z-index': 5
-                            });
-          //$('#sketchScrubber').attr('top', sketchesPosition.top);
-
-          var protosPosition = $('#protocolGraph').position();
-          $('#protocolGraphScrubber').css({ height: $('#protocolGraph').height(),
-              'margin-top': -($('#protocolGraph').height()),
-              'z-index': 5
-          });
-          $('#protocolGraphScrubber').attr('top', protosPosition.top);
-
-          var svg = d3.select("#sketchContent").append("svg")
-                      .data(logData)
-                      .attr("width", sketchesWidth)
-                      .attr("height", sketchesHeight)
-                      .style({ 'z-index': 1 })
-                      .style({"border" : "1px solid #d0d0d0"})
-                      .append("g")
-                      .attr("transform",
-                            "translate(" + 
-                              margin.left + "," + 
-                              margin.top + ")");
-
-          var x = d3.scale.linear()
-                    .domain([0, videoLenSec]) 
-                    .range([0, sketchesWidth - 
-                               margin.left - 
-                               margin.right]);
-          var y = d3.scale.ordinal()
-                    .domain(userIds)
-                    .rangePoints([margin.top*2,
-                                  sketchesHeight-margin.bottom*5], 
-                                  0);
-          var color = d3.scale.category10();
-          /*
-          var xAxis = d3.svg.axis()
-                        .scale(x)
-                        .orient("bottom");
-          var yAxis = d3.svg.axis()
-                        .scale(y)
-                        .orient("left");
-          svg.append("g")
-               .attr("class", "x axis")
-               .attr("transform", "translate(0,"+sketchesHeight+")")
-               .call(xAxis)
-             .append("text")
-               .attr("class", "label")
-               .attr("x", sketchesWidth)
-               .attr("y", -6)
-               .style("text-anchor", "end")
-               .text("time (sec)");
-          svg.append("g")
-               .attr("class", "y axis")
-               .call(yAxis)
-             .append("text")
-               .attr("class", "label")
-               .attr("y", 0)
-               .attr("dy", ".40em")
-               .attr("x", 10)
-               .style("text-anchor", "end")
-               .text("user ID");
-               */
-          var svgContent = svg.append("g");
-
-
-          svgContent.selectAll(".pathTrace")
-                    .data(commitLog)
-                    .enter()
-                    .append("svg:line")
-                    .attr("class", "pathTrace")
-                    .attr("stroke-width", 2)
-                    .attr("stroke", sketchPathColor)
-                    .attr("x1", function (d, i) {
-                        if (d[3] != 0) {
-                            return x(d[0]);
-                        }
-                    })
-                    .attr("y1", function (d, i) {
-                        if (d[3] != 0) {
-                            return y(d[2]);
-                        }
-                    })
-                    .attr("x2", function (d, i) {
-                        if (d[4] != 0){ 
-                          return x(commitLog[d[3] - 1][0]); 
-                        }
-                    })
-                    .attr("y2", function (d, i) {
-                        if (d[3] != 0){
-                          return y(commitLog[d[3] - 1][2]); 
-                        }
-                    });
-
-          // add the tooltip area to the webpage
-          var tooltip = d3.select("#sketchContent").append("div")
-                          .attr("class", "tooltip")
-                          .style("opacity", 0);
-          var largeTooltip = d3.select("#sketchContent").append("div")
-                          .attr("class", "tooltip")
-                          .style("opacity", 0);
-
-          // add nodes to path viewer
-          svgContent.selectAll(".dot")
-                    .data(commitLog)
-                    .enter().append("circle")
-                    .attr("class", "dot")
-                    .attr("r", 10)
-                    .attr("fill", function(d) {
-                      var cInd = parseInt(d[2].split(userAlpha)[1]);
-                      return speakerColors[cInd-1];
-                    })
-                    .attr("cx", function (d) {
-                        return x(d[0]);
-                    })
-                    .attr("cy", function (d) { return y(d[2]); })
-                    .on("mouseover", function (d, i) {
-                        d3.select(this).transition()
-                                       .attr("r", 15);
-                        var imagePath = '<img src="/images/sketches/'+
-                                        ("0"+ d[3]).slice(-2) + 
-                                        '.png" height="100">';
-                        tooltip.transition()
-                               .duration(200)
-                               .style("opacity", 1);
-                        tooltip.html(imagePath)
-                               .style("left", (d3.event.pageX) + "px")
-                               .style("top", (d3.event.pageY) + "px")
-                               .style('z-index', 100)
-                               .style("box-shadow",
-                                      "0px 3px 5px 5px " + 
-                                        shadowGrey);
-                    })
-                    .on("mouseout", function (d, i) {
-                        d3.select(this).transition()
-                                       .attr("r", 10);
-                        tooltip.transition()
-                                   .duration(200)
-                                   .style("opacity", 0);
-                    })
-                    .on("click", function (d, i) {
-                        $('#imgPath-content').children().remove();
-                        d3.select(this).transition()
-                                       .attr("r", 12);
-                        var imagePath = '<img src="/images/sketches/'+
-                                        ("0"+ d[3]).slice(-2) + 
-                                        '.png" height="600">';
-                        $("#imgPath-content").append(imagePath);
-                        document.getElementById('imgPath')
-                                .style.visibility = 'visible';
-            });
-
-          svgContent.selectAll("text")
-                     .data(commitLog)
-                     .enter()
-                     .append("text")
-                     .text(function (d) {
-                         return d[3];
-                     })
-                     .attr("x", function (d) { return x(d[0]); })
-                     .attr("y", function (d) { return y(d[2]) + 5; })
-                     .attr("font-family", "sans-serif")
-                     .attr("font-size", "11px")
-                     .style("text-anchor", "middle")
-                     .attr("fill", "white");
-
-          // NEW CODE FOR PATHS!
-          // parse sketch data
-          var sketchArray = logArray;
+          var sketchArray = $.csv.toArrays(data);
           var speakerList = [];
           // find the total number of people who committed sketches.
           for (var ind=1; ind<sketchArray.length; ind++){
@@ -1729,9 +1461,6 @@ window.onload = function () {
           var sketchScaleY = d3.scale.linear()
                               .domain([0, numSpeakers])
                               .range([0, sketchH]);
-          var sketchScaleSp = d3.scale.linear()
-                                .domain([0,1])
-                                .range([0, sketchH/numSpeakers]);
           var sketchPlotData = [];
           // begin loop to plot sketches on timeline
           for (speakerIndex=0; speakerIndex<numSpeakers; speakerIndex++){
@@ -1762,64 +1491,112 @@ window.onload = function () {
                 prevTime = timeStampSec;
               } 
             }
-          } // end loop to plot sketches on timeline
+          } 
+          // end loop to plot sketches on timeline
           //begin loop to plot paths on timeline
           var pathData = [];
           for (var i=1; i<sketchArray.length; i++){
             var commitRow = sketchArray[i];
+            if (hmsToSec(commitRow[0]) > videoLenSec){
+              break;
+            }
             var p = {}; // data for paths
-            /*
-               format: {p.x1, p.y1, p.x2, p.y2}
-             */
             if (commitRow[1] == "commit"){
               // this means there was a commit.
-              // save the sketch number
+              // save the sketch number, speaker ID, and timestamp
               var committedSketch = commitRow[3];
-              var spID = spRow[2];
+              var spID = commitRow[2];
               var commitTimeSec = hmsToSec(commitRow[0]);
               // then check the subsequent sketches to see if there is a
-              // checkout of the same sketch 
+              // commit or checkout of the same sketch 
+              var commitPathBroken = false; // assume the commit path is
+                                       // not broken yet, this will be
+                                       // explained later.
               for (var j=i+1; j<sketchArray.length; j++){
                 var currentRow = sketchArray[j];
-                if (currentRow[3] == committedSketch){
-                  // this means the sketch is checked out.
-                  var checkerOuter = currentRow[2];
-                  for (var k=j+1; k<sketchArray.length; k++){
-                   var nextRow = sketchArray[k];
-                   if (nextRow[2] == checkerOuter){
-                     if (nextRow[1] != "commit"){
-                      break;
-                     } else {
-                      p.x1 = sketchScaleX(commitTimeSec);
+                if (currentRow[2] == spID && !commitPathBroken){
+                  // if the same person commits again, make a path
+                  if (currentRow[1] == "commit"){
+                    if (hmsToSec(currentRow[0]) < videoLenSec){
+                      p.x1 = sketchScaleX(commitTimeSec) + 2.5;
+                      // the + 2.5 is to center the line start point on
+                      // the width of the rectangle (width=5)
+                      p.y1index = numSpeakers-speakerList.indexOf(spID); 
                       p.y1 = sketchScaleY(numSpeakers - 
-                                          speakerList.indexOf(spID) -
-                                          1);
-                      p.x2 = sketchScaleX(nextRow[0]);
+                              speakerList.indexOf(spID)-0.5);
+                      p.x2 = sketchScaleX(hmsToSec(currentRow[0]))+2.5;
+                      // the + 2.5 is to center the line end point on
+                      // the width of the rectangle (width=5)
+                      p.y2index = numSpeakers-
+                                  speakerList.indexOf(currentRow[2]); 
                       p.y2 = sketchScaleY(numSpeakers - 
-                                          speakerList.indexOf(nextRow[2])
-                                          - 1);
+                                speakerList.indexOf(currentRow[2])-0.5);
+                      p.from = commitRow;
+                      p.to = currentRow;
+                      console.log(p);
                       pathData.push(p);
                       break;
-                     }
-                   }
+                    };
+                  } else {
+                    // if it is the same person, but no commit, don't
+                    // check for this user again, the commit path for
+                    // this sketch is broken, unless there is a checkout
+                    commitPathBroken = true; 
+                    break;
                   }
+                } else {
+                  // This section means that we are looking at other
+                  // users, if they have "checked out" a sketch.
+                  if (currentRow[3] === committedSketch){
+                    var checkerOuter = currentRow[2];
+                    // now for that user, check future actions to see if
+                    // there are immediate commits by the same person.
+                    // If not, abort.
+                    for (var k=j+1; k<sketchArray.length; k++){
+                      var nextRow = sketchArray[k];
+                      if (nextRow[2] === checkerOuter){
+                        if (nextRow[1] === "commit"){
+                          // this means there is a path.
+                          if (hmsToSec(nextRow[0]) < videoLenSec){
+                            p.x1 = sketchScaleX(commitTimeSec) + 2.5;
+                            p.y1 = sketchScaleY(numSpeakers - 
+                                    speakerList.indexOf(spID)-0.5);
+                            p.x2 = sketchScaleX(hmsToSec(nextRow[0]))+2.5;
+                            p.y2 = sketchScaleY(numSpeakers - 
+                                    speakerList.indexOf(nextRow[2])-0.5);
+                            p.from = commitRow;
+                            p.to = nextRow;
+                            pathData.push(p);
+                            // no more checks for this checkerOuter
+                            break;
+                          }
+                        } else {
+                          // If there is no commit,
+                          // this means the checkout path is broken
+                          break;
+                        }
+                      }
+                      // if the next row is not the same person, keep
+                      // looking for the next action by the same person
+                    }
+                  }
+                  // if the current row's sketch is not the same as the
+                  // committed sketch, keep looking.
                 }
               }
             }
           }
-
+          // end loop to plot paths on timeline
           var sketchPaths = sketchSVG.selectAll(".pathTrace")
                     .data(pathData)
                     .enter()
                     .append("svg:line")
                     .attr("class", "pathTrace")
                     .attr("stroke-width", 2)
-                    .attr("stroke", sketchPathColor)
-                    .attr("x1", d.x1)
-                    .attr("y1", d.y1)
-                    .attr("x2", d.x2)
-                    .attr("y2", d.y2);
-
+                    .attr("x1", function (d){return d.x1})
+                    .attr("y1", function (d) {return d.y1})
+                    .attr("x2", function (d) {return d.x2})
+                    .attr("y2", function (d) {return d.y2});
 
           var sketchTip = d3.tip()
                             .attr('class', 'd3-tip')
@@ -1865,10 +1642,9 @@ window.onload = function () {
                   }
                 });
           
-          
         } else {
-          $('#sketchTitle').hide();
-          $('#sketches').hide();
+          $('#sketchLogTitle').hide();
+          $('#sketchLog').hide();
           console.log("sketch divs are now hidden");
         }
     }); // End code to generate paths

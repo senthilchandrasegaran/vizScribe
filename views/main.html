@@ -228,42 +228,6 @@
       #bottomleft::-webkit-scrollbar { 
         display: none; 
       }
-      #sketchTitle{
-        height:5%;
-        width:100%;
-        background:#FFFFFF;
-        font-size: 11px;
-        font-family:helvetica;
-        overflow: hidden;
-      }
-      #sketches{
-        height: 25%; 
-        width: 100%; 
-        overflow: hidden;
-      }
-      #sketches.minimize {
-        height: 0px;
-      }
-      #sketchScrubber{
-        height: 100%; 
-        width: 0;
-        margin-right: 0;
-        margin-top: 0;
-        overflow: hidden;
-        border:1px solid;
-        border-color: rgba(0,0,0,0);
-        border-right-color: red;
-        pointer-events: none;
-      }
-      #sketchContent{
-        height: 100%; 
-        width: 100%; 
-        margin-right: 0;
-        margin-top: 0;
-        overflow: hidden;
-        z-index: 1;
-      }
-        
       #sketchLogTitle{
         height:5%;
         width:100%;
@@ -449,15 +413,14 @@
         shape-rendering: crispEdges;
       }
 
-      .pathTrace line {
-        fill: none;
-        stroke: #c0c0c0;
-        stroke-width: 1px;
+      .pathTrace {
+        stroke: rgba(225, 120, 0, 0.5);
+        stroke-width: 3px;
       }
 
       .pathTrace:hover {
         stroke: rgba(225, 120, 0, 1);
-        stroke-width: 3px;
+        stroke-width: 5px;
       }
 
       .dot {
@@ -801,15 +764,6 @@
         </div>
       </div>
       <div id="bottomleft">
-          <div id="sketchTitle">
-            Graphical Representation of Sketches [click to contract view]
-          </div>
-          <div id="sketches">
-            <div id="sketchContent">
-            </div>
-            <svg id="sketchScrubber">
-            </svg>
-          </div>
           <div id="sketchLogTitle">
             sketch Participation Chart [click to contract view]
           </div>
