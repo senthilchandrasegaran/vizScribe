@@ -1,34 +1,73 @@
-5,00:00:20.000, 00:00:21.000,something,line5word1,line5word2,Thank you. 
-,6,00:00:21.000, 00:00:22.500,something,line6word0,line6word1,line6word2,line6word3,line6word4,line6word5,line6word6,line6word7, May I ask if you logged in? 
-,7,00:00:23.000, 00:00:27.000,something,line7word0,line7word1,line7word2,line7word3,line7word4,line7word5,line7word6,line7word7, Here I’m going to put—or input user. 
-,8,00:00:27.000, 00:00:30.000,something,line8word0,line8word1,line8word2,line8word3,line8word4,line8word5,line8word6,line8word7, Your ID which is F (three) number. 
-,9,00:00:32.000, 00:00:34.000,something,line9word0,line9word1,line9word2,line9word3,line9word4,line9word5, Same password. F three. Whatever. 
-,10,00:00:40.000, 00:00:45.000,something,line10word0,line10word1,line10word2,line10word3,line10word4,line10word5,line10word6,line10word7,line10word8,line10word9,line10word10,line10word11,line10word12, I guess you look at you user and then whatever your ID. 
-,11,00:00:45.000, 00:00:47.000,something,line11word0,line11word1, Oh 
-,12,00:00:47.000, 00:00:48.000,something,line12word0,line12word1,line12word2,line12word3,line12word4,line12word5, How do you do that? 
-,13,00:00:51.000, 00:00:52.000,something,line13word0,line13word1,line13word2,line13word3,line13word4, You’ll need a pen. 
-,14,00:00:52.000, 00:00:55.280,something,line14word0,line14word1,Ah. [Laughter] 
-,6,00:00:21.000, 00:00:22.500,and another thing,line6word3,line6word4,line6word5,line6word6,line6word7,ask if you logged in? 
-,7,00:00:23.000, 00:00:27.000,and another thing,line7word0,line7word1,line7word2,line7word3,line7word4,line7word5,line7word6,line7word7, Here I’m going to put—or input user. 
-,8,00:00:27.000, 00:00:30.000,and another thing,line8word0,line8word1,line8word2,line8word3,line8word4,line8word5,line8word6,line8word7, Your ID which is F (three) number. 
-,9,00:00:32.000, 00:00:34.000,and another thing,line9word0,line9word1,line9word2,line9word3,line9word4,line9word5, Same password. F three. Whatever. 
-,10,00:00:40.000, 00:00:45.000,and another thing,line10word0,line10word1,line10word2,line10word3,line10word4,line10word5,line10word6,line10word7,line10word8,line10word9,line10word10,line10word11,line10word12, I guess you look at you user and then whatever your ID. 
-,11,00:00:45.000, 00:00:47.000,and another thing,line11word0,line11word1, Oh 
-,12,00:00:47.000, 00:00:48.000,and another thing,line12word0,line12word1,line12word2,line12word3,line12word4,line12word5, How do you do that? 
-,13,00:00:51.000, 00:00:52.000,and another thing,line13word0,line13word1,line13word2,line13word3,line13word4, You’ll need a pen. 
-,14,00:00:52.000, 00:00:55.280,and another thing,line14word0,line14word1,Ah. [Laughter] 
-,15,00:00:58.000, 00:01:03.000,and another thing,line15word0,line15word1,line15word2,line15word3,line15word4,line15word5, I assume you’re supposed to 
-,16,00:01:03.000, 00:01:05.000,and another thing,line16word0,line16word1,line16word2,line16word3, pyramids and everything 
-,17,00:01:06.000, 00:01:08.000,and another thing,line17word0,line17word1,line17word2,line17word3,line17word4, Do I write them 
-,68,00:04:18.300, 00:04:20.700,something else,line68word1,line68word2,line68word3,line68word4,line68word5,line68word6,We can do it. Okay. Thanks. 
-,69,00:04:21.000, 00:04:22.500,something else,line69word0,line69word1,line69word2,line69word3,line69word4,line69word5,line69word6,line69word7,line69word8, Let me know if you have any problems. 
-,70,00:04:26.000, 00:04:31.000,something else,line70word0,line70word1,line70word2,line70word3,line70word4,line70word5,line70word6,line70word7,line70word8,line70word9, I thought it also requires a lot of imagination. 
-,71,00:04:31.000, 00:04:36.000,something else,line71word0,line71word1,line71word2,line71word3,line71word4,line71word5,line71word6,line71word7, It does. Not a lot but yes. 
-,72,00:04:36.000, 00:04:40.000,something else,line72word0,line72word1,line72word2,line72word3,line72word4, It’s not something abstract 
-,73,00:04:40.000, 00:04:43.000,something else,line73word0,line73word1,line73word2,line73word3,line73word4,line73word5, but It’s more than just 
-,74,00:04:43.000, 00:04:47.000,something else,line74word0,line74word1,line74word2,line74word3,line74word4,line74word5,line74word6,line74word7,line74word8, I agree. If it’s a collaborative effect then— 
-,75,00:04:47.940, 00:04:52.500,something else,line75word0,line75word1,line75word2,line75word3,line75word4,line75word5,line75word6,line75word7,line75word8,line75word9,line75word10,line75word11,line75word12,line75word13,line75word14,line75word15, Let’s say if you are to put these three—three of these in the scenarios.  
-,76,00:04:52.500, 00:04:56.000,something else,line76word0,line76word1,line76word2, I think 
-,77,00:05:06.000, 00:05:07.000,something else,line77word0,line77word1,line77word2,line77word3,line77word4, You’re gonna handle it? 
-,78,00:05:08.500, 00:05:09.500,something else,line78word0,line78word1, Yep. 
-,79,00:05:11.500, 00:05:13.000,something else,line79word0,line79word1,line79word2,Right here [inaudible] 
+4,00:00:16.000, 00:00:18.000,test2,line4word3,line4word4,line4word5,line4word6,line4word7,line4word8,line4word9,line4word10,line4word11,line4word12,line4word13,line4word14,know there [inaudible 00:00:16] that I wish you could meet this too. 
+,5,00:00:20.000, 00:00:21.000,test2,line5word0,line5word1,line5word2, Thank you. 
+,6,00:00:21.000, 00:00:22.500,test2,line6word0,line6word1,line6word2,line6word3,line6word4,line6word5,line6word6,line6word7, May I ask if you logged in? 
+,7,00:00:23.000, 00:00:27.000,test2,line7word0,line7word1,line7word2,line7word3,line7word4,line7word5,line7word6,line7word7, Here I’m going to put—or input user. 
+,8,00:00:27.000, 00:00:30.000,test2,line8word0,line8word1,line8word2,line8word3,line8word4,line8word5,line8word6,line8word7, Your ID which is F (three) number. 
+,9,00:00:32.000, 00:00:34.000,test2,line9word0,line9word1,line9word2,line9word3,line9word4,line9word5, Same password. F three. Whatever. 
+,10,00:00:40.000, 00:00:45.000,test2,line10word0,line10word1,line10word2,line10word3,line10word4,line10word5,line10word6,line10word7,line10word8,line10word9,line10word10,line10word11,line10word12, I guess you look at you user and then whatever your ID. 
+,11,00:00:45.000, 00:00:47.000,test2,line11word0,line11word1, Oh 
+,12,00:00:47.000, 00:00:48.000,test2,line12word0,line12word1,line12word2,line12word3,line12word4,line12word5, How do you do that? 
+,13,00:00:51.000, 00:00:52.000,test2,line13word0,line13word1,line13word2, You’ll need 
+,15,00:00:58.000, 00:01:03.000,tset56,line15word2,line15word3,line15word4,line15word5,assume you’re supposed to 
+,16,00:01:03.000, 00:01:05.000,tset56,line16word0,line16word1,line16word2,line16word3, pyramids and everything 
+,17,00:01:06.000, 00:01:08.000,tset56,line17word0,line17word1,line17word2,line17word3,line17word4,line17word5,line17word6,line17word7, Do I write them in here then? 
+,18,00:01:08.000, 00:01:10.000,tset56,line18word0,line18word1,line18word2,line18word3,line18word4,line18word5,line18word6,line18word7, I guess you can. Yeah. Go ahead. 
+,19,00:01:10.500, 00:01:13.000,tset56,line19word0,line19word1,line19word2,line19word3,line19word4,line19word5,line19word6,line19word7,line19word8,line19word9,line19word10, You won't be able to write unless you open this 
+,20,00:01:19.000, 00:01:21.000,tset56,line20word0,line20word1,line20word2,line20word3,line20word4,line20word5,line20word6,line20word7, Then you select the tools from here. 
+,21,00:01:25.000, 00:01:26.000,tset56,line21word0,line21word1,line21word2,line21word3,line21word4,line21word5, So where is the [inaudible] 
+,22,00:01:30.000, 00:01:31.500,tset56,line22word0,line22word1,line22word2,line22word3, We have the 
+,33,00:02:10.000, 00:02:11.000,test2,line33word3,line33word4,box empty? 
+,34,00:02:11.000, 00:02:11.500,test2,line34word0,line34word1, Yeah. 
+,35,00:02:12.880, 00:02:15.420,test2,line35word0,line35word1,line35word2,line35word3,line35word4,line35word5,line35word6, I guess we could categorize everything. 
+,36,00:02:24.000, 00:02:30.000,test2,line36word0,line36word1,line36word2,line36word3,line36word4,line36word5,line36word6,line36word7,line36word8,line36word9,line36word10,line36word11,line36word12,line36word13, This is your activity here. This would be doing the activity then?  
+,37,00:02:31.060, 00:02:32.200,test2,line37word0,line37word1,line37word2,line37word3,line37word4,line37word5,line37word6,line37word7,line37word8, Should we all take one of these cards? 
+,38,00:02:32.200, 00:02:32.900,test2,line38word0,line38word1, No 
+,39,00:02:32.900, 00:02:33.560,test2,line39word0,line39word1, Okay 
+,40,00:02:46.000, 00:02:47.500,test2,line40word0,line40word1,line40word2,line40word3,line40word4,line40word5,line40word6, Are we discussing this or just— 
+,41,00:02:47.500, 00:02:48.000,test2,line41word0,line41word1,line41word2, Yeah. [inaudible] 
+,42,00:02:49.000, 00:02:55.000,test2,line42word0,line42word1,line42word2,line42word3,line42word4,line42word5,line42word6,line42word7,line42word8,line42word9,line42word10,line42word11,line42word12,line42word13, So... on the scale of play first of all—yeah. Yash pointed out gender. 
+,43,00:02:57.000, 00:02:58.000,test2,line43word0,line43word1, Why? 
+,44,00:02:58.720, 00:02:59.540,test2,line44word0,line44word1,line44word2, Obviously male. 
+,45,00:03:00.880, 00:03:01.680,test2,line45word0,line45word1, Yeah. 
+,46,00:03:06.800, 00:03:07.800,test2,line46word0,line46word1,line46word2, It’s edited. 
+,47,00:03:07.800, 00:03:09.000,test2,line47word0,line47word1, What? 
+,48,00:03:15.620, 00:03:17.000,test2,line48word0,line48word1,line48word2,line48word3,line48word4,line48word5, What could you do differently? 
+,49,00:03:17.000, 00:03:19.500,test2,line49word0,line49word1,line49word2,line49word3,line49word4,line49word5,line49word6,line49word7,line49word8,line49word9,line49word10, I don’t know. Let me get a new canvas.  
+,50,00:03:19.500, 00:03:23.000,test2,line50word0,line50word1,line50word2,line50word3,line50word4,line50word5,line50word6,line50word7,line50word8,line50word9,line50word10,line50word11,line50word12,line50word13, You can pull around these like this and get this drawing here.  
+,51,00:03:24.180, 00:03:24.780,test2,line51word0,line51word1, Okay. 
+,52,00:03:24.780, 00:03:29.500,test2,line52word0,line52word1, So 
+,53,00:03:29.500, 00:03:32.000,test2,line53word0,line53word1,line53word2,line53word3,line53word4,line53word5,line53word6,line53word7,line53word8,line53word9, you just need to draw in this white space. 
+,54,00:03:32.000, 00:03:33.500,test2,line54word0,line54word1, Okay 
+,71,00:04:31.000, 00:04:36.000,test2,line71word2,line71word3,line71word4,line71word5,line71word6,line71word7,does. Not a lot but yes. 
+,72,00:04:36.000, 00:04:40.000,test2,line72word0,line72word1,line72word2,line72word3,line72word4, It’s not something abstract 
+,73,00:04:40.000, 00:04:43.000,test2,line73word0,line73word1,line73word2,line73word3,line73word4,line73word5, but It’s more than just 
+,74,00:04:43.000, 00:04:47.000,test2,line74word0,line74word1,line74word2,line74word3,line74word4,line74word5,line74word6,line74word7,line74word8, I agree. If it’s a collaborative effect then— 
+,75,00:04:47.940, 00:04:52.500,test2,line75word0,line75word1,line75word2,line75word3,line75word4,line75word5,line75word6,line75word7,line75word8,line75word9,line75word10,line75word11,line75word12,line75word13,line75word14,line75word15, Let’s say if you are to put these three—three of these in the scenarios.  
+,76,00:04:52.500, 00:04:56.000,test2,line76word0,line76word1,line76word2, I think 
+,77,00:05:06.000, 00:05:07.000,test2,line77word0,line77word1,line77word2,line77word3,line77word4, You’re gonna handle it? 
+,78,00:05:08.500, 00:05:09.500,test2,line78word0,line78word1, Yep. 
+,79,00:05:11.500, 00:05:13.000,test2,line79word0,line79word1,line79word2,Right here [inaudible] 
+,80,00:05:13.000, 00:05:14.500,test2,line80word0,line80word1,line80word2,line80word3, Yeah. Makes sense. 
+,81,00:05:14.500, 00:05:17.000,test2,line81word0,line81word1,line81word2,line81word3,line81word4,line81word5,line81word6,line81word7,line81word8, You click here and then you get this. 
+,82,00:05:18.000, 00:05:25.000,test2,line82word0,line82word1, Oh 
+,83,00:05:25.000, 00:05:27.000,test2,line83word0,line83word1,line83word2, [Cross talk] 
+,84,00:05:34.000, 00:05:37.000,test2,line84word0,line84word1, Scamper 
+,85,00:05:37.000, 00:05:39.000,test2,line85word0,line85word1,line85word2,line85word3,line85word4,line85word5, There’s a social [inaudible]  
+,86,00:05:44.000, 00:05:52.000,test2,line86word0,line86word1,line86word2,line86word3,line86word4,line86word5,line86word6,line86word7,line86word8,line86word9,line86word10,line86word11,line86word12,line86word13, There's a social involvement or you can probably play with these by yourself 
+,87,00:05:54.000, 00:05:59.500,test2,line87word0,line87word1,line87word2,line87word3,line87word4, I guess we should 
+,109,00:07:36.680, 00:07:37.980,test2,line109word2,line109word3,line109word4,line109word5,line109word6,guy has a crossbow.  
+,110,00:07:38.240, 00:07:39.160,test2,line110word0,line110word1, Yeah 
+,111,00:07:39.160, 00:07:40.060,test2,line111word0,line111word1,line111word2,line111word3,line111word4, And a knife! [laughter] 
+,112,00:07:43.060, 00:07:49.360,test2,line112word0,line112word1,line112word2,line112word3,line112word4,line112word5,line112word6,line112word7,line112word8,line112word9,line112word10,line112word11,line112word12,line112word13,line112word14,line112word15,line112word16, And... this guy has a harpoon and a gun and also—I don’t know what this is. 
+,113,00:07:50.200, 00:07:50.900,test2,line113word0,line113word1,line113word2,line113word3,line113word4, What do you see? 
+,114,00:07:50.900, 00:07:52.280,test2,line114word0,line114word1,line114word2,line114word3,line114word4,line114word5,line114word6,line114word7, Could be ropes or something like that. 
+,115,00:07:58.000, 00:08:02.100,test2,line115word0,line115word1,line115word2,line115word3,line115word4, Just as an interest 
+,116,00:08:02.240, 00:08:02.740,test2,line116word0,line116word1, Mm-hmm. 
+,117,00:08:02.740, 00:08:09.400,test2,line117word0,line117word1,line117word2,line117word3,line117word4,line117word5,line117word6,line117word7,line117word8,line117word9,line117word10,line117word11,line117word12,line117word13,line117word14,line117word15,line117word16,line117word17,line117word18, There’s a toy chest out here on—in front of 2166. After you finish categorizing your toy as is 
+,118,00:08:09.400, 00:08:16.680,test2,line118word0,line118word1,line118word2,line118word3,line118word4,line118word5,line118word6,line118word7,line118word8,line118word9,line118word10,line118word11,line118word12,line118word13,line118word14,line118word15,line118word16,line118word17,line118word18,line118word19,line118word20,line118word21, you start figuring out how to change the scales of play. You can use this box as inspiration for other toys. 
+,119,00:08:18.000, 00:08:20.560,test2,line119word0,line119word1,line119word2,line119word3,line119word4,line119word5,line119word6,line119word7,line119word8,line119word9,line119word10, Do we want to move on to the other side? 
+,120,00:08:21.000, 00:08:25.700,test2,line120word0,line120word1, Okay 
+,91,00:06:06.000, 00:06:08.000,test2,line91word1,line91word2,line91word3,line91word4,line91word5,line91word6,line91word7,line91word8,line91word9,There’s quite a bit of free play in this? 
+,92,00:06:08.000, 00:06:09.000,test2,line92word0,line92word1,line92word2,line92word3, Yeah. There is. 
+,93,00:06:11.000, 00:06:13.500,test2,line93word0,line93word1,line93word2,line93word3,line93word4,line93word5,line93word6,line93word7, Free plays. Yeah. I guess that’s more— 
+,94,00:06:13.500, 00:06:15.500,test2,line94word0,line94word1,line94word2,line94word3, It’s free play. 

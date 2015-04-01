@@ -1312,42 +1312,127 @@ window.onload = function () {
               .rangePoints([margin.top, 
                            protoGraphHeight - margin.bottom], 0);
             var proSpace = 10;
+            // clickStatus below determines the d3 rectangles' behavior
+            // with respect to the mouseover.
+            var clickStatus = 0;
+            
+            var codedData = [];
+            for (var ind=0; ind<selectedIndices.length; ind++){
+              var rowData = selectedIndices[ind];
+              var d = {};
+              d.startTime = hmsToSec(rowData[1]);
+              d.endTime = hmsToSec(rowData[2]);
+              d.x = protoX(d.startTime);
+              d.code = rowData[3];
+              d.codeIndex = protocolList.indexOf(d.code);
+              d.y = (d.codeIndex *
+                     (protoGraphHeight-proSpace)/
+                     (protocolList.length - 1)
+                    ) + proSpace / 2;
+              d.id = d.code + "line" + rowData[0];
+              d.lineID = "line" + rowData[0];
+              // d.width = protoX(d.endTime - d.startTime);
+              d.width = 2;
+              d.height = (protoGraphHeight-proSpace)/
+                         (protocolList.length - 1);
+              d.fill = protocolColorList[d.codeIndex];
+              d.spanIds = rowData[4];
+              d.transcriptLine = rowData[5];
+              d.clickStatus = 0;
+              codedData.push(d);
+            }
+            console.log(selectedIndices);
+            console.log(codedData);
+            
             var rects = protocolSVG.selectAll("rect")
-              .data(selectedIndices)
+              .data(codedData)
               .enter()
               .append("rect")
-              .attr("x", function (d, i) {
-                var startTimeScaled = protoX(hmsToSec(d[1]));
-                return startTimeScaled;
-              })
-              .attr("y", function (d) {
-                var yloc =
-                protocolList.indexOf(d[3]);
-                return (yloc *
-                  (protoGraphHeight - proSpace) /
-                  (protocolList.length - 1)) + proSpace / 2;
-              })
-              .attr("id", function (d) {
-                return (d[3]+"line"+d[0])
-              })
-              .attr("width", function (d) {
-                return protoX(hmsToSec(d[2]) -
-                              hmsToSec(d[1]));
-              })
-              .attr("height", (protoGraphHeight - proSpace) /
-                              (protocolList.length - 1))
+              .attr("x", function (d) {return d.x;})
+              .attr("y", function (d) {return d.y;})
+              .attr("id", function (d) {return d.id;})
+              .attr("width", function (d) {return d.width;})
+              .attr("height", function (d) {return d.height;})
               .attr("stroke-width", 1)
-              .attr("stroke", "rgba(255,255,255,1)")
-              .attr("fill", function (d) {
-                return protocolColorList[protocolList.indexOf(d[3])];
+              .attr("stroke", "rgba(255,255,255,0)")
+              .attr("fill", function (d) {return d.fill;})
+              .attr("fill-opacity", 0.5)
+              .attr("z-index", -1)
+              .on("mouseover", function(d){
+                if (d.clickStatus === 0){
+                  for (var si in d.spanIds){
+                    $("#"+d.spanIds[si])
+                      .css({"background-color":d.fill});
+                  }
+                  d3.select(this).attr('width', 2);
+                  d3.select(this).attr('fill-opacity', 1);
+                }
+              })
+              .on("mouseout", function(d){
+                if (d.clickStatus === 0){
+                  for (var si in d.spanIds){
+                    $("#"+d.spanIds[si])
+                      .css({"background-color":"rgba(0,0,0,0)"});
+                  }
+                  d3.select(this).attr('width', d.width);
+                  d3.select(this).attr('fill-opacity', 0.5);
+                }
+              })
+              .on("click", function(d){
+                if (d3.event.ctrlKey){
+                  console.log(selectedIndices);
+                  var lineCollection = [];
+                  if (clickStatus===0){
+                    // select all coded objects by code ID
+                    var sameCodeObjs = $.grep(codedData, function(e){ 
+                      return e.code == d.code; 
+                    });
+                    // color all spans in these objects persistently
+                    for (var ind=0; ind<sameCodeObjs.length; ind++){
+                      var currentObj = sameCodeObjs[ind];
+                      for (var si in currentObj.spanIds){
+                        $("#"+currentObj.spanIds[si])
+                          .css({"background-color":d.fill});
+                      }
+                      var codedWords = currentObj
+                                          .transcriptLine
+                                          .toLowerCase()
+                                          .split(wordSeparators);
+                      lineCollection.push(codedWords);
+                      // exempt these rectangles from mouseover,
+                      // mouseout events.
+                      currentObj.clickStatus = 1;
+                    }
+                    $("#tagList").empty();
+                    $("#tagList").append(makeWordList(lineCollection, 
+                                                      tagsToRemove));
+                    // set general click status as 1, so that this has
+                    // to be disabled before another group of spans can
+                    // be permanently highlighted.
+                    clickStatus = 1;
+                  } else {
+                    $("#transTable")
+                      .find("span")
+                      .css({"background-color":"rgba(0,0,0,0)"});
+                    for (var ind=0; ind<codedData.length; ind++){
+                      codedData[ind].clickStatus = 0;
+                    }
+                    clickStatus = 0;
+                  }
+                } else {
+                  // just skip to that time.
+                  player.currentTime(d.startTime);
+                }
               });
-          // then get rid of the context menu
+
+          // get rid of the context menu
           $('.contextmenu')
             .css({ "box-shadow": "none",
                    "border": "none",
                    "background": "none" })
             .empty();
-        }
+        } // end of code that determines what happens when the
+          // contextmenu is clicked on.
       }); // end of code that decides what happens when an item is
           // clicked on the context menu
 
@@ -1359,69 +1444,6 @@ window.onload = function () {
                    "background": "none" })
             .empty();
       });
-
-      // code for interacting with coded timeline view
-      var clickStatus = 0;
-      $('#protocolGraphContent').on('mouseenter', 
-                                    'svg rect', 
-                                    function() {
-          var tempColor = $(this).attr("fill");
-          var rectId = parseInt($(this).attr("id").split("line")[1]);
-          var selCode = $(this).attr("id").split("line")[0];
-          var newArray = [];
-          var lineNums = [];
-          for (var ind in selectedIndices){
-            if (selectedIndices[ind][3] === selCode){
-              newArray.push(selectedIndices[ind]);
-              lineNums.push(selectedIndices[ind][0]);
-              if (selectedIndices[ind][0] === rectId){
-                var spanIdsList = selectedIndices[ind][4];
-                for (var si in spanIdsList){
-                  $("#"+spanIdsList[si]).css({"background-color":
-                                                     tempColor});
-                }
-              }
-            }
-          }
-      }); // end of protoGraph onmouseenter function.
-
-      $('#protocolGraphContent').on('mouseleave',
-                                    'svg rect',
-                                    function() {
-          if (clickStatus === 0){
-            $("#transTable").find("span")
-                            .css({"background-color":"rgba(0,0,0,0)"});
-          }
-      }); // end of protoGraph onmouseleave function
-      $('#protocolGraphContent').on('click', 
-                                    'svg rect', 
-                                    function() {
-          console.log(selectedIndices);
-          if (clickStatus===0){
-            var tempColor = $(this).attr("fill");
-            var rectId = parseInt($(this).attr("id").split("line")[1]);
-            var selCode = $(this).attr("id").split("line")[0];
-            var newArray = [];
-            var lineNums = [];
-            for (var ind in selectedIndices){
-              if (selectedIndices[ind][3] === selCode){
-                newArray.push(selectedIndices[ind]);
-                lineNums.push(selectedIndices[ind][0]);
-                  var spanIdsList = selectedIndices[ind][4];
-                  for (var si in spanIdsList){
-                    $("#"+spanIdsList[si]).css({"background-color":
-                                                       tempColor});
-                  }
-              }
-            }
-            clickStatus = 1;
-          } else {
-            $("#transTable").find("span")
-                            .css({"background-color":"rgba(0,0,0,0)"});
-            clickStatus = 0;
-          }
-      }); // end of protoGraph onmouseenter function.
-
     }); // end of file ajax code
 
     // Function to read in the log file
@@ -1667,6 +1689,7 @@ window.onload = function () {
         var speakerList = speechArray[0]
                             .split(",")
                             .slice(1, speechArray[0].length-1);
+        console.log(speakerList);
         // generate beautiful visuals
         d3.select("#speechLogContent").selectAll("svg").remove();
         var speechW = $("#speechLogContent").width()-2;
