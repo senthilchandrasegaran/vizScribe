@@ -200,7 +200,7 @@
         padding: 0px;
       }
       #transGraphTitle{
-        height: 25%;
+        height: 30%;
         width:100%;
         background:#FFFFFF;
         font-size: 11px;
@@ -208,7 +208,7 @@
         overflow: hidden;
       }
       #transGraph{
-        height:75%;
+        height:70%;
         width:100%;
         background:#FFFFFF;
         overflow: hidden;
@@ -218,7 +218,6 @@
         float: left;
         height: 35%;
         width: 100%;
-        // font-size:12px;
         font: 10px sans-serif;
         font-family:helvetica;
         overflow: scroll;
@@ -365,6 +364,13 @@
         border:1px solid;
         border-color: #C9C9C9;
         padding: 2px;
+      }
+      .header{
+        background-color: #ffffff;
+      }
+      .header:hover{
+        background-color: #c0c0c0;
+        font-weight: bold;
       }
       .highlighted {
         background: #F8BB64;
@@ -764,7 +770,7 @@
         </div>
       </div>
       <div id="bottomleft">
-          <div id="sketchLogTitle">
+          <div id="sketchLogTitle" class="header">
             sketch Participation Chart [click to contract view]
           </div>
           <div id="sketchLog">
@@ -773,7 +779,7 @@
             <svg id="sketchLogScrubber">
             </svg>
           </div>
-          <div id="speechLogTitle">
+          <div id="speechLogTitle" class="header">
             Speech Participation Chart [click to contract view]
           </div>
           <div id="speechLog">
@@ -782,7 +788,7 @@
             <svg id="speechLogScrubber">
             </svg>
           </div>
-          <div id="activityLogTitle">
+          <div id="activityLogTitle" class="header">
             Activity Level Chart [click to contract view]
           </div>
           <div id="activityLog">
@@ -791,7 +797,7 @@
             <svg id="activityLogScrubber">
             </svg>
           </div>
-          <div id="protocolGraphTitle">
+          <div id="protocolGraphTitle" class="header">
             Code Timeline [click to contract view]
           </div>
           <div id="protocolGraph">

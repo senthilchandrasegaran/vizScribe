@@ -1796,6 +1796,9 @@ window.onload = function () {
         var activityScaleSp = d3.scale.linear()
                               .domain([0,1])
                               .range([0, activityH/numSpeakers]);
+        var actScale = d3.scale.pow().exponent(1)
+                               .domain([0,maxAct-0.2])
+                               .range([0,1]);
         var activityPlotData = [];
 
         for (speakerIndex=0; speakerIndex<numSpeakers; speakerIndex++){
@@ -1807,13 +1810,17 @@ window.onload = function () {
               var timeStampSec = hmsToSec(spRow[0]);
               d.x = activityScaleX(timeStampSec);
               d.width = activityScaleX(timeStampSec - prevTime);
-              d.height = activityScaleY(spRow[speakerIndex+1]/maxAct);
+              //d.height = activityScaleY(spRow[speakerIndex+1]/maxAct);
+              //d.height = activityScaleY(actScale(heightValue));
+              d.height = activityScaleY(1);
               d.y = activityScaleY(numSpeakers-speakerIndex) - d.height;
               d.y0 = activityScaleY(numSpeakers-speakerIndex-1);
               d.timeStamp = timeStampSec;
               d.speaker = speakerList[speakerIndex];
               d.participationValue = parseFloat(spRow[speakerIndex+1]); 
               d.fillColor = speakerColors[speakerIndex];
+              d.fillOpacity = actScale(spRow[speakerIndex+1]);
+              //d.fillOpacity = 1;
               activityPlotData.push(d);
               prevTime = timeStampSec;
             }
@@ -1831,20 +1838,29 @@ window.onload = function () {
               .attr("y", function(d){return d.y;})
               .attr("width", function(d){return d.width;})
               .attr("height", function(d){return d.height;})
+              .attr("height", function(d){return d.height;})
               .attr("fill", function(d){return d.fillColor;})
+              .attr("fill-opacity", function(d){return d.fillOpacity;})
               .attr("z-index", "10")
               .on('mouseover', function(d){
                 d3.select(this).attr('height', activityScaleY(1));
                 d3.select(this).attr('width', 2);
                 d3.select(this).attr('y', d.y0);
                 d3.select(this).attr('fill', greenHighlight);
+                d3.select(this).attr('fill-opacity', 1);
                 activityTip.html(d.speaker).show();
               })
               .on('mouseout', function(d){
                 d3.select(this).attr('height', d.height);
                 d3.select(this).attr('width', d.width);
                 d3.select(this).attr('y', d.y);
-                d3.select(this).attr("fill", function(d){return d.fillColor;})
+                d3.select(this)
+                  .attr("fill", function(d){
+                    return d.fillColor;
+                  })
+                  .attr("fill-opacity", function(d){
+                    return d.fillOpacity;
+                  })
                 activityTip.hide();
               })
               .on('click', function(d){
