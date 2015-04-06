@@ -494,7 +494,7 @@ window.onload = function () {
       //---------------------------------------------------------------   
       tagListDOM.on('click', 'text', function (e) {
           // KB edits ----
-          if (e.ctrlKey) {
+          if (e.ctrlKey || e.metaKey) {
               document.getElementById('concordance-view').style.visibility = 'visible';
               //get concordance
               var word = $(this).text();
@@ -555,7 +555,7 @@ window.onload = function () {
       var videoDuration = 0
       player.ready(function () {
           $('#transTable').on('click', 'tr', function (e) {
-            if (e.ctrlKey) {
+            if (e.ctrlKey || e.metaKey) {
               e.preventDefault();
               var captionIndex = this.rowIndex;
               var captionStartTimeMin = 
@@ -1344,6 +1344,11 @@ window.onload = function () {
             console.log(selectedIndices);
             console.log(codedData);
             
+            var codeTip = d3.tip()
+                            .attr('class', 'd3-tip')
+                            .direction('s');
+            protocolSVG.call(codeTip);
+
             var rects = protocolSVG.selectAll("rect")
               .data(codedData)
               .enter()
@@ -1359,6 +1364,7 @@ window.onload = function () {
               .attr("fill-opacity", 0.5)
               .attr("z-index", -1)
               .on("mouseover", function(d){
+                codeTip.html(d.transcriptLine).show();
                 if (d.clickStatus === 0){
                   for (var si in d.spanIds){
                     $("#"+d.spanIds[si])
@@ -1369,6 +1375,7 @@ window.onload = function () {
                 }
               })
               .on("mouseout", function(d){
+                codeTip.hide();
                 if (d.clickStatus === 0){
                   for (var si in d.spanIds){
                     $("#"+d.spanIds[si])
@@ -1379,7 +1386,7 @@ window.onload = function () {
                 }
               })
               .on("click", function(d){
-                if (d3.event.ctrlKey){
+                if (d3.event.ctrlKey || d3.event.metaKey){
                   console.log(selectedIndices);
                   var lineCollection = [];
                   if (clickStatus===0){
@@ -1422,6 +1429,16 @@ window.onload = function () {
                 } else {
                   // just skip to that time.
                   player.currentTime(d.startTime);
+                  var transClickItem = $('#transTable')
+                          .find("#"+d.lineID);
+                  // this small snippet below to scroll the transcript
+                  // to show the line corresponding to the item selected
+                  // in transgraph
+                  var topPos = $(transClickItem).offset().top;
+                  $('#transContent')
+                      .scrollTo($(transClickItem),
+                                {duration: 'slow',
+                                 transition: 'ease-in-out'});
                 }
               });
 
@@ -1648,7 +1665,7 @@ window.onload = function () {
                   sketchTip.hide();
                 })
                 .on('click', function(d){
-                  if (d3.event.ctrlKey){
+                  if (d3.event.ctrlKey || d3.event.metaKey){
                     $('#imgPath-content').children().remove();
                     d3.select(this).transition()
                                    .attr("r", 12);
