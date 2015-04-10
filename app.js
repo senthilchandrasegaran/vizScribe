@@ -199,10 +199,11 @@ app.get('/main.html', function (req, res) {
 //   console.log("Requested URL -" + selectedUrl); 
 // });
 
-app.get('/transcript_file', function (req, res) {
-    var selectedURL = url.parse(req.url, true); //creates object
-    var transcriptParams = selectedURL.query;
+app.post('/transcript_file', function (req, res) {
+    // var selectedURL = url.parse(req.url, true); //creates object
+    // var transcriptParams = selectedURL.query;
     // console.log(transcriptParams.transcript);
+    var transcriptParams = req.body;
     outputtrans.target = transcriptParams.transcript;
     // this sets the above defined variables
     res.end();

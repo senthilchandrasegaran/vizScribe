@@ -192,7 +192,7 @@ window.onload = function() {
                     console.log(textFile.result.toString());
 
                     $.ajax({
-                        type: "GET",
+                        type: "POST",
                         url: "/transcript_file",
                         data: { transcript: textFile.result.toString() }
                     }).done(function (msg) {

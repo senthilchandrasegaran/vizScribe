@@ -282,7 +282,16 @@ window.onload = function () {
       // note: "send" from POV of client
       dataType: "text"
     }).done(function (data) {
+      console.log(typeof data);
       captionArray = $.csv.toArrays(data);
+      /* Fix this later.
+      var dataArray = data.split("\n");
+      console.log(dataArray);
+      for (var i=1; i< dataArray.length; i++){
+        var dataRow = dataArray[i].split("\t");
+        captionArray.push(dataRow);
+      }
+      */
       var longestLineLength = 0; // num words in the longest line
       for (var i in captionArray) {
         if ((captionArray[i].length > 1) &&
@@ -368,7 +377,8 @@ window.onload = function () {
           } else {
             var endSec = hmsToSec(captionArray[i + 1][1]);
             var startSec = hmsToSec(captionArray[i + 1][0]);
-            d.width = transcriptScale(endSec - startSec);
+            // d.width = transcriptScale(endSec - startSec);
+            d.width = 3;
           }
           if (scaleHeights === 0){
             d.height = h;
@@ -1341,9 +1351,6 @@ window.onload = function () {
               d.clickStatus = 0;
               codedData.push(d);
             }
-            console.log(selectedIndices);
-            console.log(codedData);
-            
             var codeTip = d3.tip()
                             .attr('class', 'd3-tip')
                             .direction('s');
@@ -1387,7 +1394,6 @@ window.onload = function () {
               })
               .on("click", function(d){
                 if (d3.event.ctrlKey || d3.event.metaKey){
-                  console.log(selectedIndices);
                   var lineCollection = [];
                   if (clickStatus===0){
                     // select all coded objects by code ID
@@ -1471,7 +1477,6 @@ window.onload = function () {
         // note: "send" from POV of client
         dataType: "text"
     }).done(function (data) {
-        console.log(typeof data);
         if (typeof data == 'string'){
           console.log("sketch log file received!");
           var sketchArray = $.csv.toArrays(data);
@@ -1572,7 +1577,6 @@ window.onload = function () {
                                 speakerList.indexOf(currentRow[2])-0.5);
                       p.from = commitRow;
                       p.to = currentRow;
-                      console.log(p);
                       pathData.push(p);
                       break;
                     };
@@ -1706,7 +1710,6 @@ window.onload = function () {
         var speakerList = speechArray[0]
                             .split(",")
                             .slice(1, speechArray[0].length-1);
-        console.log(speakerList);
         // generate beautiful visuals
         d3.select("#speechLogContent").selectAll("svg").remove();
         var speechW = $("#speechLogContent").width()-2;
@@ -1727,7 +1730,6 @@ window.onload = function () {
                               .range([0, speechH/numSpeakers]);
         var speechPlotData = [];
         for (speakerIndex=0; speakerIndex<numSpeakers; speakerIndex++){
-          console.log(speakerIndex);
           var prevTime = 0;
           for (var i=1; i<speechArray.length; i++){
             var spRow = speechArray[i].split(",");
