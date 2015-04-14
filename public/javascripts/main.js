@@ -215,12 +215,12 @@ function concordance(word) {
                           "<td align='right'>" + 
                           allCaptions.substring(left, index - 1) + 
                           "</td>" +
-                          "<td width=2%></td>" +
+                          "<td width=10px></td>" +
                           "<td align='center'><b>" + 
                           allCaptions.substring(index, 
                                                 index+word.length-1) + 
                           " </b></td>" +
-                          "<td width=2%></td>" +
+                          "<td width=10px></td>" +
                           "<td align='left'>" +
                           allCaptions.substring(index + word.length, 
                                                 right) + 
@@ -284,6 +284,8 @@ window.onload = function () {
     }).done(function (data) {
       console.log(typeof data);
       captionArray = $.csv.toArrays(data);
+      // remove the first line, since it's the data header.
+      captionArray.splice(0,1);
       /* Fix this later.
       var dataArray = data.split("\n");
       console.log(dataArray);
@@ -304,7 +306,7 @@ window.onload = function () {
           var lowerCaseWords = captionArray[i][3]
                                  .toLowerCase()
                                  .split(wordSeparators);
-          lowerCaseWords.shift();
+          // lowerCaseWords.shift();
           // for some reason, the wordSeparators split the line in
           // a way that the first word is an empty "".
           // lowerCaseWords.shift() gets rid of that "".
@@ -368,15 +370,15 @@ window.onload = function () {
         var constantWidth = 1;
         for (i=0; i < lowerCaseLines.length; i++){
           var d = {};
-          var xSec = hmsToSec(captionArray[i+1][0]);
+          var xSec = hmsToSec(captionArray[i][0]);
           var xloc = transcriptScale(xSec);
           d.x = xloc;
           d.y = 0;
           if (constantWidth != 0){
             d.width = 5;
           } else {
-            var endSec = hmsToSec(captionArray[i + 1][1]);
-            var startSec = hmsToSec(captionArray[i + 1][0]);
+            var endSec = hmsToSec(captionArray[i][1]);
+            var startSec = hmsToSec(captionArray[i][0]);
             // d.width = transcriptScale(endSec - startSec);
             d.width = 3;
           }
@@ -389,7 +391,7 @@ window.onload = function () {
             var lineRatio = d.length / longestLineLength;
             d.height = lineRatio * h;
           }
-          d.dialog = captionArray[i+1][3];
+          d.dialog = captionArray[i][3];
           transGraphData.push(d);
         }
 
@@ -450,11 +452,23 @@ window.onload = function () {
         videoDuration = player.duration();
         $(this).addClass('hoverHighlight');
         tagHoverText = $.trim($(this).text());
-        var transItems = $("#transTable tr td span:containsNC('"
-                        + tagHoverText + "')").closest("td");
+        // var transItems = $("#transTable tr td span:containsNC('"
+        //                 + tagHoverText + "')").closest("td");
+        var transItems = $("#transTable tr td").find("span")
+              .filter(function(){
+                var regex = new RegExp("\\b" + tagHoverText + "\\b");
+                return (this.textContent).toLowerCase().match(regex);
+              }).closest("td");
         transItems.addClass('hoverHighlight');
+        $("#transTable tr td").find("span")
+              .filter(function(){
+                var regex = new RegExp("\\b" + tagHoverText + "\\b");
+                return (this.textContent).toLowerCase().match(regex);
+              }).addClass('boldText');
+        /* 
         $("#transTable tr td span:containsNC('" + 
           tagHoverText + "')").addClass('boldText');
+          */
 
         //----------------------------------------------   
         // Highlight corresponding items in transGraph
@@ -525,11 +539,17 @@ window.onload = function () {
               tagHoverText = $.trim($(this).text());
               $('.textClickHighlight').removeClass('textClickHighlight');
               $('.boldClickText').removeClass('boldClickText');
-              var transItems = $("#transTable tr td span:containsNC('"
-                              + tagHoverText + "')").closest("td");
+              var transItems = $("#transTable tr td").find("span")
+                .filter(function(){
+                  var regex = new RegExp("\\b" + tagHoverText + "\\b");
+                  return (this.textContent).toLowerCase().match(regex);
+                }).closest("td");
               transItems.addClass('textClickHighlight');
-              $("#transTable tr td span:containsNC('" + 
-                tagHoverText + "')").addClass('boldClickText');
+              $("#transTable tr td").find("span")
+                .filter(function(){
+                  var regex = new RegExp("\\b" + tagHoverText + "\\b");
+                  return (this.textContent).toLowerCase().match(regex);
+                }).addClass('boldClickText');
 
               //----------------------------------------------   
               // add bars of highlighted bits next to seekbar
@@ -617,9 +637,9 @@ window.onload = function () {
           .attr("fill", transGraphColor);
       }); 
 
-      //---------------------------------------------------------------   
+      //--------------------------------------------------------------- 
       // end of light gray highlighting on mouseover for transcript
-      //---------------------------------------------------------------   
+      //---------------------------------------------------------------
 
       // Allow interaction with seesoft-like visualization
       $('#transGraph').find('svg').first()
@@ -1141,9 +1161,14 @@ window.onload = function () {
           var endSpan = rangeObject.attr("endContainer");
           var startLineID = startSpan.parentNode.parentNode.id; 
           var endLineID = endSpan.parentNode.parentNode.id;          
-          var sliceStart = startLineID.split("line")[1] - 1; 
-          var sliceEnd = endLineID.split("line")[1]; 
+          console.log(startLineID);
+          console.log(endLineID);
+          var sliceStart = startLineID.split("line")[1]; 
+          var sliceEnd = parseInt(endLineID.split("line")[1])+1; 
+          console.log(sliceEnd);
           var linesList = lowerCaseLines.slice(sliceStart, sliceEnd);
+          console.log(lowerCaseLines);
+          console.log(linesList);
           $("#tagList").empty();
           $("#tagList").append(makeWordList(linesList, tagsToRemove));
         } else {
