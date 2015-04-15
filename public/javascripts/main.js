@@ -449,27 +449,26 @@ window.onload = function () {
       //----------------------------------------------------------
       var tagHoverText = "";
       tagListDOM.on('mouseenter', 'text', function () {
-        videoDuration = player.duration();
         $(this).addClass('hoverHighlight');
         tagHoverText = $.trim($(this).text());
-        // var transItems = $("#transTable tr td span:containsNC('"
-        //                 + tagHoverText + "')").closest("td");
-        var transItems = $("#transTable tr td").find("span")
-              .filter(function(){
-                var regex = new RegExp("\\b" + tagHoverText + "\\b");
-                return (this.textContent).toLowerCase().match(regex);
-              }).closest("td");
-        transItems.addClass('hoverHighlight');
-        $("#transTable tr td").find("span")
-              .filter(function(){
-                var regex = new RegExp("\\b" + tagHoverText + "\\b");
-                return (this.textContent).toLowerCase().match(regex);
-              }).addClass('boldText');
-        /* 
+        // use regular expression to match the whole word only
+        var regex = new RegExp("\\b" + tagHoverText + "\\b");
+        /*
+        var transItems = $("#transTable tr td span:containsNC('"
+                        + tagHoverText + "')").parents("td")
+                        .addClass("hoverHighlight");
         $("#transTable tr td span:containsNC('" + 
           tagHoverText + "')").addClass('boldText');
-          */
-
+        */
+        var transItems = $("#transTable").find("span")
+              .filter(function(){
+                return (this.textContent).toLowerCase().match(regex);
+              }).parents("td");
+        transItems.addClass('hoverHighlight');
+        $("#transTable").find("span")
+              .filter(function(){
+                return (this.textContent).toLowerCase().match(regex);
+              }).addClass('boldText');
         //----------------------------------------------   
         // Highlight corresponding items in transGraph
         //----------------------------------------------   
@@ -531,26 +530,22 @@ window.onload = function () {
 
               // -------------
           } else {
-              
+              var regex = new RegExp("\\b" + tagHoverText + "\\b");
               $(this).parent().children('text')
                       .removeClass('tagClickHighlight');
               $(this).addClass('tagClickHighlight');
-
               tagHoverText = $.trim($(this).text());
               $('.textClickHighlight').removeClass('textClickHighlight');
               $('.boldClickText').removeClass('boldClickText');
               var transItems = $("#transTable tr td").find("span")
                 .filter(function(){
-                  var regex = new RegExp("\\b" + tagHoverText + "\\b");
                   return (this.textContent).toLowerCase().match(regex);
                 }).closest("td");
               transItems.addClass('textClickHighlight');
               $("#transTable tr td").find("span")
                 .filter(function(){
-                  var regex = new RegExp("\\b" + tagHoverText + "\\b");
                   return (this.textContent).toLowerCase().match(regex);
                 }).addClass('boldClickText');
-
               //----------------------------------------------   
               // add bars of highlighted bits next to seekbar
               //----------------------------------------------   
