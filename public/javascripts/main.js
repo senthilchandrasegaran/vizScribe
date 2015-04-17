@@ -49,7 +49,7 @@ var selectedIndices = [];
 var oldHighlighting = "rgba(220, 138, 12, 0.3)";
 var greenHighlight = "rgba(232, 138, 12, 1)";
 
-var transGraphColor = "rgba(123, 123, 123, 0.2)";
+var transGraphColor = "rgba(123, 123, 123, 0.1)";
 var boldHighlightColor = "rgba(255, 127, 0, 0.8)";
 var mildHighlightColor = "rgba(255, 127, 0, 0.8)";
 var wordCloudColor = "rgba(10, 100, 70, 0.7)";
@@ -367,8 +367,9 @@ window.onload = function () {
         // var maxvalue = Math.max.apply(Math, tagFreq);
         var transGraphPadding = 0;
         var scaleHeights = 0;
-        var constantWidth = 1;
-        for (i=0; i < lowerCaseLines.length; i++){
+        var constantWidth = 0;
+        console.log(captionArray);
+        for (i=0; i < captionArray.length; i++){
           var d = {};
           var xSec = hmsToSec(captionArray[i][0]);
           var xloc = transcriptScale(xSec);
@@ -377,10 +378,15 @@ window.onload = function () {
           if (constantWidth != 0){
             d.width = 5;
           } else {
-            var endSec = hmsToSec(captionArray[i][1]);
-            var startSec = hmsToSec(captionArray[i][0]);
-            // d.width = transcriptScale(endSec - startSec);
-            d.width = 3;
+            var endSec = hmsToSeconds(captionArray[i][1]);
+            var startSec = hmsToSeconds(captionArray[i][0]);
+            var scaledWidth = transcriptScale(endSec - startSec);
+            if (scaledWidth < 2){ 
+              d.width = 2;
+            } else {
+              d.width = scaledWidth;
+            };
+            console.log(d.width);
           }
           if (scaleHeights === 0){
             d.height = h;
@@ -406,11 +412,11 @@ window.onload = function () {
                  .append("rect")
                  .attr("x", function (d) { return d.x; })
                  .attr("y", function (d) { return d.y; })
-                 .attr("width", function (d) { return d.width; })
+                 .attr("width", function (d) { 
+                   return d.width; 
+                 })
                  .attr("z", 1)
                  .attr("height", function (d) { return d.height; })
-                 .attr("stroke-width", 1)
-                 .attr("stroke", "rgba(255,255,255,1)")
                  .attr("fill", function (d) {
                      return transGraphColor;
                  })
@@ -1552,7 +1558,7 @@ window.onload = function () {
                 var timeStampSec = hmsToSec(spRow[0]);
                 d.x = sketchScaleX(timeStampSec);
                 d.width = 5;
-                d.height = sketchScaleY(1);
+                d.height = sketchScaleY(0.8);
                 d.y = sketchScaleY(numSpeakers-speakerIndex) - d.height;
                 d.y0 = sketchScaleY(numSpeakers-speakerIndex-1);
                 d.timeStamp = timeStampSec;
@@ -1600,14 +1606,14 @@ window.onload = function () {
                       // the width of the rectangle (width=5)
                       p.y1index = numSpeakers-speakerList.indexOf(spID); 
                       p.y1 = sketchScaleY(numSpeakers - 
-                              speakerList.indexOf(spID)-0.5);
+                              speakerList.indexOf(spID)-0.4);
                       p.x2 = sketchScaleX(hmsToSec(currentRow[0]))+2.5;
                       // the + 2.5 is to center the line end point on
                       // the width of the rectangle (width=5)
                       p.y2index = numSpeakers-
                                   speakerList.indexOf(currentRow[2]); 
                       p.y2 = sketchScaleY(numSpeakers - 
-                                speakerList.indexOf(currentRow[2])-0.5);
+                                speakerList.indexOf(currentRow[2])-0.4);
                       p.from = commitRow;
                       p.to = currentRow;
                       pathData.push(p);
@@ -1687,6 +1693,7 @@ window.onload = function () {
                 .attr("width", function(d){return d.width;})
                 .attr("height", function(d){return d.height;})
                 .attr("fill", function(d){return d.fillColor;})
+                .attr("stroke", "#ffffff")
                 .attr("z-index", "10")
                 .on('mouseover', function(d){
                   d3.select(this).attr('y', d.y0);
@@ -1871,7 +1878,7 @@ window.onload = function () {
         var activityScaleSp = d3.scale.linear()
                               .domain([0,1])
                               .range([0, activityH/numSpeakers]);
-        var actScale = d3.scale.pow().exponent(1)
+        var actScale = d3.scale.pow().exponent(0.8)
                                .domain([0,maxAct-0.2])
                                .range([0,1]);
         var activityPlotData = [];
