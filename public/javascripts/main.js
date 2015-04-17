@@ -453,20 +453,13 @@ window.onload = function () {
         tagHoverText = $.trim($(this).text());
         // use regular expression to match the whole word only
         var regex = new RegExp("\\b" + tagHoverText + "\\b");
-        /*
-        var transItems = $("#transTable tr td span:containsNC('"
-                        + tagHoverText + "')").parents("td")
-                        .addClass("hoverHighlight");
-        $("#transTable tr td span:containsNC('" + 
-          tagHoverText + "')").addClass('boldText');
-        */
-        var transItems = $("#transTable").find("span")
-              .filter(function(){
+        var transFilter = $("#transTable").find("span:containsNC('" + 
+                                tagHoverText + "')");
+        var transItems = transFilter.filter(function(){
                 return (this.textContent).toLowerCase().match(regex);
               }).parents("td");
         transItems.addClass('hoverHighlight');
-        $("#transTable").find("span")
-              .filter(function(){
+        transFilter.filter(function(){
                 return (this.textContent).toLowerCase().match(regex);
               }).addClass('boldText');
         //----------------------------------------------   
@@ -500,7 +493,7 @@ window.onload = function () {
       tagListDOM.on('mouseleave', 'text', function () {
         $(this).removeClass('hoverHighlight');
         $("#transTable").find("td").removeClass('hoverHighlight');
-        $("#transTable").find("span").removeClass('boldText');
+        $(".boldText").removeClass('boldText');
         /*
         $("#transContent ul li span:containsNC('" + tagHoverText + "')")
         .closest("li").removeClass('hoverHighlight');
@@ -515,53 +508,61 @@ window.onload = function () {
       //---------------------------------------------------------------   
       // dark highlighting on mouse click
       //---------------------------------------------------------------   
+      var prevClickedTag = "";
       tagListDOM.on('click', 'text', function (e) {
           // KB edits ----
           if (e.ctrlKey || e.metaKey) {
-              document.getElementById('concordance-view').style.visibility = 'visible';
+              document.getElementById('concordance-view')
+                      .style.visibility = 'visible';
               //get concordance
               var word = $(this).text();
               var allConcordances = concordance(word);
               $('#concordance-view-content').children().remove();
               //now add it to the interface
               allConcordances.forEach(function (eachConcordance) {
-                  $('#concordance-view-content').append(eachConcordance + "<br/>");
+                  $('#concordance-view-content')
+                    .append(eachConcordance + "<br/>");
               });
 
               // -------------
           } else {
-              var regex = new RegExp("\\b" + tagHoverText + "\\b");
+            tagHoverText = $.trim($(this).text());
+            var regex = new RegExp("\\b" + tagHoverText + "\\b");
+            if (prevClickedTag !== tagHoverText) {
               $(this).parent().children('text')
                       .removeClass('tagClickHighlight');
               $(this).addClass('tagClickHighlight');
-              tagHoverText = $.trim($(this).text());
-              $('.textClickHighlight').removeClass('textClickHighlight');
-              $('.boldClickText').removeClass('boldClickText');
-              var transItems = $("#transTable tr td").find("span")
-                .filter(function(){
+              prevClickedTag = tagHoverText;
+              $('.textClickHighlight')
+                  .removeClass('textClickHighlight');
+              $('.boldClickText')
+                  .removeClass('boldClickText');
+              var transFilter =
+                $("#transTable").find("span:containsNC('" + 
+                                      tagHoverText + "')");
+              var transItems = transFilter .filter(function(){
                   return (this.textContent).toLowerCase().match(regex);
                 }).closest("td");
               transItems.addClass('textClickHighlight');
-              $("#transTable tr td").find("span")
-                .filter(function(){
+              transFilter.filter(function(){
                   return (this.textContent).toLowerCase().match(regex);
-                }).addClass('boldClickText');
+                }).addClass('boldText');
               //----------------------------------------------   
               // add bars of highlighted bits next to seekbar
               //----------------------------------------------   
               var transItemIds = []
               transItems.each(function (index, value) {
-                  // var idIndex = $('#transContent ul').children('li').index(this);
                   var idIndex = value.parentNode.rowIndex;
                   transItemIds.push(idIndex);
                   // change color of vertical text rep bars
                   var hiRects = $("#transGraph svg")
                             .children('rect');
                   d3.select(hiRects[idIndex])
-            .attr("fill", boldHighlightColor);
+                    .attr("fill", boldHighlightColor);
               })
               var timeSegArray = [];
-              //load corresponding times of highlighted li items in a list
+              //load corresponding times of highlighted li items in a
+              //list
               var ind = 0;
               for (ind in transItemIds) {
                   var numInd = transItemIds[ind];
@@ -570,6 +571,18 @@ window.onload = function () {
                            startTime;
                   timeSegArray.push([startTime, duration]);
               }
+            } else {
+              prevClickedTag = "";
+              // if the same tag is clicked again, remove highlighting.
+              $(this).parent().children('text')
+                      .removeClass('tagClickHighlight');
+              $("#transTable").find("td")
+                              .removeClass('textClickHighlight');
+              $(".boldClickText").removeClass('boldClickText');
+              d3.select("#transGraph").selectAll("svg")
+                .selectAll("rect")
+                .attr("fill", transGraphColor);
+            }
           }
       });
 
