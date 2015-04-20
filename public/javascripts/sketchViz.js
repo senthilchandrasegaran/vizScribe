@@ -38,7 +38,7 @@ function sketchViz(data, player){
         var d = {}; // data for sketches
         var timeStampSec = hmsToSec(spRow[0]);
         d.x = sketchScaleX(timeStampSec);
-        d.width = 5;
+        d.width = 7;
         d.height = sketchScaleY(0.8);
         d.y = sketchScaleY(numSpeakers-speakerIndex) - d.height;
         d.y0 = sketchScaleY(numSpeakers-speakerIndex-1);
@@ -197,7 +197,7 @@ function sketchViz(data, player){
         })
         .on('click', function(d){
           if (d3.event.ctrlKey || d3.event.metaKey){
-            $('#imgPath-content').children().remove();
+            $('#imgPath-conte)t').children().remove();
             d3.select(this).transition()
                             .attr("r", 12);
             var imagePath = '<img src="/images/sketches/'+
@@ -211,4 +211,20 @@ function sketchViz(data, player){
             player.currentTime(d.timeStamp);
           }
         });
+  var pText = sketchSVG.selectAll("text")
+                       .data(speakerList)
+                       .enter()
+                       .append("text")
+                       .attr("x", 2)
+                       .attr("y", function(d, i){
+                          return sketchScaleY(numSpeakers - 
+                                  speakerList.indexOf(d) - 0.3);
+                       })
+                       .text(function (d) {
+                         console.log(d);
+                         return d;
+                       })
+                       .attr("font-family", "sans-serif")
+                       .attr("font-size", "10px")
+                       .attr("fill", "#c0c0c0");
 }

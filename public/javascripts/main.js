@@ -49,7 +49,7 @@ var selectedIndices = [];
 var oldHighlighting = "rgba(220, 138, 12, 0.3)";
 var greenHighlight = "rgba(232, 138, 12, 1)";
 
-var transGraphColor = "rgba(123, 123, 123, 0.1)";
+var transGraphColor = "rgba(123, 123, 123, 0.5)";
 var boldHighlightColor = "rgba(255, 127, 0, 0.8)";
 var mildHighlightColor = "rgba(255, 127, 0, 0.8)";
 var wordCloudColor = "rgba(10, 100, 70, 0.7)";
@@ -63,10 +63,10 @@ var activityLogHeight = 0;
 var protocolGraphHeight = 0;
 
 var speakerColors = [
-  "#e41a1c",
-  "#377eb8",
-  "#4daf4a",
-  "#984ea3"
+  "#66c2a5",
+  "#8da0cb",
+  "#e78ac3",
+  "#a6d854"
   ]
 
 /*
@@ -361,20 +361,44 @@ window.onload = function () {
         .attr("height", h);
         */
 
+        var speakerList_hardcode = ["F1", "F2", "F3", "F4"]
         var transcriptScale = d3.scale.linear()
                             .domain([0, Math.round(videoLenSec)])
                             .range([0, w]);
+        var transScaleY = d3.scale.linear()
+                            .domain([0, speakerList_hardcode.length])
+                            .range([0, h]);
         // var maxvalue = Math.max.apply(Math, tagFreq);
         var transGraphPadding = 0;
         var scaleHeights = 0;
         var constantWidth = 0;
+        var speakerDiff = 1;
         for (i=0; i < captionArray.length; i++){
           var d = {};
           var xSec = hmsToSec(captionArray[i][0]);
           var xloc = transcriptScale(xSec);
           d.x = xloc;
-          d.y = 0;
-          if (constantWidth != 0){
+          if (speakerDiff === 0){
+            d.y = 0;
+            d.fillColor = transGraphColor;
+            d.height = h;
+          } else {
+            var speakerIndex = speakerList_hardcode
+                                  .indexOf(captionArray[i][2]);
+            if (speakerIndex === -1){
+              /*
+              d.y = transScaleY(speakerList_hardcode.length - 5);
+              d.fillColor = transGraphColor;
+              d.height = transScaleY(0.9);
+              */
+            } else {
+              d.y = transScaleY(speakerList_hardcode.length - 
+                                speakerIndex - 1);
+              d.fillColor = speakerColors[speakerIndex];
+              d.height = transScaleY(0.9);
+            }
+          }
+          if (constantWidth !== 0){
             d.width = 5;
           } else {
             var endSec = hmsToSeconds(captionArray[i][1]);
@@ -386,6 +410,7 @@ window.onload = function () {
               d.width = scaledWidth;
             };
           }
+          /*
           if (scaleHeights === 0){
             d.height = h;
           } else {
@@ -395,14 +420,14 @@ window.onload = function () {
             var lineRatio = d.length / longestLineLength;
             d.height = lineRatio * h;
           }
+          */
           d.dialog = captionArray[i][3];
           transGraphData.push(d);
         }
 
         var tip = d3.tip()
                     .attr('class', 'd3-tip')
-                    .direction('s')
-                    .html(function(d){return d.dialog;});
+                    .direction('e');
         transSvg.call(tip);
         var rects = transSvg.selectAll("rect")
                  .data(transGraphData)
@@ -416,10 +441,15 @@ window.onload = function () {
                  .attr("z", 1)
                  .attr("height", function (d) { return d.height; })
                  .attr("fill", function (d) {
-                     return transGraphColor;
+                     return d.fillColor;
                  })
-                 .on("mouseover", tip.show)
-                 .on("mouseout", tip.hide);
+                 .attr("fill-opacity", 0.5)
+                 .on("mouseover", function(d){
+                   tip.html(d.dialog).show();
+                 })
+                 .on("mouseout", function(d){
+                   tip.hide();
+                 });
         // end representation of lines
       }); // end player.ready()
 
@@ -476,7 +506,8 @@ window.onload = function () {
           // change color of vertical text rep bars
           var hiRects = $("#transGraph svg").children('rect');
           d3.select(hiRects[idIndex])
-            .attr("fill", oldHighlighting);
+            .classed("transRectHighLight", true);
+            //.attr("fill", oldHighlighting);
           var numLines = hiRects.length;
         });
         var timeSegArray = [];
@@ -505,8 +536,8 @@ window.onload = function () {
         .removeClass('boldText');
         */
         d3.select("#transGraph").selectAll("svg")
-        .selectAll("rect")
-        .attr("fill", transGraphColor);
+          .selectAll("rect")
+          .classed("transRectHighLight", false);
       });
 
       //---------------------------------------------------------------   
@@ -562,7 +593,8 @@ window.onload = function () {
                   var hiRects = $("#transGraph svg")
                             .children('rect');
                   d3.select(hiRects[idIndex])
-                    .attr("fill", boldHighlightColor);
+                    .classed("transRectHighLight", true);
+                    // .attr("fill", boldHighlightColor);
               })
               var timeSegArray = [];
               //load corresponding times of highlighted li items in a
@@ -585,7 +617,8 @@ window.onload = function () {
               $(".boldClickText").removeClass('boldClickText');
               d3.select("#transGraph").selectAll("svg")
                 .selectAll("rect")
-                .attr("fill", transGraphColor);
+                .classed("transRectHighLight", false);
+                // .attr("fill", transGraphColor);
             }
           }
       });
@@ -628,7 +661,8 @@ window.onload = function () {
           var hiRects = $("#transGraph svg")
                           .children('rect');
           d3.select(hiRects[idIndex])
-        .attr("fill", mildHighlightColor);
+            .classed("transRectHighLight", true);
+          // .attr("fill", mildHighlightColor);
           var timeSegArray = [];
           //load corresponding times of highlighted li items in a list
           var ind = 0;
@@ -645,8 +679,8 @@ window.onload = function () {
       $('#transTable').on('mouseleave', 'tr', function () {
           $(this).children().removeClass('transHighlight');
           d3.select("#transGraph").selectAll("svg")
-          .selectAll("rect")
-          .attr("fill", transGraphColor);
+            .classed("transRectHighLight", false);
+          // .attr("fill", transGraphColor);
       }); 
 
       //--------------------------------------------------------------- 
@@ -662,8 +696,7 @@ window.onload = function () {
             var fisheyesvg = d3.select("#transGraph").selectAll("svg");
             var frects = fisheyesvg.selectAll("rect");
             var fisheye = d3.fisheye.circular()
-                            .radius(50)
-                            .distortion(20);
+                            .radius(50);
             fisheyesvg.on("mousemove", function(){
               fisheye.focus(d3.mouse(this));
               frects.each(function(d){
@@ -674,7 +707,7 @@ window.onload = function () {
                      });
             });
           }
-          $(this).attr("fill", greenHighlight);
+          // $(this).attr("fill", greenHighlight);
           $(this).attr("z", 50);
           var transGraphIndex = $('#transGraph svg')
                             .children('rect').index(this);
@@ -689,7 +722,7 @@ window.onload = function () {
       }); // end of transGraph onmouseenter function.
 
       $('#transGraph').on('mouseleave', 'svg rect', function () {
-          $(this).attr("fill", transGraphColor);
+          // $(this).attr("fill", transGraphColor);
           $(this).attr("z", 1);
 
           // remove light highlighting on mouse leave
@@ -1128,7 +1161,8 @@ window.onload = function () {
 
           tSVG.append("g")
               .attr("class", "x axis")
-              .attr("transform", "translate(0," + (chartHeight + 5) + ")")
+              .attr("transform", "translate(0," + 
+                                  (chartHeight + 5) + ")")
               .call(xAxis)
               .append("text")
               .attr("class", "label")
@@ -1385,7 +1419,7 @@ window.onload = function () {
             }
             var codeTip = d3.tip()
                             .attr('class', 'd3-tip')
-                            .direction('s');
+                            .direction('e');
             protocolSVG.call(codeTip);
 
             var rects = protocolSVG.selectAll("rect")
@@ -1400,10 +1434,13 @@ window.onload = function () {
               .attr("stroke-width", 1)
               .attr("stroke", "rgba(255,255,255,0)")
               .attr("fill", function (d) {return d.fill;})
-              .attr("fill-opacity", 0.5)
+              .attr("fill-opacity", 0.8)
               .attr("z-index", -1)
               .on("mouseover", function(d){
-                codeTip.html(d.transcriptLine).show();
+                codeTip.html("<font color='red'>CODE: </font>" + 
+                         d.code + "<br>" + 
+                         "<font color='red'>Transcript line: </font>" +
+                         d.transcriptLine).show();
                 if (d.clickStatus === 0){
                   for (var si in d.spanIds){
                     $("#"+d.spanIds[si])
@@ -1479,6 +1516,46 @@ window.onload = function () {
                                  transition: 'ease-in-out'});
                 }
               });
+          
+          /*
+          var codesList = [];
+          for (i=0; i<protocolList.length; i++){
+            var d = {};
+            if (protocolList[i] !== "unassign"){
+              d.code = protocolList[i];
+              d.textWidth = d.code.length;
+              codesList.push(d);
+            }
+          }
+          console.log(codesList);
+
+          var codeG = protocolSVG.selectAll("g")
+                          .data(codesList)
+                          .enter()
+                          .append("g")
+                          .attr("transform", function(d, i){
+                            return "translate(0," + ((i+0.5) * 
+                                     (protoGraphHeight-proSpace)/
+                                     (codesList.length)) +")";
+                          });
+
+          codeG.append("rect")
+               .attr("width", function(d){ 
+                 console.log(d.textWidth);
+                 return d.textWidth * 7;
+               })
+               .attr("height", "12")
+               .attr("fill", "rgba(255, 255, 255, 0.8");
+
+          codeG.append("text")
+               .attr("y", 10)
+               .attr("font-family", "sans-serif")
+               .attr("font-size", "10px")
+               .attr("fill", "#000000")
+               .text(function (d) {
+                 return "  " + d.code + "  ";
+               });
+               */
 
           // get rid of the context menu
           $('.contextmenu')
