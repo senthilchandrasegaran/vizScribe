@@ -112,6 +112,8 @@ var colorlistFull = [
       'rgba(166,206,227,'
     ];
 
+var sketchPathColor = "rgba(225, 120, 0, 0.2)";
+
 // When a new protocol is added
 var getColor = function () {
     return colorlistFull.pop();
@@ -159,7 +161,6 @@ function preOrderTraversal(protocolName, childrenList, protocolNames) {
 }
 
 
-var sketchPathColor = "rgba(225, 120, 0, 0.2)";
 
 // The hmsToSec function takes a "hh:mm:ss", or "mm:ss" or just an "ss"
 // string and converts it to seconds. Returns a number.
@@ -282,7 +283,6 @@ window.onload = function () {
       // note: "send" from POV of client
       dataType: "text"
     }).done(function (data) {
-      console.log(typeof data);
       captionArray = $.csv.toArrays(data);
       // remove the first line, since it's the data header.
       captionArray.splice(0,1);
@@ -353,9 +353,9 @@ window.onload = function () {
         var w = $('#transGraph').width()-2; //because of the border
         var h = $('#transGraph').height()-2; //because of the border
         var transSvg = d3.select("#transGraph").append("svg")
-                   .attr("width", w)
-                   .attr("height", h)
-                   .style({"border" : "1px solid #d0d0d0"});
+                         .attr("width", w)
+                         .attr("height", h)
+                         .style({"border" : "1px solid #d0d0d0"});
         /*
         transSvg.attr("width", w)
         .attr("height", h);
@@ -368,7 +368,6 @@ window.onload = function () {
         var transGraphPadding = 0;
         var scaleHeights = 0;
         var constantWidth = 0;
-        console.log(captionArray);
         for (i=0; i < captionArray.length; i++){
           var d = {};
           var xSec = hmsToSec(captionArray[i][0]);
@@ -386,7 +385,6 @@ window.onload = function () {
             } else {
               d.width = scaledWidth;
             };
-            console.log(d.width);
           }
           if (scaleHeights === 0){
             d.height = h;
@@ -1175,14 +1173,9 @@ window.onload = function () {
           var endSpan = rangeObject.attr("endContainer");
           var startLineID = startSpan.parentNode.parentNode.id; 
           var endLineID = endSpan.parentNode.parentNode.id;          
-          console.log(startLineID);
-          console.log(endLineID);
           var sliceStart = startLineID.split("line")[1]; 
           var sliceEnd = parseInt(endLineID.split("line")[1])+1; 
-          console.log(sliceEnd);
           var linesList = lowerCaseLines.slice(sliceStart, sliceEnd);
-          console.log(lowerCaseLines);
-          console.log(linesList);
           $("#tagList").empty();
           $("#tagList").append(makeWordList(linesList, tagsToRemove));
         } else {
@@ -1516,220 +1509,15 @@ window.onload = function () {
         // note: "send" from POV of client
         dataType: "text"
     }).done(function (data) {
-        if (typeof data == 'string'){
-          console.log("sketch log file received!");
-          var sketchArray = $.csv.toArrays(data);
-          var speakerList = [];
-          // find the total number of people who committed sketches.
-          for (var ind=1; ind<sketchArray.length; ind++){
-            var speakerID = sketchArray[ind][2];
-            if (speakerList.indexOf(speakerID) == -1){
-              speakerList.push(speakerID);
-            }
-          }
-          speakerList.sort();
-          var numSpeakers = speakerList.length;
-          // generate beautiful visuals
-          d3.select("#sketchLogContent").selectAll("svg").remove();
-          var sketchW = $("#sketchLogContent").width()-2;
-          var sketchH = $("#sketchLog").height()-2;
-
-          var sketchSVG = d3.select("#sketchLogContent").append("svg")
-                            .attr("width", sketchW) //for border
-                            .attr("height", sketchH) //for border
-                            .style({"border" : "1px solid #d0d0d0"});
-          var sketchScaleX = d3.scale.linear()
-                              .domain([0, videoLenSec])
-                              .range([0, sketchW]);
-          var sketchScaleY = d3.scale.linear()
-                              .domain([0, numSpeakers])
-                              .range([0, sketchH]);
-          var sketchPlotData = [];
-          // begin loop to plot sketches on timeline
-          for (speakerIndex=0; speakerIndex<numSpeakers; speakerIndex++){
-            for (var i=1; i<sketchArray.length; i++){
-              var spRow = sketchArray[i];
-              var spID = spRow[2];
-              var action = spRow[1];
-              if (spRow.length > 1 && 
-                  speakerList[speakerIndex]==spID &&
-                  action == "commit"){
-                var d = {}; // data for sketches
-                var timeStampSec = hmsToSec(spRow[0]);
-                d.x = sketchScaleX(timeStampSec);
-                d.width = 5;
-                d.height = sketchScaleY(0.8);
-                d.y = sketchScaleY(numSpeakers-speakerIndex) - d.height;
-                d.y0 = sketchScaleY(numSpeakers-speakerIndex-1);
-                d.timeStamp = timeStampSec;
-                d.speaker = spID;
-                d.sketchID = spRow[3]; 
-                var imagePath = '<img src="/images/sketches/'+
-                                ("0"+ spRow[3]).slice(-2) + 
-                                '.png" height="100">';
-                d.info = spID + ": sketch " + spRow[3] + 
-                         '<br>' + imagePath;
-                d.fillColor = speakerColors[speakerIndex];
-                sketchPlotData.push(d);
-                prevTime = timeStampSec;
-              } 
-            }
-          } 
-          // end loop to plot sketches on timeline
-          //begin loop to plot paths on timeline
-          var pathData = [];
-          for (var i=1; i<sketchArray.length; i++){
-            var commitRow = sketchArray[i];
-            if (hmsToSec(commitRow[0]) > videoLenSec){
-              break;
-            }
-            var p = {}; // data for paths
-            if (commitRow[1] == "commit"){
-              // this means there was a commit.
-              // save the sketch number, speaker ID, and timestamp
-              var committedSketch = commitRow[3];
-              var spID = commitRow[2];
-              var commitTimeSec = hmsToSec(commitRow[0]);
-              // then check the subsequent sketches to see if there is a
-              // commit or checkout of the same sketch 
-              var commitPathBroken = false; // assume the commit path is
-                                       // not broken yet, this will be
-                                       // explained later.
-              for (var j=i+1; j<sketchArray.length; j++){
-                var currentRow = sketchArray[j];
-                if (currentRow[2] == spID && !commitPathBroken){
-                  // if the same person commits again, make a path
-                  if (currentRow[1] == "commit"){
-                    if (hmsToSec(currentRow[0]) < videoLenSec){
-                      p.x1 = sketchScaleX(commitTimeSec) + 2.5;
-                      // the + 2.5 is to center the line start point on
-                      // the width of the rectangle (width=5)
-                      p.y1index = numSpeakers-speakerList.indexOf(spID); 
-                      p.y1 = sketchScaleY(numSpeakers - 
-                              speakerList.indexOf(spID)-0.4);
-                      p.x2 = sketchScaleX(hmsToSec(currentRow[0]))+2.5;
-                      // the + 2.5 is to center the line end point on
-                      // the width of the rectangle (width=5)
-                      p.y2index = numSpeakers-
-                                  speakerList.indexOf(currentRow[2]); 
-                      p.y2 = sketchScaleY(numSpeakers - 
-                                speakerList.indexOf(currentRow[2])-0.4);
-                      p.from = commitRow;
-                      p.to = currentRow;
-                      pathData.push(p);
-                      break;
-                    };
-                  } else {
-                    // if it is the same person, but no commit, don't
-                    // check for this user again, the commit path for
-                    // this sketch is broken, unless there is a checkout
-                    commitPathBroken = true; 
-                    break;
-                  }
-                } else {
-                  // This section means that we are looking at other
-                  // users, if they have "checked out" a sketch.
-                  if (currentRow[3] === committedSketch){
-                    var checkerOuter = currentRow[2];
-                    // now for that user, check future actions to see if
-                    // there are immediate commits by the same person.
-                    // If not, abort.
-                    for (var k=j+1; k<sketchArray.length; k++){
-                      var nextRow = sketchArray[k];
-                      if (nextRow[2] === checkerOuter){
-                        if (nextRow[1] === "commit"){
-                          // this means there is a path.
-                          if (hmsToSec(nextRow[0]) < videoLenSec){
-                            p.x1 = sketchScaleX(commitTimeSec) + 2.5;
-                            p.y1 = sketchScaleY(numSpeakers - 
-                                    speakerList.indexOf(spID)-0.5);
-                            p.x2 = sketchScaleX(hmsToSec(nextRow[0]))+2.5;
-                            p.y2 = sketchScaleY(numSpeakers - 
-                                    speakerList.indexOf(nextRow[2])-0.5);
-                            p.from = commitRow;
-                            p.to = nextRow;
-                            pathData.push(p);
-                            // no more checks for this checkerOuter
-                            break;
-                          }
-                        } else {
-                          // If there is no commit,
-                          // this means the checkout path is broken
-                          break;
-                        }
-                      }
-                      // if the next row is not the same person, keep
-                      // looking for the next action by the same person
-                    }
-                  }
-                  // if the current row's sketch is not the same as the
-                  // committed sketch, keep looking.
-                }
-              }
-            }
-          }
-          // end loop to plot paths on timeline
-          var sketchPaths = sketchSVG.selectAll(".pathTrace")
-                    .data(pathData)
-                    .enter()
-                    .append("svg:line")
-                    .attr("class", "pathTrace")
-                    .attr("stroke-width", 2)
-                    .attr("x1", function (d){return d.x1})
-                    .attr("y1", function (d) {return d.y1})
-                    .attr("x2", function (d) {return d.x2})
-                    .attr("y2", function (d) {return d.y2});
-
-          var sketchTip = d3.tip()
-                            .attr('class', 'd3-tip')
-                            .direction('s');
-          sketchSVG.call(sketchTip);
-          var sketchRects = sketchSVG.selectAll("rect")
-                .data(sketchPlotData)
-                .enter()
-                .append("rect")
-                .attr("x", function(d){return d.x;})
-                .attr("y", function(d){return d.y;})
-                .attr("width", function(d){return d.width;})
-                .attr("height", function(d){return d.height;})
-                .attr("fill", function(d){return d.fillColor;})
-                .attr("stroke", "#ffffff")
-                .attr("z-index", "10")
-                .on('mouseover', function(d){
-                  d3.select(this).attr('y', d.y0);
-                  d3.select(this).attr('fill', greenHighlight);
-                  sketchTip.html(d.info).show();
-                })
-                .on('mouseout', function(d){
-                  d3.select(this).attr('height', d.height);
-                  d3.select(this).attr('width', d.width);
-                  d3.select(this).attr('y', d.y);
-                  d3.select(this)
-                    .attr("fill", function(d){return d.fillColor;});
-                  sketchTip.hide();
-                })
-                .on('click', function(d){
-                  if (d3.event.ctrlKey || d3.event.metaKey){
-                    $('#imgPath-content').children().remove();
-                    d3.select(this).transition()
-                                   .attr("r", 12);
-                    var imagePath = '<img src="/images/sketches/'+
-                                    ("0"+ d.sketchID).slice(-2) + 
-                                    '.png" height="600">';
-                    $("#imgPath-content").append(imagePath);
-                    document.getElementById('imgPath')
-                            .style.visibility = 'visible';
-                    
-                  } else {
-                    player.currentTime(d.timeStamp);
-                  }
-                });
-          
-        } else {
-          $('#sketchLogTitle').hide();
-          $('#sketchLog').hide();
-          console.log("sketch divs are now hidden");
-        }
+      if (typeof data == 'string'){
+        console.log("sketch log file received!");
+        sketchViz(data, player);
+        // check file speechViz.js for how this function works
+      } else {
+        $('#sketchLogTitle').hide();
+        $('#sketchLog').hide();
+        console.log("sketch divs are now hidden");
+      }
     }); // End code to generate paths
     // End Stuff to execute when log file loaded
       
@@ -1744,93 +1532,14 @@ window.onload = function () {
       speechdata = JSON.parse(speechdata);
       if (typeof speechdata == "string"){
         console.log("speech log file received!");
-        // parse speech data
-        var speechArray = speechdata.split("\n");
-        var numSpeakers = speechArray[0].split(",").length - 1;
-        var speakerList = speechArray[0]
-                            .split(",")
-                            .slice(1, speechArray[0].length-1);
-        // generate beautiful visuals
-        d3.select("#speechLogContent").selectAll("svg").remove();
-        var speechW = $("#speechLogContent").width()-2;
-        var speechH = $("#speechLog").height()-2;
-
-        var speechSVG = d3.select("#speechLogContent").append("svg")
-                          .attr("width", speechW) //for border
-                          .attr("height", speechH) //for border
-                          .style({"border" : "1px solid #d0d0d0"});
-        var speechScaleX = d3.scale.linear()
-                            .domain([0, videoLenSec])
-                            .range([0, speechW]);
-        var speechScaleY = d3.scale.linear()
-                            .domain([0, numSpeakers])
-                            .range([0, speechH]);
-        var speechScaleSp = d3.scale.linear()
-                              .domain([0,1])
-                              .range([0, speechH/numSpeakers]);
-        var speechPlotData = [];
-        for (speakerIndex=0; speakerIndex<numSpeakers; speakerIndex++){
-          var prevTime = 0;
-          for (var i=1; i<speechArray.length; i++){
-            var spRow = speechArray[i].split(",");
-            if (spRow.length > 1){
-              var d = {};
-              var timeStampSec = hmsToSec(spRow[0]);
-              d.x = speechScaleX(timeStampSec);
-              d.width = speechScaleX(timeStampSec - prevTime);
-              d.height = speechScaleY(spRow[speakerIndex+1]);
-              d.y = speechScaleY(numSpeakers-speakerIndex) - d.height;
-              d.y0 = speechScaleY(numSpeakers-speakerIndex-1);
-              d.timeStamp = timeStampSec;
-              d.speaker = speakerList[speakerIndex];
-              d.participationValue = parseFloat(spRow[speakerIndex+1]); 
-              d.fillColor = speakerColors[speakerIndex];
-              speechPlotData.push(d);
-              prevTime = timeStampSec;
-            }
-          }
-        }
-
-        var speechTip = d3.tip()
-                          .attr('class', 'd3-tip')
-                          .direction('s');
-        speechSVG.call(speechTip);
-        var speechRects = speechSVG.selectAll("rect")
-              .data(speechPlotData)
-              .enter()
-              .append("rect")
-              .attr("x", function(d){return d.x;})
-              .attr("y", function(d){return d.y;})
-              .attr("width", function(d){return d.width;})
-              .attr("height", function(d){return d.height;})
-              .attr("fill", function(d){return d.fillColor;})
-              .attr("z-index", "10")
-              .on('mouseover', function(d){
-                d3.select(this).attr('height', speechScaleY(1));
-                d3.select(this).attr('width', 2);
-                d3.select(this).attr('y', d.y0);
-                d3.select(this).attr('fill', greenHighlight);
-                speechTip.html(d.speaker).show();
-              })
-              .on('mouseout', function(d){
-                d3.select(this).attr('height', d.height);
-                d3.select(this).attr('width', d.width);
-                d3.select(this).attr('y', d.y);
-                d3.select(this)
-                  .attr("fill", function(d){return d.fillColor;});
-                speechTip.hide();
-              })
-              .on('click', function(d){
-                player.currentTime(d.timeStamp);
-              });
-
+        speechViz(speechdata, player);
+        // check file speechViz.js for how this function works
       } else {
         // hide everything!
         $('#speechLogTitle').hide();
         $('#speechLog').hide();
         console.log("speech divs are now hidden");
       }
-
     }); // end of stuff to do with speechLog
 
     // Function to read in the activity log file
@@ -1845,124 +1554,22 @@ window.onload = function () {
       if (typeof activitydata == "string"){
         console.log("activity log file received!");
         // generate beautiful visuals
-        // parse activity data
-        var activityArray = activitydata.split("\n");
-        var numSpeakers = activityArray[0].split(",").length - 1;
-        var speakerList = activityArray[0]
-                            .split(",")
-                            .slice(1, activityArray[0].length-1);
-        // generate beautiful visuals
-        var maxAct = 0;
-        for (var i=1;i<activityArray.length; i++){
-          var row = activityArray[i].split(",");
-          var rowMax = Math.max.apply(Math, row.slice(1,row.length-1));
-          if (maxAct < rowMax){
-            maxAct = rowMax;
-          }
-        }
-
-        d3.select("#activityLogContent").selectAll("svg").remove();
-        var activityW = $("#activityLogContent").width()-2;
-        var activityH = $("#activityLog").height()-2;
-
-        var activitySVG = d3.select("#activityLogContent").append("svg")
-                          .attr("width", activityW)
-                          .attr("height", activityH)
-                          .style({"border" : "1px solid #d0d0d0"});
-        var activityScaleX = d3.scale.linear()
-                            .domain([0, videoLenSec])
-                            .range([0, activityW]);
-        var activityScaleY = d3.scale.linear()
-                            .domain([0, numSpeakers])
-                            .range([0, activityH]);
-        var activityScaleSp = d3.scale.linear()
-                              .domain([0,1])
-                              .range([0, activityH/numSpeakers]);
-        var actScale = d3.scale.pow().exponent(0.8)
-                               .domain([0,maxAct-0.2])
-                               .range([0,1]);
-        var activityPlotData = [];
-
-        for (speakerIndex=0; speakerIndex<numSpeakers; speakerIndex++){
-          var prevTime = 0;
-          for (var i=1; i<activityArray.length; i++){
-            var spRow = activityArray[i].split(",");
-            if (spRow.length > 1){
-              var d = {};
-              var timeStampSec = hmsToSec(spRow[0]);
-              d.x = activityScaleX(timeStampSec);
-              d.width = activityScaleX(timeStampSec - prevTime);
-              //d.height = activityScaleY(spRow[speakerIndex+1]/maxAct);
-              //d.height = activityScaleY(actScale(heightValue));
-              d.height = activityScaleY(1);
-              d.y = activityScaleY(numSpeakers-speakerIndex) - d.height;
-              d.y0 = activityScaleY(numSpeakers-speakerIndex-1);
-              d.timeStamp = timeStampSec;
-              d.speaker = speakerList[speakerIndex];
-              d.participationValue = parseFloat(spRow[speakerIndex+1]); 
-              d.fillColor = speakerColors[speakerIndex];
-              d.fillOpacity = actScale(spRow[speakerIndex+1]);
-              //d.fillOpacity = 1;
-              activityPlotData.push(d);
-              prevTime = timeStampSec;
-            }
-          }
-        }
-        var activityTip = d3.tip()
-                          .attr('class', 'd3-tip')
-                          .direction('s');
-        activitySVG.call(activityTip);
-        var activityRects = activitySVG.selectAll("rect")
-              .data(activityPlotData)
-              .enter()
-              .append("rect")
-              .attr("x", function(d){return d.x;})
-              .attr("y", function(d){return d.y;})
-              .attr("width", function(d){return d.width;})
-              .attr("height", function(d){return d.height;})
-              .attr("height", function(d){return d.height;})
-              .attr("fill", function(d){return d.fillColor;})
-              .attr("fill-opacity", function(d){return d.fillOpacity;})
-              .attr("z-index", "10")
-              .on('mouseover', function(d){
-                d3.select(this).attr('height', activityScaleY(1));
-                d3.select(this).attr('width', 2);
-                d3.select(this).attr('y', d.y0);
-                d3.select(this).attr('fill', greenHighlight);
-                d3.select(this).attr('fill-opacity', 1);
-                activityTip.html(d.speaker).show();
-              })
-              .on('mouseout', function(d){
-                d3.select(this).attr('height', d.height);
-                d3.select(this).attr('width', d.width);
-                d3.select(this).attr('y', d.y);
-                d3.select(this)
-                  .attr("fill", function(d){
-                    return d.fillColor;
-                  })
-                  .attr("fill-opacity", function(d){
-                    return d.fillOpacity;
-                  })
-                activityTip.hide();
-              })
-              .on('click', function(d){
-                player.currentTime(d.timeStamp);
-              });
+        activityViz(activitydata, player);
+        // check file activityViz.js for how this function works
       } else {
         // hide everything!
         $('#activityLogTitle').hide();
         $('#activityLog').hide();
         console.log("activity divs are now hidden");
       }
-
     }); // end of stuff to do with activityLog
-        // NOTES FOR CODE FOLDING in VIM:
-        // zc -- close fold
-        // zo -- open fold
-        // zM -- close all folds
-        // zR -- open all folds
-        // set foldmethod = syntax
   }); //player.ready attempt for the whole code chunk
 } // end of window.onload code
 
+// NOTES FOR CODE FOLDING in VIM:
+// zc -- close fold
+// zo -- open fold
+// zM -- close all folds
+// zR -- open all folds
+// set foldmethod = syntax
 
