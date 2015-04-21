@@ -214,6 +214,17 @@
         background:#FFFFFF;
         overflow: hidden;
       }
+      #transGraphScrubber{
+        height: 100%; 
+        width: 0;
+        display: block;
+        margin-right: 0;
+        margin-top: 0;
+        overflow: hidden;
+        border:1px solid;
+        border-color: rgba(0,0,0,0);
+        border-right-color: red;
+      }
       .transRectHighLight{
         fill: "rgba(220, 138, 12, 0.3)";
       }
@@ -649,7 +660,7 @@
       }
 
       /* The pointer doesn't appear where it should, fix it and
-      uncomment
+         uncomment
       .d3-tip:after {
         box-sizing: border-box;
         display: inline;
@@ -778,6 +789,8 @@
           transcript]
           </div>
           <div id="transGraph"> 
+          </div>
+          <div id="transGraphScrubber">
           </div>
         </div>
       </div>

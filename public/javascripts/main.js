@@ -63,10 +63,10 @@ var activityLogHeight = 0;
 var protocolGraphHeight = 0;
 
 var speakerColors = [
-  "#66c2a5",
   "#8da0cb",
   "#e78ac3",
-  "#a6d854"
+  "#a6d854",
+  "#ffd92f"
   ]
 
 /*
@@ -356,11 +356,6 @@ window.onload = function () {
                          .attr("width", w)
                          .attr("height", h)
                          .style({"border" : "1px solid #d0d0d0"});
-        /*
-        transSvg.attr("width", w)
-        .attr("height", h);
-        */
-
         var speakerList_hardcode = ["F1", "F2", "F3", "F4"]
         var transcriptScale = d3.scale.linear()
                             .domain([0, Math.round(videoLenSec)])
@@ -378,6 +373,7 @@ window.onload = function () {
           var xSec = hmsToSec(captionArray[i][0]);
           var xloc = transcriptScale(xSec);
           d.x = xloc;
+          d.speaker = captionArray[i][2];
           if (speakerDiff === 0){
             d.y = 0;
             d.fillColor = transGraphColor;
@@ -386,6 +382,8 @@ window.onload = function () {
             var speakerIndex = speakerList_hardcode
                                   .indexOf(captionArray[i][2]);
             if (speakerIndex === -1){
+              // uncomment the below to show other speakers as well
+              // (apart from the participants)
               /*
               d.y = transScaleY(speakerList_hardcode.length - 5);
               d.fillColor = transGraphColor;
@@ -427,6 +425,7 @@ window.onload = function () {
 
         var tip = d3.tip()
                     .attr('class', 'd3-tip')
+                    .offset([0, 10])
                     .direction('e');
         transSvg.call(tip);
         var rects = transSvg.selectAll("rect")
@@ -443,12 +442,20 @@ window.onload = function () {
                  .attr("fill", function (d) {
                      return d.fillColor;
                  })
-                 .attr("fill-opacity", 0.5)
+                 .attr("fill-opacity", 0.8)
                  .on("mouseover", function(d){
-                   tip.html(d.dialog).show();
+                   tip.html("<font size=2 color='" + d.fillColor + 
+                            "'>" + d.speaker + ":  </font>" +
+                            d.dialog).show();
+                   d3.select(this).attr("width", 5);
+                   d3.select(this).attr('fill', greenHighlight);
+                   d3.select(this).attr('fill-opacity', 1);
                  })
                  .on("mouseout", function(d){
                    tip.hide();
+                   d3.select(this).attr("width", d.width);
+                   d3.select(this).attr('fill', d.fillColor);
+                   d3.select(this).attr('fill-opacity', 0.8);
                  });
         // end representation of lines
       }); // end player.ready()
@@ -506,8 +513,7 @@ window.onload = function () {
           // change color of vertical text rep bars
           var hiRects = $("#transGraph svg").children('rect');
           d3.select(hiRects[idIndex])
-            .classed("transRectHighLight", true);
-            //.attr("fill", oldHighlighting);
+            .attr("fill", oldHighlighting);
           var numLines = hiRects.length;
         });
         var timeSegArray = [];
@@ -537,7 +543,10 @@ window.onload = function () {
         */
         d3.select("#transGraph").selectAll("svg")
           .selectAll("rect")
-          .classed("transRectHighLight", false);
+          .data(transGraphData)
+          .each(function(d){
+            d3.select(this).attr("fill", d.fillColor);
+          });
       });
 
       //---------------------------------------------------------------   
@@ -593,8 +602,7 @@ window.onload = function () {
                   var hiRects = $("#transGraph svg")
                             .children('rect');
                   d3.select(hiRects[idIndex])
-                    .classed("transRectHighLight", true);
-                    // .attr("fill", boldHighlightColor);
+                    .attr("fill", boldHighlightColor);
               })
               var timeSegArray = [];
               //load corresponding times of highlighted li items in a
@@ -617,8 +625,10 @@ window.onload = function () {
               $(".boldClickText").removeClass('boldClickText');
               d3.select("#transGraph").selectAll("svg")
                 .selectAll("rect")
-                .classed("transRectHighLight", false);
-                // .attr("fill", transGraphColor);
+                .data(transGraphData)
+                .each(function(d){
+                  d3.select(this).attr("fill", d.fillColor);
+                });
             }
           }
       });
@@ -833,6 +843,17 @@ window.onload = function () {
       // show Video Progress on the sketch and Protocol Divs
       var vidPlayer = videojs("discussion-video");
       vidPlayer.ready(function () {
+          // this is for the transcript graph div
+          var $transGraphScrubberProgress = $("#transGraphScrubber");
+          var trOffsetMargin = $("#transGraph").height() + 
+                           parseFloat(
+                             $("#transGraph").css("border-top-width")
+                                            .split("px")[0])+
+                           parseFloat(
+                             $("#transGraph").css("border-bottom-width")
+                                          .split("px")[0]);
+          $transGraphScrubberProgress.css({"margin-top": 
+                                          0-trOffsetMargin});
           // this is for the new sketch div
           var $sketchLogScrubberProgress = $("#sketchLogScrubber");
           var skOffsetMargin = $("#sketchLog").height() + 
@@ -878,6 +899,7 @@ window.onload = function () {
                                             0-protocolOffsetMargin});
           vidPlayer.on('timeupdate', function (e) {
               var percent = this.currentTime() / this.duration();
+              $transGraphScrubberProgress.width((percent * 100) + "%");
               $sketchLogScrubberProgress.width((percent * 100) + "%");
               $speechLogScrubberProgress.width((percent * 100) + "%");
               $activityLogScrubberProgress.width((percent * 100) + "%");
@@ -1419,6 +1441,7 @@ window.onload = function () {
             }
             var codeTip = d3.tip()
                             .attr('class', 'd3-tip')
+                            .offset([0, 20])
                             .direction('e');
             protocolSVG.call(codeTip);
 
@@ -1517,46 +1540,6 @@ window.onload = function () {
                 }
               });
           
-          /*
-          var codesList = [];
-          for (i=0; i<protocolList.length; i++){
-            var d = {};
-            if (protocolList[i] !== "unassign"){
-              d.code = protocolList[i];
-              d.textWidth = d.code.length;
-              codesList.push(d);
-            }
-          }
-          console.log(codesList);
-
-          var codeG = protocolSVG.selectAll("g")
-                          .data(codesList)
-                          .enter()
-                          .append("g")
-                          .attr("transform", function(d, i){
-                            return "translate(0," + ((i+0.5) * 
-                                     (protoGraphHeight-proSpace)/
-                                     (codesList.length)) +")";
-                          });
-
-          codeG.append("rect")
-               .attr("width", function(d){ 
-                 console.log(d.textWidth);
-                 return d.textWidth * 7;
-               })
-               .attr("height", "12")
-               .attr("fill", "rgba(255, 255, 255, 0.8");
-
-          codeG.append("text")
-               .attr("y", 10)
-               .attr("font-family", "sans-serif")
-               .attr("font-size", "10px")
-               .attr("fill", "#000000")
-               .text(function (d) {
-                 return "  " + d.code + "  ";
-               });
-               */
-
           // get rid of the context menu
           $('.contextmenu')
             .css({ "box-shadow": "none",
