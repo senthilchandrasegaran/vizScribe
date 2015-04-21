@@ -1,4 +1,4 @@
-function sketchViz(data, player){
+function sketchViz(data, player, transGraphData){
   var sketchArray = $.csv.toArrays(data);
   var speakerList = [];
   // find the total number of people who committed sketches.
@@ -209,6 +209,37 @@ function sketchViz(data, player){
             
           } else {
             player.currentTime(d.timeStamp);
+            for (var i=0; i<transGraphData.length-1; i++){
+              var tObj = transGraphData[i];
+              var tObjNext = transGraphData[i+1];
+              if (d.timeStamp >= tObj.timeStamp &&
+                  d.timeStamp <= tObjNext.timeStamp){
+                transGraphIndex = i+1;
+                var scrollIndex = 0;
+                if (i > 10 ||
+                    i < transGraphData.length-10){
+                  scrollIndex = i-10;
+                } else {
+                  scrollIndex = 0;
+                }
+                var transScrollItem = $('#transTable tr')
+                                          .eq(scrollIndex)
+                                          .children().last();
+                var transClickItem = $('#transTable tr')
+                                          .eq(transGraphIndex)
+                                          .children().last();
+                transClickItem.addClass('hoverHighlight')
+                              .delay(2000)
+                              .animate({"background-color":
+                                        "rgba(0,0,0,0)"}, 'slow');
+                // this small snippet below to scroll the transcript to
+                // show the line corresponding to the item selected in
+                // transgraph
+                $('#transContent').scrollTo($(transScrollItem),
+                                            {duration: 'slow',
+                                             transition: 'ease-in-out'});
+              }
+            }
           }
         });
   var pText = sketchSVG.selectAll("text")
@@ -221,7 +252,6 @@ function sketchViz(data, player){
                                   speakerList.indexOf(d) - 0.3);
                        })
                        .text(function (d) {
-                         console.log(d);
                          return d;
                        })
                        .attr("font-family", "sans-serif")

@@ -1,4 +1,4 @@
-function activityViz(activitydata, player){
+function activityViz(activitydata, player, transGraphData){
   var activityArray = activitydata.split("\n");
   var numSpeakers = activityArray[0].split(",").length - 1;
   var speakerList = activityArray[0]
@@ -99,5 +99,36 @@ function activityViz(activitydata, player){
         })
         .on('click', function(d){
           player.currentTime(d.timeStamp);
+          for (var i=0; i<transGraphData.length-1; i++){
+            var tObj = transGraphData[i];
+            var tObjNext = transGraphData[i+1];
+            if (d.timeStamp >= tObj.timeStamp &&
+                d.timeStamp <= tObjNext.timeStamp){
+              transGraphIndex = i+1;
+              var scrollIndex = 0;
+              if (i > 10 ||
+                  i < transGraphData.length-10){
+                scrollIndex = i-10;
+              } else {
+                scrollIndex = 0;
+              }
+              var transScrollItem = $('#transTable tr')
+                                        .eq(scrollIndex)
+                                        .children().last();
+              var transClickItem = $('#transTable tr')
+                                        .eq(transGraphIndex)
+                                        .children().last();
+              transClickItem.addClass('hoverHighlight')
+                            .delay(2000)
+                            .animate({"background-color":
+                                      "rgba(0,0,0,0)"}, 'slow');
+              // this small snippet below to scroll the transcript to
+              // show the line corresponding to the item selected in
+              // transgraph
+              $('#transContent').scrollTo($(transScrollItem),
+                                          {duration: 'slow',
+                                           transition: 'ease-in-out'});
+            }
+          }
         });
 }

@@ -32,6 +32,7 @@ var oldProtocolObject = {};
 var selectedText = '';
 var spanCollection = [];
 var transGraphData = []; // data structure for transGraph display
+var prevClickedTag = "";
 var videoLenSec;
 
 
@@ -46,10 +47,10 @@ var commitLog = [];
 var selectedIndices = [];
 
 // list of colors used
-var oldHighlighting = "rgba(220, 138, 12, 0.3)";
+var oldHighlighting = "rgba(220, 138, 12, 0.4)";
 var greenHighlight = "rgba(232, 138, 12, 1)";
 
-var transGraphColor = "rgba(123, 123, 123, 0.5)";
+var transGraphColor = "rgba(123, 123, 123, 0.2)";
 var boldHighlightColor = "rgba(255, 127, 0, 0.8)";
 var mildHighlightColor = "rgba(255, 127, 0, 0.8)";
 var wordCloudColor = "rgba(10, 100, 70, 0.7)";
@@ -62,12 +63,20 @@ var speechLogHeight = 0;
 var activityLogHeight = 0;
 var protocolGraphHeight = 0;
 
+/*
 var speakerColors = [
   "#8da0cb",
-  "#e78ac3",
+  "#fb8072",
   "#a6d854",
   "#ffd92f"
   ]
+  */
+var speakerColors = [
+  "#66c2a5",
+  "#adc0cb",
+  "#a6d854",
+  "#ffd92f"
+]
 
 /*
 var colorlist = [ "rgba(228,26,28,",
@@ -267,6 +276,7 @@ window.onload = function () {
   // determine div heights as specified in the html file
   bottomLeftHeight = $("#bottomleft").height();
   sketchesHeight = $("#sketches").height();
+  transGraphHeight = $("#transGraph").height();
   sketchLogHeight = $("#sketchLog").height();
   speechLogHeight = $("#speechLog").height();
   activityLogHeight = $("#activityLog").height();
@@ -316,15 +326,29 @@ window.onload = function () {
                         words[k] + ' </span>';
             spanArray.push([i, k, words[k].toLowerCase()]);
           }
+          var labelColor = "";
+          if (captionArray[i][2] !== "F1" &&
+              captionArray[i][2] !== "F2" &&
+              captionArray[i][2] !== "F3" &&
+              captionArray[i][2] !== "F4"){
+            labelColor = "#c0c0c0";
+          } else {
+            labelColor = speakerColors[parseInt(captionArray[i][2]
+                                                  .split("F")[1])-1];
+            
+          }
 
           // this is the undo point!
           displayLines.push(
              '<tr id="row' +i+ '">' +
-             '<td style="border: 1px solid rgba(200,200,200,0.8); '+
-             'color: rgba(100,100,100,0.5); ' +
-             'font-family:courier; font-size:7pt;"'+
-             'class="unselectable" id="time'+i+'">' + 
-              captionArray[i][0].split(".")[0] +  
+             '<td style="border: 1px solid' + labelColor + '; '+
+             'color: rgba(100, 100, 100, 1); ' +
+             // 'color: rgba(255, 255, 255, 1); ' +
+             // 'background-color:' + labelColor + '; '+
+             // 'font-family:courier; font-size:7pt;"'+
+             'font-family:sans-serif; font-size:7pt;"'+
+             'class="unselectable" id="speaker'+i+'">' + 
+              captionArray[i][2] +  
              '</td>' +
              '<td id="line'+ i + '">' +
               tempspan + '</td></tr>')
@@ -341,7 +365,7 @@ window.onload = function () {
       // sets up annotator in the 'default' mode.
       jQuery(function ($) {
         $('#bottomright').annotator().annotator('setupPlugins');
-        $('#transContent').height($('#bottomright').height()-80);
+        $('#transContent').height($('#bottomright').height()-70);
         // the above line was added because the annotator-wrapper div
         // seems to be overwriting the transContent height settings.
       });
@@ -349,10 +373,10 @@ window.onload = function () {
       player.ready(function () {
         videoLenSec = player.duration();
         // representation of lines in transcript overall window
-        d3.select("#transGraph").selectAll("svg").remove();
-        var w = $('#transGraph').width()-2; //because of the border
-        var h = $('#transGraph').height()-2; //because of the border
-        var transSvg = d3.select("#transGraph").append("svg")
+        d3.select("#transGraphContent").selectAll("svg").remove();
+        var w = $('#transGraphContent').width()-2; //because of the border
+        var h = $('#transGraphContent').height()-2; //because of the border
+        var transSvg = d3.select("#transGraphContent").append("svg")
                          .attr("width", w)
                          .attr("height", h)
                          .style({"border" : "1px solid #d0d0d0"});
@@ -371,6 +395,7 @@ window.onload = function () {
         for (i=0; i < captionArray.length; i++){
           var d = {};
           var xSec = hmsToSec(captionArray[i][0]);
+          d.timeStamp = xSec;
           var xloc = transcriptScale(xSec);
           d.x = xloc;
           d.speaker = captionArray[i][2];
@@ -400,6 +425,7 @@ window.onload = function () {
             d.width = 5;
           } else {
             var endSec = hmsToSeconds(captionArray[i][1]);
+            d.endTime = endSec;
             var startSec = hmsToSeconds(captionArray[i][0]);
             var scaledWidth = transcriptScale(endSec - startSec);
             if (scaledWidth < 2){ 
@@ -448,13 +474,17 @@ window.onload = function () {
                             "'>" + d.speaker + ":  </font>" +
                             d.dialog).show();
                    d3.select(this).attr("width", 5);
-                   d3.select(this).attr('fill', greenHighlight);
+                   if (prevClickedTag === ""){
+                     d3.select(this).attr('fill', greenHighlight);
+                   }
                    d3.select(this).attr('fill-opacity', 1);
                  })
                  .on("mouseout", function(d){
                    tip.hide();
                    d3.select(this).attr("width", d.width);
-                   d3.select(this).attr('fill', d.fillColor);
+                   if (prevClickedTag === ""){
+                     d3.select(this).attr('fill', d.fillColor);
+                   }
                    d3.select(this).attr('fill-opacity', 0.8);
                  });
         // end representation of lines
@@ -507,11 +537,14 @@ window.onload = function () {
         // Highlight corresponding items in transGraph
         //----------------------------------------------   
         var transItemIds = [];
+        var hiRects = $("#transGraphContent svg").children('rect');
+        if (prevClickedTag === ""){
+          hiRects.attr("fill", transGraphColor);
+        }
         transItems.each(function (index, value) {
           var idIndex = value.parentNode.rowIndex;
           transItemIds.push(idIndex);
           // change color of vertical text rep bars
-          var hiRects = $("#transGraph svg").children('rect');
           d3.select(hiRects[idIndex])
             .attr("fill", oldHighlighting);
           var numLines = hiRects.length;
@@ -535,24 +568,19 @@ window.onload = function () {
         $(this).removeClass('hoverHighlight');
         $("#transTable").find("td").removeClass('hoverHighlight');
         $(".boldText").removeClass('boldText');
-        /*
-        $("#transContent ul li span:containsNC('" + tagHoverText + "')")
-        .closest("li").removeClass('hoverHighlight');
-        $("#transContent ul li span:containsNC('" + tagHoverText + "')")
-        .removeClass('boldText');
-        */
-        d3.select("#transGraph").selectAll("svg")
-          .selectAll("rect")
-          .data(transGraphData)
-          .each(function(d){
-            d3.select(this).attr("fill", d.fillColor);
-          });
+        if (prevClickedTag === ""){
+          d3.select("#transGraphContent").selectAll("svg")
+            .selectAll("rect")
+            .data(transGraphData)
+            .each(function(d){
+              d3.select(this).attr("fill", d.fillColor);
+            });
+        } 
       });
 
       //---------------------------------------------------------------   
       // dark highlighting on mouse click
       //---------------------------------------------------------------   
-      var prevClickedTag = "";
       tagListDOM.on('click', 'text', function (e) {
           // KB edits ----
           if (e.ctrlKey || e.metaKey) {
@@ -571,7 +599,6 @@ window.onload = function () {
               // -------------
           } else {
             tagHoverText = $.trim($(this).text());
-            var regex = new RegExp("\\b" + tagHoverText + "\\b");
             if (prevClickedTag !== tagHoverText) {
               $(this).parent().children('text')
                       .removeClass('tagClickHighlight');
@@ -584,6 +611,7 @@ window.onload = function () {
               var transFilter =
                 $("#transTable").find("span:containsNC('" + 
                                       tagHoverText + "')");
+              var regex = new RegExp("\\b" + tagHoverText + "\\b");
               var transItems = transFilter .filter(function(){
                   return (this.textContent).toLowerCase().match(regex);
                 }).closest("td");
@@ -599,7 +627,7 @@ window.onload = function () {
                   var idIndex = value.parentNode.rowIndex;
                   transItemIds.push(idIndex);
                   // change color of vertical text rep bars
-                  var hiRects = $("#transGraph svg")
+                  var hiRects = $("#transGraphContent svg")
                             .children('rect');
                   d3.select(hiRects[idIndex])
                     .attr("fill", boldHighlightColor);
@@ -619,11 +647,11 @@ window.onload = function () {
               prevClickedTag = "";
               // if the same tag is clicked again, remove highlighting.
               $(this).parent().children('text')
-                      .removeClass('tagClickHighlight');
+                     .removeClass('tagClickHighlight');
               $("#transTable").find("td")
                               .removeClass('textClickHighlight');
               $(".boldClickText").removeClass('boldClickText');
-              d3.select("#transGraph").selectAll("svg")
+              d3.select("#transGraphContent").selectAll("svg")
                 .selectAll("rect")
                 .data(transGraphData)
                 .each(function(d){
@@ -668,7 +696,7 @@ window.onload = function () {
           var idIndex = this.rowIndex;
           transItemIds.push(idIndex);
           // change color of vertical text rep bars
-          var hiRects = $("#transGraph svg")
+          var hiRects = $("#transGraphContent svg")
                           .children('rect');
           d3.select(hiRects[idIndex])
             .classed("transRectHighLight", true);
@@ -688,7 +716,7 @@ window.onload = function () {
       // remove highlighting on mouse leave
       $('#transTable').on('mouseleave', 'tr', function () {
           $(this).children().removeClass('transHighlight');
-          d3.select("#transGraph").selectAll("svg")
+          d3.select("#transGraphContent").selectAll("svg")
             .classed("transRectHighLight", false);
           // .attr("fill", transGraphColor);
       }); 
@@ -698,12 +726,13 @@ window.onload = function () {
       //---------------------------------------------------------------
 
       // Allow interaction with seesoft-like visualization
-      $('#transGraph').find('svg').first()
+      $('#transGraphContent').find('svg').first()
                       .on('mouseenter', 'rect', function () {
           // implementing fisheye distortion
           var localDistort = 1;
           if (localDistort != 0){
-            var fisheyesvg = d3.select("#transGraph").selectAll("svg");
+            var fisheyesvg = d3.select("#transGraphContent")
+                               .selectAll("svg");
             var frects = fisheyesvg.selectAll("rect");
             var fisheye = d3.fisheye.circular()
                             .radius(50);
@@ -719,7 +748,7 @@ window.onload = function () {
           }
           // $(this).attr("fill", greenHighlight);
           $(this).attr("z", 50);
-          var transGraphIndex = $('#transGraph svg')
+          var transGraphIndex = $('#transGraphContent svg')
                             .children('rect').index(this);
 
           // light highlighting of transcript
@@ -731,7 +760,7 @@ window.onload = function () {
           // For DOM object at index use 'get'
       }); // end of transGraph onmouseenter function.
 
-      $('#transGraph').on('mouseleave', 'svg rect', function () {
+      $('#transGraphContent').on('mouseleave', 'svg rect', function () {
           // $(this).attr("fill", transGraphColor);
           $(this).attr("z", 1);
 
@@ -742,25 +771,50 @@ window.onload = function () {
       // var player = videojs('discussion-video');
       var videoDuration = 0
       player.ready(function () {
-        $('#transGraph svg').on('click', 'rect', function (e) {
-          var transGraphIndex = $('#transGraph svg')
+        $('#transGraphContent svg').on('click', 'rect', function (e) {
+          var transGraphIndex = $('#transGraphContent svg')
                                   .children('rect')
                                   .index(this);
           var captionStartTimeMin = captionArray[transGraphIndex][0]
           captionStartTimeSec = hmsToSec(captionStartTimeMin);
           e.preventDefault();
           player.currentTime(captionStartTimeSec);
-          // wavesurfer.seek(captionStartTimeSec/player.duration());
           var transClickItem = $('#transTable tr').eq(transGraphIndex)
                                                   .children().last();
           transClickItem.addClass('hoverHighlight');
           // this small snippet below to scroll the transcript to show
           // the line corresponding to the item selected in transgraph
-          var topPos = $(transClickItem).offset().top;
-          $('#transContent').scrollTo($(transClickItem),
+          if (transGraphIndex > 10){
+            scrollIndex = transGraphIndex-10;
+          } else {
+            scrollIndex = 0;
+          }
+          var transScrollItem = $('#transTable tr')
+                                    .eq(scrollIndex)
+                                    .children().last();
+          $('#transContent').scrollTo($(transScrollItem),
                                       {duration: 'slow',
                                        transition: 'ease-in-out'});
         });
+      });
+
+      // toggle the size of the transGraph div 
+      $("#transGraphTitle").click(function () {
+          if ($("#transGraph").hasClass('minimize')) {
+              $("#transGraph").animate({ height: transGraphHeight }, 200,
+                  function(){
+                    $("#transGraphTitle")
+                      .text("Graphical View of Transcript "+
+                            "[click to contract view]");
+                  }).removeClass('minimize');
+          } else {
+              $("#transGraph").animate({ height: 1 }, 200, "swing",
+                  function(){
+                    $("#transGraphTitle")
+                      .text("Graphical View of Transcript "+
+                            "[click to expand view]");
+                  }).addClass('minimize');
+          }
       });
 
       // toggle the size of the sketchLog div 
@@ -889,12 +943,12 @@ window.onload = function () {
                                             0-actOffsetMargin});
           var $protocolScrubberProgress = $("#protocolGraphScrubber");
           protocolOffsetMargin = $("#protocolGraph").height() + 
-                           parseFloat(
-                             $("#protocolGraph").css("border-top-width")
-                                              .split("px")[0])+
-                           parseFloat(
-                             $("#protocolGraph").css("border-bottom-width")
-                                              .split("px")[0]);
+                           parseFloat( $("#protocolGraph")
+                                          .css("border-top-width")
+                                          .split("px")[0])+
+                           parseFloat( $("#protocolGraph")
+                                          .css("border-bottom-width")
+                                          .split("px")[0]);
           $protocolScrubberProgress.css({"margin-top": 
                                             0-protocolOffsetMargin});
           vidPlayer.on('timeupdate', function (e) {
@@ -1213,7 +1267,7 @@ window.onload = function () {
       });
 
       // code to update word cloud based on user selection:
-      $('#transTable').on('mouseup', function (){
+      $('#transTable').on('mouseup', function (e){
         var t = '';
         if (window.getSelection) {
             t = window.getSelection();
@@ -1232,8 +1286,13 @@ window.onload = function () {
           var sliceStart = startLineID.split("line")[1]; 
           var sliceEnd = parseInt(endLineID.split("line")[1])+1; 
           var linesList = lowerCaseLines.slice(sliceStart, sliceEnd);
-          $("#tagList").empty();
-          $("#tagList").append(makeWordList(linesList, tagsToRemove));
+          if (e.button !== 2) {
+            // check if the event is a selection event and not a context
+            // menu (right-click) event. The taglist is to be updated
+            // only in the case of a selection event.
+            $("#tagList").empty();
+            $("#tagList").append(makeWordList(linesList, tagsToRemove));
+          }
         } else {
           $("#tagList").empty();
           $("#tagList").append(makeWordList(lowerCaseLines, 
@@ -1571,8 +1630,8 @@ window.onload = function () {
     }).done(function (data) {
       if (typeof data == 'string'){
         console.log("sketch log file received!");
-        sketchViz(data, player);
-        // check file speechViz.js for how this function works
+        sketchViz(data, player, transGraphData);
+        // check file sketchViz.js for how this function works
       } else {
         $('#sketchLogTitle').hide();
         $('#sketchLog').hide();
@@ -1588,11 +1647,11 @@ window.onload = function () {
         url: "/receive_speechLog_file", // change to send_trn_fil
         // note: "send" from POV of client
         dataType: "text"
-    }).done(function (speechdata) {
+    }).done(function (speechdata){
       speechdata = JSON.parse(speechdata);
-      if (typeof speechdata == "string"){
+      if (typeof speechdata === "string"){
         console.log("speech log file received!");
-        speechViz(speechdata, player);
+        speechViz(speechdata, player, transGraphData);
         // check file speechViz.js for how this function works
       } else {
         // hide everything!
@@ -1614,7 +1673,7 @@ window.onload = function () {
       if (typeof activitydata == "string"){
         console.log("activity log file received!");
         // generate beautiful visuals
-        activityViz(activitydata, player);
+        activityViz(activitydata, player, transGraphData);
         // check file activityViz.js for how this function works
       } else {
         // hide everything!

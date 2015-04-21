@@ -181,13 +181,13 @@
       }
       #topleft{
         float:left;
-        height: 65%;
+        height: 50%;
         width: 100%;
         background:White;
         margin-bottom: 2px;
       }
       #videodiv{
-        height: 85%;
+        height: 100%;
         width: 100%;
       }
       .vjs-default-skin.vjs-has-started.vjs-user-inactive.vjs-playing .vjs-control-bar {
@@ -201,7 +201,7 @@
         padding: 0px;
       }
       #transGraphTitle{
-        height: 20%;
+        height: 3%;
         width:100%;
         background:#FFFFFF;
         font-size: 11px;
@@ -209,10 +209,18 @@
         overflow: hidden;
       }
       #transGraph{
-        height:80%;
+        height:20%;
         width:100%;
         background:#FFFFFF;
         overflow: hidden;
+      }
+
+      #transGraph.minimize{
+        height: 1px;
+      }
+      #transGraphContent{
+        height: 100%;
+        width: 100%;
       }
       #transGraphScrubber{
         height: 100%; 
@@ -221,9 +229,15 @@
         margin-right: 0;
         margin-top: 0;
         overflow: hidden;
-        border:1px solid;
+        border:2px solid;
         border-color: rgba(0,0,0,0);
         border-right-color: red;
+        pointer-events: none;
+        z-index: 100;
+        -webkit-transition:width 300ms ease-in-out;
+        -moz-transition:width 300ms ease-in-out;
+        -o-transition:width 300ms ease-in-out;
+        transition:width 300ms ease-in-out;
       }
       .transRectHighLight{
         fill: "rgba(220, 138, 12, 0.3)";
@@ -231,7 +245,7 @@
 
       #bottomleft{
         float: left;
-        height: 35%;
+        height: 50%;
         width: 100%;
         font: 10px sans-serif;
         font-family:helvetica;
@@ -243,7 +257,7 @@
         display: none; 
       }
       #sketchLogTitle{
-        height:5%;
+        height:3%;
         width:100%;
         background:#FFFFFF;
         font-size: 11px;
@@ -251,7 +265,7 @@
         overflow: hidden;
       }
       #sketchLog{
-        height: 25%; 
+        height: 20%; 
         width: 100%; 
         overflow: hidden;
       }
@@ -269,15 +283,19 @@
         margin-right: 0;
         margin-top: 0;
         overflow: hidden;
-        border:1px solid;
+        border:2px solid;
         border-color: rgba(0,0,0,0);
         border-right-color: red;
         pointer-events: none;
         z-index: 100;
+        -webkit-transition:width 300ms ease-in-out;
+        -moz-transition:width 300ms ease-in-out;
+        -o-transition:width 300ms ease-in-out;
+        transition:width 300ms ease-in-out;
       }
 
       #speechLogTitle{
-        height:5%;
+        height:3%;
         width:100%;
         background:#FFFFFF;
         font-size: 11px;
@@ -285,7 +303,7 @@
         overflow: hidden;
       }
       #speechLog{
-        height: 25%; 
+        height: 20%; 
         width: 100%; 
         overflow: hidden;
       }
@@ -303,15 +321,19 @@
         margin-right: 0;
         margin-top: 0;
         overflow: hidden;
-        border:1px solid;
+        border:2px solid;
         border-color: rgba(0,0,0,0);
         border-right-color: red;
         pointer-events: none;
         z-index: 100;
+        -webkit-transition:width 300ms ease-in-out;
+        -moz-transition:width 300ms ease-in-out;
+        -o-transition:width 300ms ease-in-out;
+        transition:width 300ms ease-in-out;
       }
 
       #activityLogTitle{
-        height:5%;
+        height:3%;
         width:100%;
         background:#FFFFFF;
         font-size: 11px;
@@ -319,7 +341,7 @@
         overflow: hidden;
       }
       #activityLog{
-        height: 25%; 
+        height: 20%; 
         width: 100%; 
         overflow: hidden;
       }
@@ -333,13 +355,18 @@
         margin-right: 0;
         margin-top: 0;
         overflow: hidden;
-        border:1px solid;
+        border:2px solid;
         border-color: rgba(0,0,0,0);
         border-right-color: red;
         pointer-events: none;
+        z-index: 100;
+        -webkit-transition:width 300ms ease-in-out;
+        -moz-transition:width 300ms ease-in-out;
+        -o-transition:width 300ms ease-in-out;
+        transition:width 300ms ease-in-out;
       }
       #protocolGraphTitle{
-        height:5%;
+        height:3%;
         width:100%;
         background:#FFFFFF;
         font-size: 11px;
@@ -363,9 +390,15 @@
         margin-right: 0;
         margin-top: 0;
         overflow: hidden;
-        border:1px solid;
+        border:2px solid;
         border-color: rgba(0,0,0,0);
         border-right-color: red;
+        pointer-events: none;
+        z-index: 100;
+        -webkit-transition:width 300ms ease-in-out;
+        -moz-transition:width 300ms ease-in-out;
+        -o-transition:width 300ms ease-in-out;
+        transition:width 300ms ease-in-out;
       }
       #protocolGraphContent{
         height: 100%; 
@@ -783,18 +816,17 @@
           </svg>
         </div>
         -->
-        <div id="timeline">
-          <div id="transGraphTitle">
-          Graphical View of Transcript [hover for preview, click to scroll
-          transcript]
-          </div>
-          <div id="transGraph"> 
-          </div>
-          <div id="transGraphScrubber">
-          </div>
-        </div>
       </div>
       <div id="bottomleft">
+          <div id="transGraphTitle" class="header">
+          Graphical View of Transcript [click to contract view]
+          </div>
+          <div id="transGraph"> 
+            <div id="transGraphContent">
+            </div>
+            <div id="transGraphScrubber">
+            </div>
+          </div>
           <div id="sketchLogTitle" class="header">
             sketch Participation Chart [click to contract view]
           </div>
