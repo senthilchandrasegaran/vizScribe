@@ -1666,7 +1666,8 @@ window.onload = function () {
         // note: "send" from POV of client
         dataType: "text"
     }).done(function (data) {
-      if (typeof data == 'string'){
+      if (typeof data === 'string' &&
+          data !== ""){
         console.log("sketch log file received!");
         sketchViz(data, player, transGraphData);
         // check file sketchViz.js for how this function works
@@ -1686,8 +1687,9 @@ window.onload = function () {
         // note: "send" from POV of client
         dataType: "text"
     }).done(function (speechdata){
-      speechdata = JSON.parse(speechdata);
-      if (typeof speechdata === "string"){
+      if (typeof speechdata === "string" &&
+          speechdata !== ""){
+        speechdata = JSON.parse(speechdata);
         console.log("speech log file received!");
         speechViz(speechdata, player, transGraphData);
         // check file speechViz.js for how this function works
@@ -1707,8 +1709,9 @@ window.onload = function () {
         // note: "send" from POV of client
         dataType: "text"
     }).done(function (activitydata) {
-      activitydata = JSON.parse(activitydata);
-      if (typeof activitydata == "string"){
+      if (typeof activitydata === "string" &&
+          activitydata !== ""){
+        activitydata = JSON.parse(activitydata);
         console.log("activity log file received!");
         // generate beautiful visuals
         activityViz(activitydata, player, transGraphData);
