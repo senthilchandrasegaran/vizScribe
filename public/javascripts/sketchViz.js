@@ -197,7 +197,7 @@ function sketchViz(data, player, transGraphData){
         })
         .on('click', function(d){
           if (d3.event.ctrlKey || d3.event.metaKey){
-            $('#imgPath-conte)t').children().remove();
+            $('#imgPath-content').children().remove();
             d3.select(this).transition()
                             .attr("r", 12);
             var imagePath = '<img src="/images/sketches/'+

@@ -1294,7 +1294,7 @@ window.onload = function () {
               })
               .attr("width", chartWidth / protoTimeArray.length - 2)
               .attr("height", function (d, i) {
-                  return (d[2] / maxTime * chartHeight) - 5;
+                  return (d[2] / maxTime * chartHeight) - 15;
               })
               .attr("fill", function (d, i) {
                   return d[1];
@@ -1553,19 +1553,17 @@ window.onload = function () {
               .attr("stroke-width", 1)
               .attr("stroke", "rgba(255,255,255,0)")
               .attr("fill", function (d) {return d.fill;})
-              .attr("fill-opacity", 0.8)
+              .attr("fill-opacity", 0.7)
               .attr("z-index", -1)
               .on("mouseover", function(d){
-                codeTip.html("<font color='red'>CODE: </font>" + 
-                         d.code + "<br>" + 
-                         "<font color='red'>Transcript line: </font>" +
-                         d.transcriptLine).show();
+                codeTip.html("<b>CODE: </b>" + d.code).show();
                 if (d.clickStatus === 0){
                   for (var si in d.spanIds){
                     $("#"+d.spanIds[si])
                       .css({"background-color":d.fill});
                   }
-                  d3.select(this).attr('width', 2);
+                  d3.select(this).attr('width', 3);
+                  d3.select(this).attr('fill', boldHighlightColor);
                   d3.select(this).attr('fill-opacity', 1);
                 }
               })
@@ -1577,7 +1575,8 @@ window.onload = function () {
                       .css({"background-color":"rgba(0,0,0,0)"});
                   }
                   d3.select(this).attr('width', d.width);
-                  d3.select(this).attr('fill-opacity', 0.5);
+                  d3.select(this).attr('fill', d.fill);
+                  d3.select(this).attr('fill-opacity', 0.7);
                 }
               })
               .on("click", function(d){
