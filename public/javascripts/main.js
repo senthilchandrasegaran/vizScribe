@@ -491,6 +491,7 @@ window.onload = function () {
       }); // end player.ready()
 
       $("#tagList").empty()
+      $("#tagList").css("background-color", "#ffffff");
       // $("#tagList").append(tagspans);
       $("#tagList").append(makeWordList(lowerCaseLines));
 
@@ -506,6 +507,7 @@ window.onload = function () {
             var tagToRemove = $(this).text();
             tagsToRemove.push(tagToRemove);
             $("#tagList").empty();
+            $("#tagList").css("background-color", "#ffffff");
             $("#tagList").append(makeWordList(lowerCaseLines,
                                               tagsToRemove));
             // Finally remove all highlights from transcript
@@ -771,30 +773,63 @@ window.onload = function () {
       // var player = videojs('discussion-video');
       var videoDuration = 0
       player.ready(function () {
-        $('#transGraphContent svg').on('click', 'rect', function (e) {
-          var transGraphIndex = $('#transGraphContent svg')
-                                  .children('rect')
-                                  .index(this);
-          var captionStartTimeMin = captionArray[transGraphIndex][0]
-          captionStartTimeSec = hmsToSec(captionStartTimeMin);
-          e.preventDefault();
-          player.currentTime(captionStartTimeSec);
-          var transClickItem = $('#transTable tr').eq(transGraphIndex)
-                                                  .children().last();
-          transClickItem.addClass('hoverHighlight');
-          // this small snippet below to scroll the transcript to show
-          // the line corresponding to the item selected in transgraph
-          if (transGraphIndex > 10){
-            scrollIndex = transGraphIndex-10;
+        d3.select('#transGraphContent')
+          .selectAll('svg')
+          .selectAll('rect')
+          .on('click', function (d) {
+          if (d3.event.ctrlKey || d3.event.metaKey){
+            // if a speaker's transcript timeline is ctrl-clicked,
+            // show a word cloud based on only that speaker's utterances
+            var lineCollection = [];
+              // select all coded objects by code ID
+              var sameSpeakerObjs = $.grep(transGraphData, function(e){ 
+                return e.speaker == d.speaker; 
+              });
+              var speakerID = sameSpeakerObjs[0].speaker;
+              // color all spans in these objects persistently
+              for (var ind=0; ind<sameSpeakerObjs.length; ind++){
+                var currentObj = sameSpeakerObjs[ind];
+                var speakerWords = currentObj
+                                    .dialog
+                                    .toLowerCase()
+                                    .split(wordSeparators);
+                lineCollection.push(speakerWords);
+                // exempt these rectangles from mouseover,
+                // mouseout events.
+                currentObj.clickStatus = 1;
+              }
+              // change the background of the taglist to reflect the
+              // speaker color, so that the user gets the context.
+              $("#tagList").empty();
+              $("#tagList").append(makeWordList(lineCollection, 
+                                                tagsToRemove));
+              $("#tagList").css("background-color", 
+                    speakerColors[parseInt(speakerID.split("F")[1])-1]);
           } else {
-            scrollIndex = 0;
+            var transGraphIndex = $('#transGraphContent svg')
+                                    .children('rect')
+                                    .index(this);
+            var captionStartTimeMin = captionArray[transGraphIndex][0]
+            captionStartTimeSec = hmsToSec(captionStartTimeMin);
+            // e.preventDefault();
+            player.currentTime(captionStartTimeSec);
+            var transClickItem = $('#transTable tr').eq(transGraphIndex)
+                                                    .children().last();
+            transClickItem.addClass('hoverHighlight');
+            // this small snippet below to scroll the transcript to show
+            // the line corresponding to the item selected in transgraph
+            if (transGraphIndex > 10){
+              scrollIndex = transGraphIndex-10;
+            } else {
+              scrollIndex = 0;
+            }
+            var transScrollItem = $('#transTable tr')
+                                      .eq(scrollIndex)
+                                      .children().last();
+            $('#transContent').scrollTo($(transScrollItem),
+                                        {duration: 'slow',
+                                        transition: 'ease-in-out'});
           }
-          var transScrollItem = $('#transTable tr')
-                                    .eq(scrollIndex)
-                                    .children().last();
-          $('#transContent').scrollTo($(transScrollItem),
-                                      {duration: 'slow',
-                                       transition: 'ease-in-out'});
         });
       });
 
@@ -1291,10 +1326,12 @@ window.onload = function () {
             // menu (right-click) event. The taglist is to be updated
             // only in the case of a selection event.
             $("#tagList").empty();
+            $("#tagList").css("background-color", "#ffffff");
             $("#tagList").append(makeWordList(linesList, tagsToRemove));
           }
         } else {
           $("#tagList").empty();
+          $("#tagList").css("background-color", "#ffffff");
           $("#tagList").append(makeWordList(lowerCaseLines, 
                                             tagsToRemove));
         }
@@ -1568,6 +1605,7 @@ window.onload = function () {
                       currentObj.clickStatus = 1;
                     }
                     $("#tagList").empty();
+                    $("#tagList").css("background-color", "#ffffff");
                     $("#tagList").append(makeWordList(lineCollection, 
                                                       tagsToRemove));
                     // set general click status as 1, so that this has
