@@ -227,6 +227,7 @@
         width: 100%;
       }
       #transGraphScrubber{
+        position: relative;
         height: 100%; 
         width: 0;
         display: block;
@@ -238,10 +239,10 @@
         border-right-color: red;
         pointer-events: none;
         z-index: 100;
-        -webkit-transition:width 300ms ease-in-out;
-        -moz-transition:width 300ms ease-in-out;
-        -o-transition:width 300ms ease-in-out;
-        transition:width 300ms ease-in-out;
+        -webkit-transition:width 100ms ease-in-out;
+        -moz-transition:width 100ms ease-in-out;
+        -o-transition:width 100ms ease-in-out;
+        transition:width 100ms ease-in-out;
       }
       .transRectHighLight{
         fill: "rgba(220, 138, 12, 0.3)";
@@ -292,10 +293,10 @@
         border-right-color: red;
         pointer-events: none;
         z-index: 100;
-        -webkit-transition:width 300ms ease-in-out;
-        -moz-transition:width 300ms ease-in-out;
-        -o-transition:width 300ms ease-in-out;
-        transition:width 300ms ease-in-out;
+        -webkit-transition:width 100ms ease-in-out;
+        -moz-transition:width 100ms ease-in-out;
+        -o-transition:width 100ms ease-in-out;
+        transition:width 100ms ease-in-out;
       }
 
       #speechLogTitle{
@@ -330,10 +331,10 @@
         border-right-color: red;
         pointer-events: none;
         z-index: 100;
-        -webkit-transition:width 300ms ease-in-out;
-        -moz-transition:width 300ms ease-in-out;
-        -o-transition:width 300ms ease-in-out;
-        transition:width 300ms ease-in-out;
+        -webkit-transition:width 100ms ease-in-out;
+        -moz-transition:width 100ms ease-in-out;
+        -o-transition:width 100ms ease-in-out;
+        transition:width 100ms ease-in-out;
       }
 
       #activityLogTitle{
@@ -364,10 +365,10 @@
         border-right-color: red;
         pointer-events: none;
         z-index: 100;
-        -webkit-transition:width 300ms ease-in-out;
-        -moz-transition:width 300ms ease-in-out;
-        -o-transition:width 300ms ease-in-out;
-        transition:width 300ms ease-in-out;
+        -webkit-transition:width 100ms ease-in-out;
+        -moz-transition:width 100ms ease-in-out;
+        -o-transition:width 100ms ease-in-out;
+        transition:width 100ms ease-in-out;
       }
       #protocolGraphTitle{
         height:3%;
@@ -399,10 +400,10 @@
         border-right-color: red;
         pointer-events: none;
         z-index: 100;
-        -webkit-transition:width 300ms ease-in-out;
-        -moz-transition:width 300ms ease-in-out;
-        -o-transition:width 300ms ease-in-out;
-        transition:width 300ms ease-in-out;
+        -webkit-transition:width 100ms ease-in-out;
+        -moz-transition:width 100ms ease-in-out;
+        -o-transition:width 100ms ease-in-out;
+        transition:width 100ms ease-in-out;
       }
       #protocolGraphContent{
         height: 100%; 
@@ -687,6 +688,8 @@
 
       .d3-tip {
         line-height: 1;
+        position: absolute;
+        z-index: 150;
         font-weight: bold;
         padding: 12px;
         background: rgba(0, 0, 0, 0.8);

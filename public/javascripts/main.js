@@ -987,12 +987,13 @@ window.onload = function () {
           $protocolScrubberProgress.css({"margin-top": 
                                             0-protocolOffsetMargin});
           vidPlayer.on('timeupdate', function (e) {
-              var percent = this.currentTime() / this.duration();
-              $transGraphScrubberProgress.width((percent * 100) + "%");
-              $sketchLogScrubberProgress.width((percent * 100) + "%");
-              $speechLogScrubberProgress.width((percent * 100) + "%");
-              $activityLogScrubberProgress.width((percent * 100) + "%");
-              $protocolScrubberProgress.width((percent * 100) + "%");
+              var percent = parseFloat(this.currentTime()) / 
+                            parseFloat(this.duration());
+              $transGraphScrubberProgress.width((percent * 100.0)+"%");
+              $sketchLogScrubberProgress.width((percent * 100.0)+"%");
+              $speechLogScrubberProgress.width((percent * 100.0)+"%");
+              $activityLogScrubberProgress.width((percent * 100.0)+"%");
+              $protocolScrubberProgress.width((percent * 100.0)+"%");
           });
       });
 

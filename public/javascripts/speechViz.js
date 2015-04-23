@@ -100,8 +100,8 @@ function speechViz(speechdata, player, transGraphData){
                                         .children().last();
               transClickItem.addClass('hoverHighlight')
                             .delay(2000)
-                            .animate({"background-color":
-                                      "rgba(0,0,0,0)"}, 'slow');
+                            .removeClass('hoverHighlight', 
+                                         {duration:500});
               // this small snippet below to scroll the transcript to show
               // the line corresponding to the item selected in transgraph
               $('#transContent').scrollTo($(transScrollItem),

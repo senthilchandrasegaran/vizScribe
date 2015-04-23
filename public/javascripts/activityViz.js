@@ -19,7 +19,6 @@ function activityViz(activitydata, player, transGraphData){
       minAct = rowMin;
     }
   }
-  console.log(minAct + ", " + maxAct);
   d3.select("#activityLogContent").selectAll("svg").remove();
   var activityW = $("#activityLogContent").width()-2;
   var activityH = $("#activityLog").height()-2;
@@ -128,8 +127,8 @@ function activityViz(activitydata, player, transGraphData){
                                         .children().last();
               transClickItem.addClass('hoverHighlight')
                             .delay(2000)
-                            .animate({"background-color":
-                                      "rgba(0,0,0,0)"}, 'slow');
+                            .removeClass('hoverHighlight', 
+                                         {duration:500});
               // this small snippet below to scroll the transcript to
               // show the line corresponding to the item selected in
               // transgraph

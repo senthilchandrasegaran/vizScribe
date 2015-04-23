@@ -68,7 +68,10 @@ function sketchViz(data, player, transGraphData){
       break;
     }
     var p = {}; // data for paths
-    if (commitRow[1] == "commit"){
+    if (commitRow[1] === "commit"){
+      if (commitRow[3] === "30"){
+        console.log("0: " + sketchArray[i]);
+      }
       // this means there was a commit.
       // save the sketch number, speaker ID, and timestamp
       var committedSketch = commitRow[3];
@@ -81,7 +84,10 @@ function sketchViz(data, player, transGraphData){
                                 // explained later.
       for (var j=i+1; j<sketchArray.length; j++){
         var currentRow = sketchArray[j];
-        if (currentRow[2] == spID && !commitPathBroken){
+        if (currentRow[2] === spID && !commitPathBroken){
+          if (commitRow[3] === "30"){
+            console.log("1: " + sketchArray[j]);
+          }
           // if the same person commits again, make a path
           if (currentRow[1] == "commit"){
             if (hmsToSec(currentRow[0]) < videoLenSec){
@@ -101,21 +107,30 @@ function sketchViz(data, player, transGraphData){
               p.from = commitRow;
               p.to = currentRow;
               pathData.push(p);
-              continue;
-            };
+            }
           } else {
             // if it is the same person, but no commit, don't
             // check for this user again, the commit path for
             // this sketch is broken, unless there is a checkout
-            commitPathBroken = true; 
-            // break;
-            continue;
+            if (commitRow[3] === "30"){
+              console.log("2: " + sketchArray[j]);
+            }
+            // if the same person, after committing a check, checks it
+            // out again, then the commit path should not be considered
+            // broken. This is a weird thing to happen, but it does.
+            if (!(currentRow[1] === "checkout" &&
+                  currentRow[2] === spID && 
+                  currentRow[3] === committedSketch)){
+              commitPathBroken = true; 
+            }
           }
         } else {
           // This section means that we are looking at other
           // users, if they have "checked out" a sketch.
-          var checkoutPathBroken = false;
           if (currentRow[3] === committedSketch){
+            if (currentRow[3] === "30"){
+              console.log("3: " + currentRow);
+            }
             var checkerOuter = currentRow[2];
             // now for that user, check future actions to see if
             // there are immediate commits by the same person.
@@ -230,8 +245,8 @@ function sketchViz(data, player, transGraphData){
                                           .children().last();
                 transClickItem.addClass('hoverHighlight')
                               .delay(2000)
-                              .animate({"background-color":
-                                        "rgba(0,0,0,0)"}, 'slow');
+                              .removeClass('hoverHighlight', 
+                                           {duration:500});
                 // this small snippet below to scroll the transcript to
                 // show the line corresponding to the item selected in
                 // transgraph
