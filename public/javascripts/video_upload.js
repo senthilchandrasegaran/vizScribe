@@ -1,5 +1,5 @@
 window.onload = function() {
-  var socket = io.connect('http://localhost:3000');
+  var socket = io.connect('https://safe-everglades-7909.herokuapp.com');
   var FReaderVideo;
   var FReaderImages;
   // var Name;
