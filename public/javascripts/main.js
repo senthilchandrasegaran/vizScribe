@@ -374,6 +374,16 @@ window.onload = function () {
 
       player.ready(function () {
         videoLenSec = player.duration();
+        player.on('seeked', function(){
+          cTime =  new Date();
+          var tempTime = cTime.getHours() + ":" +
+                         cTime.getMinutes() + ":" +
+                         cTime.getSeconds();
+          clickLog.push([tempTime, "videoSeek", 
+                        player.currentTime()+"\n"]);
+          sendClickData.data = clickLog;
+          $.post("/clicklog", sendClickData, function (data, error) { });
+        });
         // representation of lines in transcript overall window
         d3.select("#transGraphContent").selectAll("svg").remove();
         var w = $('#transGraphContent').width()-2; //because of the border
@@ -679,13 +689,6 @@ window.onload = function () {
       var videoDuration = 0
       player.ready(function () {
           $('#transTable').on('click', 'tr', function (e) {
-            cTime =  new Date();
-            var tempTime = cTime.getHours() + ":" +
-                          cTime.getMinutes() + ":" +
-                          cTime.getSeconds();
-            clickLog.push([tempTime, "transcript\n"]);
-            sendClickData.data = clickLog;
-            $.post("/clicklog", sendClickData, function (data, error) { });
             if (e.ctrlKey || e.metaKey) {
               e.preventDefault();
               var captionIndex = this.rowIndex;
@@ -693,6 +696,14 @@ window.onload = function () {
                 captionArray[captionIndex][0];
               captionStartTimeSec = hmsToSec(captionStartTimeMin);
               player.currentTime(captionStartTimeSec);
+              cTime =  new Date();
+              var tempTime = cTime.getHours() + ":" +
+                            cTime.getMinutes() + ":" +
+                            cTime.getSeconds();
+              clickLog.push([tempTime, "transcript", 
+                            captionStartTimeSec + "\n"]);
+              sendClickData.data = clickLog;
+              $.post("/clicklog", sendClickData, function (data, error) { });
             }
           });
       });
@@ -829,13 +840,6 @@ window.onload = function () {
               $("#tagList").css("background-color", 
                     speakerColors[parseInt(speakerID.split("F")[1])-1]);
           } else {
-            cTime =  new Date();
-            var tempTime = cTime.getHours() + ":" +
-                          cTime.getMinutes() + ":" +
-                          cTime.getSeconds();
-            clickLog.push([tempTime, "transGraph\n"]);
-            sendClickData.data = clickLog;
-            $.post("/clicklog", sendClickData, function (data, error) { });
             var transGraphIndex = $('#transGraphContent svg')
                                     .children('rect')
                                     .index(this);
@@ -843,6 +847,15 @@ window.onload = function () {
             captionStartTimeSec = hmsToSec(captionStartTimeMin);
             // e.preventDefault();
             player.currentTime(captionStartTimeSec);
+            cTime =  new Date();
+            var tempTime = cTime.getHours() + ":" +
+                          cTime.getMinutes() + ":" +
+                          cTime.getSeconds();
+            clickLog.push([tempTime, "transGraph", 
+                          captionStartTimeSec + "\n"]);
+            sendClickData.data = clickLog;
+            $.post("/clicklog", sendClickData, 
+                   function (data, error) { });
             var transClickItem = $('#transTable tr').eq(transGraphIndex)
                                                     .children().last();
             transClickItem.addClass('hoverHighlight');
@@ -1715,7 +1728,8 @@ window.onload = function () {
                   var tempTime = cTime.getHours() + ":" +
                                 cTime.getMinutes() + ":" +
                                 cTime.getSeconds();
-                  clickLog.push([tempTime, "codeWordCloud\n"]);
+                  clickLog.push([tempTime, "genCodeWordCloud", 
+                                d.code + "\n"]);
                   sendClickData.data = clickLog;
                   $.post("/clicklog", sendClickData, function (data, error) { });
                   //
@@ -1759,19 +1773,21 @@ window.onload = function () {
                     clickStatus = 0;
                   }
                 } else {
+                  // just skip to that time.
+                  player.currentTime(d.startTime);
+                  var transClickItem = $('#transTable')
+                          .find("#"+d.lineID);
                   //
                   cTime =  new Date();
                   var tempTime = cTime.getHours() + ":" +
                                 cTime.getMinutes() + ":" +
                                 cTime.getSeconds();
-                  clickLog.push([tempTime, "codeSkipToTime\n"]);
+                  clickLog.push([tempTime, "codeSkipToTime", 
+                                d.startTime, d.code + "\n"]);
                   sendClickData.data = clickLog;
-                  $.post("/clicklog", sendClickData, function (data, error) { });
+                  $.post("/clicklog", sendClickData, 
+                         function (data, error) { });
                   //
-                  // just skip to that time.
-                  player.currentTime(d.startTime);
-                  var transClickItem = $('#transTable')
-                          .find("#"+d.lineID);
                   // this small snippet below to scroll the transcript
                   // to show the line corresponding to the item selected
                   // in transgraph
@@ -1818,12 +1834,14 @@ window.onload = function () {
         sketchViz(data, player, transGraphData);
         // check file sketchViz.js for how this function works
         $("#sketchLogContent").on("click", function(){
+          var playerTime = player.currentTime();
         //
           cTime =  new Date();
           var tempTime = cTime.getHours() + ":" +
                         cTime.getMinutes() + ":" +
                         cTime.getSeconds();
-          clickLog.push([tempTime, "sketchLogContent\n"]);
+          clickLog.push([tempTime, "sketchLogContent", 
+                         playerTime +"\n"]);
           sendClickData.data = clickLog;
           $.post("/clicklog", sendClickData, function (data, error) { });
         //
@@ -1851,12 +1869,14 @@ window.onload = function () {
         speechViz(speechdata, player, transGraphData);
         // check file speechViz.js for how this function works
         $("#speechLogContent").on("click", function(){
+          var playerTime = player.currentTime();
         //
           cTime =  new Date();
           var tempTime = cTime.getHours() + ":" +
                         cTime.getMinutes() + ":" +
                         cTime.getSeconds();
-          clickLog.push([tempTime, "speechLogContent\n"]);
+          clickLog.push([tempTime, "speechLogContent", 
+                        playerTime + "\n"]);
           sendClickData.data = clickLog;
           $.post("/clicklog", sendClickData, function (data, error) { });
         //
@@ -1884,15 +1904,19 @@ window.onload = function () {
         // generate beautiful visuals
         activityViz(activitydata, player, transGraphData);
         // check file activityViz.js for how this function works
-        //
+        $("#activityLogContent").on("click", function(){
+          var playerTime = player.currentTime();
+          //
           cTime =  new Date();
           var tempTime = cTime.getHours() + ":" +
                         cTime.getMinutes() + ":" +
                         cTime.getSeconds();
-          clickLog.push([tempTime, "activityLogContent\n"]);
+          clickLog.push([tempTime, "activityLogContent",
+                        playerTime+"\n"]);
           sendClickData.data = clickLog;
           $.post("/clicklog", sendClickData, function (data, error) { });
-        //
+          //
+        });
       } else {
         // hide everything!
         $('#activityLogTitle').hide();

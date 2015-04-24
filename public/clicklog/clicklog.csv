@@ -1,11 +1,21 @@
-0:39:6,activityLogContent
-,0:39:10,transGraph
-,0:39:13,sketchLogContent
-,0:39:15,speechLogContent
-,0:39:21,speechLogContent
-,0:39:28,tagList
-,0:39:29,tagList
-,0:39:32,transcript
-,0:39:39,selectLinesInTranscript
-,0:39:39,transcript
-,0:39:41,transcript
+18:38:11,videoSeek,824.951483
+,18:38:17,videoSeek,539.644031
+,18:38:23,videoSeek,546.353359
+,18:38:24,videoSeek,594.703364
+,18:38:32,sketchLogContent,1885
+,18:38:32,videoSeek,1885
+,18:38:37,sketchLogContent,2876
+,18:38:38,videoSeek,2876
+,18:38:55,viewCode
+,18:39:5,selectLinesInTranscript
+,18:39:6,contextmenu
+,18:39:9,sketchLogMinimize
+,18:39:10,speechLogContent,2907.958596
+,18:39:11,speechLogMinimize
+,18:39:11,activityLogMinimize
+,18:39:13,codeSkipToTime,2901.86,code 3
+,18:39:13,videoSeek,2901.86
+,18:39:16,genCodeWordCloud,code 3
+,18:39:19,genCodeWordCloud,code 3
+,18:39:41,transGraph,2191.44
+,18:39:42,videoSeek,2191.44

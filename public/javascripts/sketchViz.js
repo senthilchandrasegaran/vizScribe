@@ -212,14 +212,6 @@ function sketchViz(data, player, transGraphData){
         })
         .on('click', function(d){
           if (d3.event.ctrlKey || d3.event.metaKey){
-            //
-            var tempTime = currentTime.getHours() + ":" +
-                          currentTime.getMinutes() + ":" +
-                          currentTime.getSeconds();
-            clickLog.push([tempTime, "codeSkipToTime"]);
-            sendClickData.data = clickLog;
-            $.post("/clicklog", sendClickData, function (data, error) { });
-            //
             $('#imgPath-content').children().remove();
             d3.select(this).transition()
                             .attr("r", 12);
