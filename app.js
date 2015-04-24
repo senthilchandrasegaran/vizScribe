@@ -54,6 +54,7 @@ var outputlog = { id: 'outputlog', target: '' };
 var outputSpeechLog = { id: 'outputSpeechLog', target: '' };
 var outputActivityLog = { id: 'outputActivityLog', target: '' };
 var userlog = { id: 'userlog' };
+var clicklog = { id: 'clicklog' };
 
 /* listen */
 var httpserver = http.createServer(app);
@@ -315,6 +316,18 @@ app.post('/userlog', function (req, res){
                function (err) {
     if (err) throw err;
     console.log('userlog.csv was written');
+    res.send(200);
+  });
+  // res.end();
+});
+
+app.post('/clicklog', function (req, res){
+  //res.send(req.body);
+  // write user log file as text
+  fs.writeFile('public/clicklog/clicklog.csv', String(req.body.data),
+               function (err) {
+    if (err) throw err;
+    console.log('clicklog.csv was written');
     res.send(200);
   });
   // res.end();

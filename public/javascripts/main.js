@@ -34,7 +34,9 @@ var spanCollection = [];
 var transGraphData = []; // data structure for transGraph display
 var prevClickedTag = "";
 var videoLenSec;
-
+var clickLog = [];
+var sendClickData = {};
+var cTime =  new Date();
 
 // this set of variables for path viewer
 var timeStamps = [];
@@ -584,6 +586,13 @@ window.onload = function () {
       // dark highlighting on mouse click
       //---------------------------------------------------------------   
       tagListDOM.on('click', 'text', function (e) {
+          cTime =  new Date();
+          var tempTime = cTime.getHours() + ":" +
+                         cTime.getMinutes() + ":" +
+                         cTime.getSeconds();
+          clickLog.push([tempTime, "tagList\n"]);
+          sendClickData.data = clickLog;
+          $.post("/clicklog", sendClickData, function (data, error) { });
           // KB edits ----
           if (e.ctrlKey || e.metaKey) {
               document.getElementById('concordance-view')
@@ -670,6 +679,13 @@ window.onload = function () {
       var videoDuration = 0
       player.ready(function () {
           $('#transTable').on('click', 'tr', function (e) {
+            cTime =  new Date();
+            var tempTime = cTime.getHours() + ":" +
+                          cTime.getMinutes() + ":" +
+                          cTime.getSeconds();
+            clickLog.push([tempTime, "transcript\n"]);
+            sendClickData.data = clickLog;
+            $.post("/clicklog", sendClickData, function (data, error) { });
             if (e.ctrlKey || e.metaKey) {
               e.preventDefault();
               var captionIndex = this.rowIndex;
@@ -778,6 +794,13 @@ window.onload = function () {
           .selectAll('rect')
           .on('click', function (d) {
           if (d3.event.ctrlKey || d3.event.metaKey){
+            cTime =  new Date();
+            var tempTime = cTime.getHours() + ":" +
+                          cTime.getMinutes() + ":" +
+                          cTime.getSeconds();
+            clickLog.push([tempTime, "transGraphWordCloud\n"]);
+            sendClickData.data = clickLog;
+            $.post("/clicklog", sendClickData, function (data, error) { });
             // if a speaker's transcript timeline is ctrl-clicked,
             // show a word cloud based on only that speaker's utterances
             var lineCollection = [];
@@ -806,6 +829,13 @@ window.onload = function () {
               $("#tagList").css("background-color", 
                     speakerColors[parseInt(speakerID.split("F")[1])-1]);
           } else {
+            cTime =  new Date();
+            var tempTime = cTime.getHours() + ":" +
+                          cTime.getMinutes() + ":" +
+                          cTime.getSeconds();
+            clickLog.push([tempTime, "transGraph\n"]);
+            sendClickData.data = clickLog;
+            $.post("/clicklog", sendClickData, function (data, error) { });
             var transGraphIndex = $('#transGraphContent svg')
                                     .children('rect')
                                     .index(this);
@@ -836,6 +866,13 @@ window.onload = function () {
       // toggle the size of the transGraph div 
       $("#transGraphTitle").click(function () {
           if ($("#transGraph").hasClass('minimize')) {
+              cTime =  new Date();
+              var tempTime = cTime.getHours() + ":" +
+                            cTime.getMinutes() + ":" +
+                            cTime.getSeconds();
+              clickLog.push([tempTime, "transGraphMaximize\n"]);
+              sendClickData.data = clickLog;
+              $.post("/clicklog", sendClickData, function (data, error) { });
               $("#transGraph").animate({ height: transGraphHeight }, 200,
                   function(){
                     $("#transGraphTitle")
@@ -843,6 +880,13 @@ window.onload = function () {
                             "[click to contract view]");
                   }).removeClass('minimize');
           } else {
+              cTime =  new Date();
+              var tempTime = cTime.getHours() + ":" +
+                            cTime.getMinutes() + ":" +
+                            cTime.getSeconds();
+              clickLog.push([tempTime, "transGraphMinimize\n"]);
+              sendClickData.data = clickLog;
+              $.post("/clicklog", sendClickData, function (data, error) { });
               $("#transGraph").animate({ height: 1 }, 200, "swing",
                   function(){
                     $("#transGraphTitle")
@@ -855,6 +899,13 @@ window.onload = function () {
       // toggle the size of the sketchLog div 
       $("#sketchLogTitle").click(function () {
           if ($("#sketchLog").hasClass('minimize')) {
+              cTime =  new Date();
+              var tempTime = cTime.getHours() + ":" +
+                            cTime.getMinutes() + ":" +
+                            cTime.getSeconds();
+              clickLog.push([tempTime, "sketchLogMaximize\n"]);
+              sendClickData.data = clickLog;
+              $.post("/clicklog", sendClickData, function (data, error) { });
               $("#sketchLog").animate({ height: sketchLogHeight }, 200,
                   function(){
                     $("#sketchLogTitle")
@@ -862,6 +913,13 @@ window.onload = function () {
                             "[click to contract view]");
                   }).removeClass('minimize');
           } else {
+              cTime =  new Date();
+              var tempTime = cTime.getHours() + ":" +
+                            cTime.getMinutes() + ":" +
+                            cTime.getSeconds();
+              clickLog.push([tempTime, "sketchLogMinimize\n"]);
+              sendClickData.data = clickLog;
+              $.post("/clicklog", sendClickData, function (data, error) { });
               $("#sketchLog").animate({ height: 1 }, 200, "swing",
                   function(){
                     $("#sketchLogTitle")
@@ -874,6 +932,13 @@ window.onload = function () {
       // toggle the size of the speechLog div 
       $("#speechLogTitle").click(function () {
           if ($("#speechLog").hasClass('minimize')) {
+              cTime =  new Date();
+              var tempTime = cTime.getHours() + ":" +
+                            cTime.getMinutes() + ":" +
+                            cTime.getSeconds();
+              clickLog.push([tempTime, "speechLogMaximize\n"]);
+              sendClickData.data = clickLog;
+              $.post("/clicklog", sendClickData, function (data, error) { });
               $("#speechLog").animate({ height: speechLogHeight }, 200,
                   function(){
                     $("#speechLogTitle")
@@ -881,6 +946,13 @@ window.onload = function () {
                             "[click to contract view]");
                   }).removeClass('minimize');
           } else {
+              cTime =  new Date();
+              var tempTime = cTime.getHours() + ":" +
+                            cTime.getMinutes() + ":" +
+                            cTime.getSeconds();
+              clickLog.push([tempTime, "speechLogMinimize\n"]);
+              sendClickData.data = clickLog;
+              $.post("/clicklog", sendClickData, function (data, error) { });
               $("#speechLog").animate({ height: 1 }, 200, "swing",
                   function(){
                     $("#speechLogTitle")
@@ -893,6 +965,13 @@ window.onload = function () {
       // toggle the size of the activityLog div 
       $("#activityLogTitle").click(function () {
           if ($("#activityLog").hasClass('minimize')) {
+              cTime =  new Date();
+              var tempTime = cTime.getHours() + ":" +
+                            cTime.getMinutes() + ":" +
+                            cTime.getSeconds();
+              clickLog.push([tempTime, "activityLogMaximize\n"]);
+              sendClickData.data = clickLog;
+              $.post("/clicklog", sendClickData, function (data, error) { });
               $("#activityLog").animate({height:activityLogHeight},200,
                   function(){
                     $("#activityLogTitle")
@@ -900,6 +979,13 @@ window.onload = function () {
                             "[click to contract view]");
                   }).removeClass('minimize');
           } else {
+              cTime =  new Date();
+              var tempTime = cTime.getHours() + ":" +
+                            cTime.getMinutes() + ":" +
+                            cTime.getSeconds();
+              clickLog.push([tempTime, "activityLogMinimize\n"]);
+              sendClickData.data = clickLog;
+              $.post("/clicklog", sendClickData, function (data, error) { });
               $("#activityLog").animate({ height: 1 }, 200, "swing",
                   function(){
                     $("#activityLogTitle")
@@ -912,6 +998,13 @@ window.onload = function () {
       // toggle the size of the protocolGraph div 
       $("#protocolGraphTitle").click(function () {
           if ($("#protocolGraph").hasClass('minimize')) {
+              cTime =  new Date();
+              var tempTime = cTime.getHours() + ":" +
+                            cTime.getMinutes() + ":" +
+                            cTime.getSeconds();
+              clickLog.push([tempTime, "protoLogMaximize\n"]);
+              sendClickData.data = clickLog;
+              $.post("/clicklog", sendClickData, function (data, error) { });
               $("#protocolGraph").animate({height:protocolGraphHeight},
                                           200,
                   function(){
@@ -920,6 +1013,13 @@ window.onload = function () {
                             "[click to contract view]");
                   }).removeClass('minimize');
           } else {
+              cTime =  new Date();
+              var tempTime = cTime.getHours() + ":" +
+                            cTime.getMinutes() + ":" +
+                            cTime.getSeconds();
+              clickLog.push([tempTime, "protoLogMinimize\n"]);
+              sendClickData.data = clickLog;
+              $.post("/clicklog", sendClickData, function (data, error) { });
               $("#protocolGraph").animate({ height: 1}, 200, "swing",
                   function(){
                     $("#protocolGraphTitle")
@@ -1018,6 +1118,13 @@ window.onload = function () {
       // protocol edit tab
 
       $('ul.tabs li:first').on('click', function () {
+          cTime =  new Date();
+          var tempTime = cTime.getHours() + ":" +
+                        cTime.getMinutes() + ":" +
+                        cTime.getSeconds();
+          clickLog.push([tempTime, "viewCode\n"]);
+          sendClickData.data = clickLog;
+          $.post("/clicklog", sendClickData, function (data, error) { });
           if ($(this).hasClass('active')) {
               var pArray = document
             .getElementById('protocolTextArea')
@@ -1227,6 +1334,13 @@ window.onload = function () {
 
       // Add total protocol distributions
       $('ul.tabs li:eq(2)').on('click', function () {
+          cTime =  new Date();
+          var tempTime = cTime.getHours() + ":" +
+                        cTime.getMinutes() + ":" +
+                        cTime.getSeconds();
+          clickLog.push([tempTime, "editCode\n"]);
+          sendClickData.data = clickLog;
+          $.post("/clicklog", sendClickData, function (data, error) { });
           // get the final list of assigned protocols
           var protoTimeArray = [];
           for (var i in protocolList) {
@@ -1323,6 +1437,13 @@ window.onload = function () {
           var sliceEnd = parseInt(endLineID.split("line")[1])+1; 
           var linesList = lowerCaseLines.slice(sliceStart, sliceEnd);
           if (e.button !== 2) {
+            cTime =  new Date();
+            var tempTime = cTime.getHours() + ":" +
+                          cTime.getMinutes() + ":" +
+                          cTime.getSeconds();
+            clickLog.push([tempTime, "selectLinesInTranscript\n"]);
+            sendClickData.data = clickLog;
+            $.post("/clicklog", sendClickData, function (data, error) { });
             // check if the event is a selection event and not a context
             // menu (right-click) event. The taglist is to be updated
             // only in the case of a selection event.
@@ -1339,6 +1460,13 @@ window.onload = function () {
       });
       // code to assign protocol codes with selected text
       $('#transContent').on('contextmenu', function (e) {
+          cTime =  new Date();
+          var tempTime = cTime.getHours() + ":" +
+                        cTime.getMinutes() + ":" +
+                        cTime.getSeconds();
+          clickLog.push([tempTime, "contextmenu\n"]);
+          sendClickData.data = clickLog;
+          $.post("/clicklog", sendClickData, function (data, error) { });
           e.preventDefault();
           var t = '';
           if (window.getSelection) {
@@ -1582,6 +1710,15 @@ window.onload = function () {
               })
               .on("click", function(d){
                 if (d3.event.ctrlKey || d3.event.metaKey){
+                  //
+                  cTime =  new Date();
+                  var tempTime = cTime.getHours() + ":" +
+                                cTime.getMinutes() + ":" +
+                                cTime.getSeconds();
+                  clickLog.push([tempTime, "codeWordCloud\n"]);
+                  sendClickData.data = clickLog;
+                  $.post("/clicklog", sendClickData, function (data, error) { });
+                  //
                   var lineCollection = [];
                   if (clickStatus===0){
                     // select all coded objects by code ID
@@ -1622,6 +1759,15 @@ window.onload = function () {
                     clickStatus = 0;
                   }
                 } else {
+                  //
+                  cTime =  new Date();
+                  var tempTime = cTime.getHours() + ":" +
+                                cTime.getMinutes() + ":" +
+                                cTime.getSeconds();
+                  clickLog.push([tempTime, "codeSkipToTime\n"]);
+                  sendClickData.data = clickLog;
+                  $.post("/clicklog", sendClickData, function (data, error) { });
+                  //
                   // just skip to that time.
                   player.currentTime(d.startTime);
                   var transClickItem = $('#transTable')
@@ -1671,6 +1817,17 @@ window.onload = function () {
         console.log("sketch log file received!");
         sketchViz(data, player, transGraphData);
         // check file sketchViz.js for how this function works
+        $("#sketchLogContent").on("click", function(){
+        //
+          cTime =  new Date();
+          var tempTime = cTime.getHours() + ":" +
+                        cTime.getMinutes() + ":" +
+                        cTime.getSeconds();
+          clickLog.push([tempTime, "sketchLogContent\n"]);
+          sendClickData.data = clickLog;
+          $.post("/clicklog", sendClickData, function (data, error) { });
+        //
+        });
       } else {
         $('#sketchLogTitle').hide();
         $('#sketchLog').hide();
@@ -1693,6 +1850,17 @@ window.onload = function () {
         console.log("speech log file received!");
         speechViz(speechdata, player, transGraphData);
         // check file speechViz.js for how this function works
+        $("#speechLogContent").on("click", function(){
+        //
+          cTime =  new Date();
+          var tempTime = cTime.getHours() + ":" +
+                        cTime.getMinutes() + ":" +
+                        cTime.getSeconds();
+          clickLog.push([tempTime, "speechLogContent\n"]);
+          sendClickData.data = clickLog;
+          $.post("/clicklog", sendClickData, function (data, error) { });
+        //
+        });
       } else {
         // hide everything!
         $('#speechLogTitle').hide();
@@ -1716,6 +1884,15 @@ window.onload = function () {
         // generate beautiful visuals
         activityViz(activitydata, player, transGraphData);
         // check file activityViz.js for how this function works
+        //
+          cTime =  new Date();
+          var tempTime = cTime.getHours() + ":" +
+                        cTime.getMinutes() + ":" +
+                        cTime.getSeconds();
+          clickLog.push([tempTime, "activityLogContent\n"]);
+          sendClickData.data = clickLog;
+          $.post("/clicklog", sendClickData, function (data, error) { });
+        //
       } else {
         // hide everything!
         $('#activityLogTitle').hide();
