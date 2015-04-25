@@ -1317,7 +1317,7 @@ window.onload = function () {
                  var indents = protocolObject[d].level;
                  var color = protocolObject[d].color;
                  color = color + (0.5).toString() + ")";
-                 protocolColorList.push(color);
+                 // protocolColorList.push(color);
                  return color;
              })
              .attr("stroke", "#ffffff");
@@ -1493,7 +1493,6 @@ window.onload = function () {
           spanCollection = processedSelection[0];
           linesList = processedSelection[1];
           orgSpanCollection = processedSelection[2];
-
           selectedText = String(t);
           var menuItems = '<p> assign to code:</p>';
           for (ind in protocolList) {
@@ -1574,13 +1573,26 @@ window.onload = function () {
           });
         } else {
           // Based on selection, capture from original csv first
-          var selectedArray = selectedText.split("\n");
+          // var selectedArray = selectedText.split("\n");
           for (var i in orgSpanCollection) {
             var spansList = orgSpanCollection[i];
             var lineIndex = Number(linesList[i].id.split("row")[1]);
             if ($(this).text() === "unassign"){
               for (var ksel in selectedIndices) {
-                var spanString = "";
+                var lineIDCurrentSel = $(spansList[0])
+                                        .attr("id")
+                                        .split("word")[0];
+                var lineIDCoded = selectedIndices[ksel][4][0]
+                                    .split("word")[0];
+                if (lineIDCurrentSel === lineIDCoded){
+                  selectedIndices.splice(ksel, 1);
+                  for (var si=0; si< spansList.length; si++){
+                    $(spansList[si]).css({"background-color":
+                                          "rgba(255, 255, 255, 0.1"});
+                  }
+                }
+                // var spanString = "";
+                /*
                 for (var j in spansList){
                   var tempSpan = $(spansList[j]);
                   tempSpan.parent().children().css({
@@ -1594,7 +1606,12 @@ window.onload = function () {
                     (selectedIndices[ksel][4]
                       .indexOf(spanString) > -1)){
                   selectedIndices.splice(ksel, 1);
+                } else {
+                  // delete this else statement later
+                  var tempIndex = spanString
+                                  .indexOf(selectedIndices[ksel][4]);
                 }
+                */
               }
             } else {
               var spanString = "";
@@ -1611,12 +1628,16 @@ window.onload = function () {
                   .animate({"background-color":
                             "rgba(0,0,0,0)"}, 'slow');
               }
+              var codeTime = new Date();
+              var tStamp = codeTime.getHours()+":"+
+                           codeTime.getMinutes()+":"+
+                           codeTime.getSeconds();
               selectedIndices.push([lineIndex,
                 captionArray[lineIndex][0], // start time
                 captionArray[lineIndex][1], // start time
                 $(this).text(),
                 spanIds,
-                spanString + "\n" ]);
+                spanString, tStamp + "\n" ]);
             }
             var sendData = {};
             sendData.data = selectedIndices;

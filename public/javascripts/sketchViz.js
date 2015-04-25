@@ -69,9 +69,6 @@ function sketchViz(data, player, transGraphData){
     }
     var p = {}; // data for paths
     if (commitRow[1] === "commit"){
-      if (commitRow[3] === "30"){
-        console.log("0: " + sketchArray[i]);
-      }
       // this means there was a commit.
       // save the sketch number, speaker ID, and timestamp
       var committedSketch = commitRow[3];
@@ -85,9 +82,6 @@ function sketchViz(data, player, transGraphData){
       for (var j=i+1; j<sketchArray.length; j++){
         var currentRow = sketchArray[j];
         if (currentRow[2] === spID && !commitPathBroken){
-          if (commitRow[3] === "30"){
-            console.log("1: " + sketchArray[j]);
-          }
           // if the same person commits again, make a path
           if (currentRow[1] == "commit"){
             if (hmsToSec(currentRow[0]) < videoLenSec){
@@ -112,9 +106,6 @@ function sketchViz(data, player, transGraphData){
             // if it is the same person, but no commit, don't
             // check for this user again, the commit path for
             // this sketch is broken, unless there is a checkout
-            if (commitRow[3] === "30"){
-              console.log("2: " + sketchArray[j]);
-            }
             // if the same person, after committing a check, checks it
             // out again, then the commit path should not be considered
             // broken. This is a weird thing to happen, but it does.
@@ -128,9 +119,6 @@ function sketchViz(data, player, transGraphData){
           // This section means that we are looking at other
           // users, if they have "checked out" a sketch.
           if (currentRow[3] === committedSketch){
-            if (currentRow[3] === "30"){
-              console.log("3: " + currentRow);
-            }
             var checkerOuter = currentRow[2];
             // now for that user, check future actions to see if
             // there are immediate commits by the same person.
