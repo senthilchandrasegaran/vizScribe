@@ -33,6 +33,7 @@ var selectedText = '';
 var spanCollection = [];
 var transGraphData = []; // data structure for transGraph display
 var prevClickedTag = "";
+var isTagClicked = false;
 var videoLenSec;
 var clickLog = [];
 var sendClickData = {};
@@ -544,25 +545,31 @@ window.onload = function () {
                 return (this.textContent).toLowerCase().match(regex);
               }).parents("td");
         transItems.addClass('hoverHighlight');
+        /*
         transFilter.filter(function(){
                 return (this.textContent).toLowerCase().match(regex);
               }).addClass('boldText');
+              */
         //----------------------------------------------   
         // Highlight corresponding items in transGraph
         //----------------------------------------------   
         var transItemIds = [];
         var hiRects = $("#transGraphContent svg").children('rect');
-        if (prevClickedTag === ""){
+        // if (prevClickedTag === ""){
+        if (isTagClicked){
+          // do nothing to the transGraph on mouseenter if a word in the
+          // tag cloud is already clicked.
+        } else {
           hiRects.attr("fill", transGraphColor);
+          transItems.each(function (index, value) {
+            var idIndex = value.parentNode.rowIndex;
+            transItemIds.push(idIndex);
+            // change color of vertical text rep bars
+            d3.select(hiRects[idIndex])
+              .attr("fill", oldHighlighting);
+            var numLines = hiRects.length;
+          });
         }
-        transItems.each(function (index, value) {
-          var idIndex = value.parentNode.rowIndex;
-          transItemIds.push(idIndex);
-          // change color of vertical text rep bars
-          d3.select(hiRects[idIndex])
-            .attr("fill", oldHighlighting);
-          var numLines = hiRects.length;
-        });
         var timeSegArray = [];
         //load corresponding times of highlighted ul items in a list
         var ind = 0;
@@ -570,7 +577,7 @@ window.onload = function () {
           var numInd = transItemIds[ind];
           var startTime = hmsToSec(captionArray[numInd][0]);
           var duration = hmsToSec(captionArray[numInd][1]) -
-                       startTime;
+                      startTime;
           timeSegArray.push([startTime, duration]);
         }
       });
@@ -581,8 +588,12 @@ window.onload = function () {
       tagListDOM.on('mouseleave', 'text', function () {
         $(this).removeClass('hoverHighlight');
         $("#transTable").find("td").removeClass('hoverHighlight');
-        $(".boldText").removeClass('boldText');
-        if (prevClickedTag === ""){
+        // $(".boldText").removeClass('boldText');
+        // if (prevClickedTag === ""){
+        if (isTagClicked){
+          // do nothing to the transGraph on mouseleave if a word in the
+          // tag cloud is already clicked.
+        } else {
           d3.select("#transGraphContent").selectAll("svg")
             .selectAll("rect")
             .data(transGraphData)
@@ -616,15 +627,15 @@ window.onload = function () {
                   $('#concordance-view-content')
                     .append(eachConcordance + "<br/>");
               });
-
-              // -------------
           } else {
             tagHoverText = $.trim($(this).text());
+            // check if the tag was already clicked
             if (prevClickedTag !== tagHoverText) {
               $(this).parent().children('text')
                       .removeClass('tagClickHighlight');
               $(this).addClass('tagClickHighlight');
               prevClickedTag = tagHoverText;
+              isTagClicked = true;
               $('.textClickHighlight')
                   .removeClass('textClickHighlight');
               $('.boldClickText')
@@ -666,6 +677,7 @@ window.onload = function () {
               }
             } else {
               prevClickedTag = "";
+              isTagClicked = false;
               // if the same tag is clicked again, remove highlighting.
               $(this).parent().children('text')
                      .removeClass('tagClickHighlight');
@@ -1009,6 +1021,7 @@ window.onload = function () {
       });
 
       // toggle the size of the protocolGraph div 
+      /*
       $("#protocolGraphTitle").click(function () {
           if ($("#protocolGraph").hasClass('minimize')) {
               cTime =  new Date();
@@ -1041,6 +1054,7 @@ window.onload = function () {
                   }).addClass('minimize');
           }
       });
+      */
 
       // show Video Progress on the sketch and Protocol Divs
       var vidPlayer = videojs("discussion-video");
