@@ -345,6 +345,7 @@ window.onload = function () {
           displayLines.push(
              '<tr id="row' +i+ '">' +
              '<td style="border: 1px solid' + labelColor + '; '+
+             'border-right: 7px solid' + labelColor + '; '+
              'color: rgba(100, 100, 100, 1); ' +
              // 'color: rgba(255, 255, 255, 1); ' +
              // 'background-color:' + labelColor + '; '+
@@ -588,12 +589,11 @@ window.onload = function () {
       tagListDOM.on('mouseleave', 'text', function () {
         $(this).removeClass('hoverHighlight');
         $("#transTable").find("td").removeClass('hoverHighlight');
-        // $(".boldText").removeClass('boldText');
-        // if (prevClickedTag === ""){
         if (isTagClicked){
           // do nothing to the transGraph on mouseleave if a word in the
           // tag cloud is already clicked.
         } else {
+          $(".boldText").removeClass('boldText');
           d3.select("#transGraphContent").selectAll("svg")
             .selectAll("rect")
             .data(transGraphData)
