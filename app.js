@@ -318,6 +318,14 @@ app.post('/userlog', function (req, res){
     console.log('userlog.csv was written');
     res.send(200);
   });
+  var collCodeData = req.body.data;
+  console.log(collCodeData);
+  // send this coded data to the other client 
+  app.post('/collCode', function (req, res){
+    res.writeHead(200);
+    res.write(collCodeData);
+    res.end()
+  }); // end of code segment to send (qual) code to other client
   // res.end();
 });
 
@@ -353,11 +361,3 @@ app.post('/infoContent', function (req, res){
   });
 });
 
-
-
-
-
-//http.createServer(app).listen(app.get('port'), function(){
-//  console.log('Express server listening on port ' + app.get('port'));
-//});
-// END OF OLDER CODE, UNCOMMENT IF RESUMABLE DOES NOT WORK

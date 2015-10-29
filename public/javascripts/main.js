@@ -65,6 +65,7 @@ var sketchesHeight = 0;
 var speechLogHeight = 0;
 var activityLogHeight = 0;
 var protocolGraphHeight = 0;
+var collProtocolGraphHeight = 0;
 
 /*
 var speakerColors = [
@@ -284,6 +285,7 @@ window.onload = function () {
   speechLogHeight = $("#speechLog").height();
   activityLogHeight = $("#activityLog").height();
   protocolGraphHeight = $("#protocolGraph").height();
+  collProtocolGraphHeight = $("#collProtocolGraph").height();
   
   var player = videojs('discussion-video');
   player.on('loadedmetadata', function () {
@@ -1021,7 +1023,6 @@ window.onload = function () {
       });
 
       // toggle the size of the protocolGraph div 
-      /*
       $("#protocolGraphTitle").click(function () {
           if ($("#protocolGraph").hasClass('minimize')) {
               cTime =  new Date();
@@ -1054,7 +1055,6 @@ window.onload = function () {
                   }).addClass('minimize');
           }
       });
-      */
 
       // show Video Progress on the sketch and Protocol Divs
       var vidPlayer = videojs("discussion-video");
@@ -1103,6 +1103,7 @@ window.onload = function () {
                                               .split("px")[0]);
           $activityLogScrubberProgress.css({"margin-top": 
                                             0-actOffsetMargin});
+          // scrubber for codes
           var $protocolScrubberProgress = $("#protocolGraphScrubber");
           protocolOffsetMargin = $("#protocolGraph").height() + 
                            parseFloat( $("#protocolGraph")
@@ -1113,6 +1114,19 @@ window.onload = function () {
                                           .split("px")[0]);
           $protocolScrubberProgress.css({"margin-top": 
                                             0-protocolOffsetMargin});
+          // scrubber for codes by collaborator
+          var $collProtocolScrubberProgress = 
+              $("#collProtocolGraphScrubber");
+          collProtocolOffsetMargin = $("#collProtocolGraph").height() + 
+                           parseFloat( $("#collProtocolGraph")
+                                          .css("border-top-width")
+                                          .split("px")[0])+
+                           parseFloat( $("#collProtocolGraph")
+                                          .css("border-bottom-width")
+                                          .split("px")[0]);
+          $collProtocolScrubberProgress.css({"margin-top": 
+                                            0-collProtocolOffsetMargin});
+
           vidPlayer.on('timeupdate', function (e) {
               var percent = parseFloat(this.currentTime()) / 
                             parseFloat(this.duration());
@@ -1121,6 +1135,7 @@ window.onload = function () {
               $speechLogScrubberProgress.width((percent * 100.0)+"%");
               $activityLogScrubberProgress.width((percent * 100.0)+"%");
               $protocolScrubberProgress.width((percent * 100.0)+"%");
+              $collProtocolScrubberProgress.width((percent * 100.0)+"%");
           });
       });
 
@@ -1282,10 +1297,11 @@ window.onload = function () {
                       }
                   }
 
-                  //What if the protocolObject is empty -- ie., there is no previous protocolList!
+                  // What if the protocolObject is empty -- ie., there
+                  // is no previous protocolList!
                   if (protocolKeyList.length == 0) {
-                      //add each protocol in the protocol list to the protocolObject
-                      //means the protocol is NEW!
+                      //add each protocol in the protocol list to the
+                      //protocolObject means the protocol is NEW!
                       var color = getColor();
 
                       //if (level != 1) {
@@ -1605,27 +1621,6 @@ window.onload = function () {
                                           "rgba(255, 255, 255, 0.1"});
                   }
                 }
-                // var spanString = "";
-                /*
-                for (var j in spansList){
-                  var tempSpan = $(spansList[j]);
-                  tempSpan.parent().children().css({
-                    "background-color":
-                     protocolColorList[
-                       protocolList.indexOf($(this).text())] });
-                  spanString += tempSpan.text();
-                }
-                if ((spanString
-                      .indexOf(selectedIndices[ksel][4]) > -1) ||
-                    (selectedIndices[ksel][4]
-                      .indexOf(spanString) > -1)){
-                  selectedIndices.splice(ksel, 1);
-                } else {
-                  // delete this else statement later
-                  var tempIndex = spanString
-                                  .indexOf(selectedIndices[ksel][4]);
-                }
-                */
               }
             } else {
               var spanString = "";
@@ -1660,7 +1655,6 @@ window.onload = function () {
           // Note: the post request seems to take only JSON as data, but
           // read documentation to see if this is always the case. --
           // senthil
-
           d3.select("#protocolGraphContent")
             .selectAll("svg")
             .remove();
@@ -1959,6 +1953,18 @@ window.onload = function () {
         console.log("activity divs are now hidden");
       }
     }); // end of stuff to do with activityLog
+
+    // receive code data from collaborator
+    var collCodeData;
+    var collCode = $.ajax({
+      type: "POST", // can remove this to avoid confusion
+      url: "/collCode", // change to send_trn_fil
+      // note: "send" from POV of client
+      dataType: "text"
+    }).done(function (data) {
+      collCodeData = $.csv.toArrays(data);
+      console.log(collCodeData);
+    }); // end segment to received code data from collaborator   
   }); //player.ready attempt for the whole code chunk
 } // end of window.onload code
 

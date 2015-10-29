@@ -412,6 +412,52 @@
         margin-top: 0;
         overflow: hidden;
       }
+
+      // code added for collaborator
+      #collProtocolGraphTitle{
+        height:3%;
+        width:100%;
+        background:#FFFFFF;
+        font-size: 11px;
+        font-family:helvetica;
+        overflow: hidden;
+      }
+      #collProtocolGraph{
+        height: 50%; 
+        width: 100%;
+        overflow: hidden;
+        background: #FFFFFF;
+        overflow: hidden;
+      }
+      #collProtocolGraph.minimize {
+        height: 0px;
+      }
+      #collProtocolGraphScrubber{
+        height: 100%; 
+        width: 0;
+        display: block;
+        margin-right: 0;
+        margin-top: 0;
+        overflow: hidden;
+        border:2px solid;
+        border-color: rgba(0,0,0,0);
+        border-right-color: red;
+        pointer-events: none;
+        z-index: 100;
+        -webkit-transition:width 100ms ease-in-out;
+        -moz-transition:width 100ms ease-in-out;
+        -o-transition:width 100ms ease-in-out;
+        transition:width 100ms ease-in-out;
+      }
+      #collProtocolGraphContent{
+        height: 100%; 
+        width: 100%;
+        margin-right: 0;
+        margin-top: 0;
+        overflow: hidden;
+      }
+      // end of code added for collaborator
+
       .codeTextBG{
         background-color: #ffffff;
       }
@@ -742,7 +788,11 @@
   <script src="javascripts/wavesurfer.min.js"></script>
   -->
   <!-- Unless using the CDN hosted version, update the URL to the Flash SWF -->
-  </script>
+  <script type="text/javascript" src="javascripts/mainFunctions.js"></script>
+  <script type="text/javascript" src="javascripts/activityViz.js"></script>
+  <script type="text/javascript" src="javascripts/speechViz.js"></script>
+  <script type="text/javascript" src="javascripts/sketchViz.js"></script>
+  <script type="text/javascript" src="javascripts/main.js"></script>
   <script>
     videojs.options.flash.swf = "images/video/video-js.swf";
   </script>
@@ -870,6 +920,17 @@
             <div id="protocolGraphScrubber">
             </div>
           </div>
+          <!--Code added for collaborator-->
+          <div id="pollProtocolGraphTitle" class="header">
+            Collaborator Code Timeline
+          </div>
+          <div id="collProtocolGraph">
+            <div id="collProtocolGraphContent">
+            </div>
+            <div id="collProtocolGraphScrubber">
+            </div>
+          </div>
+          <!--end of code for collaborator-->
       </div>   
     </div>
     
@@ -890,12 +951,6 @@
    <div id="imgPath-content">
   </div>
   </div>
-  <script type="text/javascript" src="javascripts/mainFunctions.js"></script>
-  <script type="text/javascript" src="javascripts/activityViz.js"></script>
-  <script type="text/javascript" src="javascripts/speechViz.js"></script>
-  <script type="text/javascript" src="javascripts/sketchViz.js"></script>
-  <script type="text/javascript" src="javascripts/main.js"></script>
-
 </body>
 </html>
 
