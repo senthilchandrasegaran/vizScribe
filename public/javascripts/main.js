@@ -1655,6 +1655,32 @@ window.onload = function () {
           // Note: the post request seems to take only JSON as data, but
           // read documentation to see if this is always the case. --
           // senthil
+          // Now also send the same data to the websocket on the server
+          // end (this may be redundant, remove if so
+          $(function(){
+            // if user is running mozilla, use that 
+            window.WebSocket = window.WebSocket || window.MozWebSocket;
+            var connection = new WebSocket('ws://127.0.0.1:3000')
+            // var connection = new WebSocket('ws://localhost:3000')
+            // note: localhost works too
+            connection.onopen = function(){
+              // do something if connection is opened
+              connection.send(sendData);
+            };
+            connection.onerror = function (error){
+              console.log("error occurred in sending/receiving data");
+            };
+            connection.onmessage = function (message){
+              try {
+                var inData = JSON.parse(message.data);
+              } catch (e){
+                console.log("invalid data format!", message.data);
+                return;
+              }
+              console.log("incoming server data: ", inData.toString);
+            };
+          });
+          // end of websocket bit of code
           d3.select("#protocolGraphContent")
             .selectAll("svg")
             .remove();
@@ -1954,6 +1980,7 @@ window.onload = function () {
       }
     }); // end of stuff to do with activityLog
 
+    /*
     // receive code data from collaborator
     var collCodeData;
     var collCode = $.ajax({
@@ -1964,7 +1991,8 @@ window.onload = function () {
     }).done(function (data) {
       collCodeData = $.csv.toArrays(data);
       console.log(collCodeData);
-    }); // end segment to received code data from collaborator   
+    }); // end segment to receive code data from collaborator   
+    */
   }); //player.ready attempt for the whole code chunk
 } // end of window.onload code
 

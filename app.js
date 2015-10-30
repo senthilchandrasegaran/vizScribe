@@ -17,6 +17,8 @@ var fs = require('fs'),
     util = require('util'),
     admZip = require('adm-zip');
 var PythonShell = require('python-shell');
+// this is for the collaborative coding bit
+var WebSocketServer = require('websocket').server;
 
 
 // all environments
@@ -319,13 +321,15 @@ app.post('/userlog', function (req, res){
     res.send(200);
   });
   var collCodeData = req.body.data;
-  console.log(collCodeData);
+  /*
   // send this coded data to the other client 
   app.post('/collCode', function (req, res){
     res.writeHead(200);
     res.write(collCodeData);
+    console.log(collCodeData);
     res.end()
   }); // end of code segment to send (qual) code to other client
+  */
   // res.end();
 });
 
@@ -361,3 +365,25 @@ app.post('/infoContent', function (req, res){
   });
 });
 
+// code for collaborative (qual) coding
+// code snippet adapted from http://ahoj.io/nodejs-and-websocket-simple-chat-tutorial
+wsServer = new WebSocketServer({
+  httpServer: httpserver
+});
+
+wsServer.on('request', function(request) {
+  var connection = request.accept(null, request.origin);
+
+  // handle messages/data from client
+  connection.on('message', function(message) {
+    if (message.type === 'utf8'){
+      // process message/data
+      console.log("websocket data from client: ", message.data);
+      connection.sendUTF(message.data);
+    }
+  });
+
+  connection.on('close', function(connection){
+    // close connection with collaborator
+  });
+});
