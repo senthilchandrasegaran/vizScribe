@@ -1,6 +1,6 @@
 /**
-* Module dependencies.
-*/
+ * Module dependencies.
+ */
 
 var express = require('express');
 var routes = require('./routes');
@@ -45,18 +45,47 @@ if ('development' == app.get('env')) {
     app.use(express.errorHandler());
 }
 // variables for video and transcript:
-var inputvideo = { id: 'inputvideo' };
-var inputtrans = { id: 'inputtrans' };
-var sketchlog = { id: 'sketchlog' };
-var speechlog = { id: 'speechlog' };
-var activitylog = { id: 'activitylog' };
-var outputvideo = { id: 'outputvideo', src: '' };
-var outputtrans = { id: 'outputtrans', target: '' };
-var outputlog = { id: 'outputlog', target: '' };
-var outputSpeechLog = { id: 'outputSpeechLog', target: '' };
-var outputActivityLog = { id: 'outputActivityLog', target: '' };
-var userlog = { id: 'userlog' };
-var clicklog = { id: 'clicklog' };
+var inputvideo = {
+    id: 'inputvideo'
+};
+var inputtrans = {
+    id: 'inputtrans'
+};
+var sketchlog = {
+    id: 'sketchlog'
+};
+var speechlog = {
+    id: 'speechlog'
+};
+var activitylog = {
+    id: 'activitylog'
+};
+var outputvideo = {
+    id: 'outputvideo',
+    src: ''
+};
+var outputtrans = {
+    id: 'outputtrans',
+    target: ''
+};
+var outputlog = {
+    id: 'outputlog',
+    target: ''
+};
+var outputSpeechLog = {
+    id: 'outputSpeechLog',
+    target: ''
+};
+var outputActivityLog = {
+    id: 'outputActivityLog',
+    target: ''
+};
+var userlog = {
+    id: 'userlog'
+};
+var clicklog = {
+    id: 'clicklog'
+};
 
 /* listen */
 var httpserver = http.createServer(app);
@@ -73,10 +102,10 @@ io.set('log level', 1);
 /* socket.io for uploaded videos */
 io.sockets.on('connection', function (socket) {
     socket.on('Start', function (data) { // data contains the variables
-                                         // that we passed through in
-                                         // the html file
+        // that we passed through in
+        // the html file
         var Name = data['Name'];
-        Files[Name] = {  //Create a new Entry in The Files Variable
+        Files[Name] = { //Create a new Entry in The Files Variable
             FileSize: data['Size'],
             Data: "",
             Downloaded: 0
@@ -87,94 +116,102 @@ io.sockets.on('connection', function (socket) {
             if (Stat.isFile()) {
                 Files[Name]['Downloaded'] = Stat.size;
                 Place = Stat.size / 524288;
-                
+
             }
-        }
-        catch (er) { } //It's a New File
+        } catch (er) {} //It's a New File
         fs.open("public/video/" + Name, "a", 0755, function (err, fd) {
             if (err) {
                 console.log(err);
-            }
-            else {
+            } else {
                 Files[Name]['Handler'] = fd; // We store the file
-                                             // handler so we can write
-                                             // to it later
-                socket.emit('MoreData', { 'Place': Place, 
-                                          Percent: 0, 
-                                          'Name': Name  });
+                // handler so we can write
+                // to it later
+                socket.emit('MoreData', {
+                    'Place': Place,
+                    Percent: 0,
+                    'Name': Name
+                });
             }
         });
     });
 
     socket.on('Upload', function (data) {
-      var Name = data['Name'];
-      Files[Name]['Downloaded'] += data['Data'].length;
-      Files[Name]['Data'] += data['Data'];
-      if (Files[Name]['Downloaded'] == Files[Name]['FileSize']) {
-      // If File is Fully Uploaded, that is
-        fs.write(Files[Name]['Handler'], Files[Name]['Data'], 
-                 null, 'Binary', function (err, Writen) {
-          socket.emit('MoreData', 
-                      {'Place': Files[Name]['FileSize']/ 524288, 
-                       Percent: 100, 
-                       'Name': Name  });
-          Files[Name]['Data'] = ""; //Reset The Buffer
+        var Name = data['Name'];
+        Files[Name]['Downloaded'] += data['Data'].length;
+        Files[Name]['Data'] += data['Data'];
+        if (Files[Name]['Downloaded'] == Files[Name]['FileSize']) {
+            // If File is Fully Uploaded, that is
+            fs.write(Files[Name]['Handler'], Files[Name]['Data'],
+                null, 'Binary',
+                function (err, Writen) {
+                    socket.emit('MoreData', {
+                        'Place': Files[Name]['FileSize'] / 524288,
+                        Percent: 100,
+                        'Name': Name
+                    });
+                    Files[Name]['Data'] = ""; //Reset The Buffer
 
-                /* check if a zip file */
-          if (Name.indexOf(".zip") >= 0) {
-            var zip = new admZip('public/video/' + Name);
-            zip.extractAllTo("public/images/sketches", 
-                             /*overwrite*/true);
-          }
+                    /* check if a zip file */
+                    if (Name.indexOf(".zip") >= 0) {
+                        var zip = new admZip('public/video/' + Name);
+                        zip.extractAllTo("public/images/sketches",
+                            /*overwrite*/
+                            true);
+                    }
 
-          socket.emit('Done', {'URL' : 'public/video/' + Name});
+                    socket.emit('Done', {
+                        'URL': 'public/video/' + Name
+                    });
 
-        });
+                });
 
-      } else if (Files[Name]['Data'].length > 10485760) {
-        //If the Data Buffer reaches 10MB
-        fs.write(Files[Name]['Handler'], 
-                 Files[Name]['Data'], null, 
-                 'Binary', function (err, Writen) {
-          Files[Name]['Data'] = ""; //Reset The Buffer
-          var Place = Files[Name]['Downloaded'] / 524288;
-          var Percent = (Files[Name]['Downloaded'] / 
-                         Files[Name]['FileSize']) * 100;
-          socket.emit('MoreData', 
-                      {'Place': Place, 
-                       'Percent': Percent, 
-                       'Name': Name });
-        });
+        } else if (Files[Name]['Data'].length > 10485760) {
+            //If the Data Buffer reaches 10MB
+            fs.write(Files[Name]['Handler'],
+                Files[Name]['Data'], null,
+                'Binary',
+                function (err, Writen) {
+                    Files[Name]['Data'] = ""; //Reset The Buffer
+                    var Place = Files[Name]['Downloaded'] / 524288;
+                    var Percent = (Files[Name]['Downloaded'] /
+                        Files[Name]['FileSize']) * 100;
+                    socket.emit('MoreData', {
+                        'Place': Place,
+                        'Percent': Percent,
+                        'Name': Name
+                    });
+                });
 
-      } else {
-        var Place = Files[Name]['Downloaded'] / 524288;
-        var Percent = (Files[Name]['Downloaded'] / 
-                       Files[Name]['FileSize']) * 100;
-        socket.emit('MoreData', 
-                    {'Place': Place, 
-                     'Percent': Percent, 
-                     'Name': Name  });
-      }
+        } else {
+            var Place = Files[Name]['Downloaded'] / 524288;
+            var Percent = (Files[Name]['Downloaded'] /
+                Files[Name]['FileSize']) * 100;
+            socket.emit('MoreData', {
+                'Place': Place,
+                'Percent': Percent,
+                'Name': Name
+            });
+        }
     });
 });
 
 
 app.get('/', function (req, res) {
-  //this '/' refers to '/index.html'
-  // note changing it to app.get('/index.html'... will require the
-  // user to include 'index.html' in the web address.
-  res.render('index.html', {
-    inputvideo: inputvideo,
-    inputtrans: inputtrans,
-    outputvideo: outputvideo,
-    outputtrans: outputtrans,
-    sketchlog: sketchlog,
-    speechlog: speechlog,
-    activitylog: activitylog,
-    outputlog: outputlog,
-    outputSpeechLog: outputSpeechLog,
-    outputActivityLog: outputActivityLog
-  });
+    //this '/' refers to '/index.html'
+    // note changing it to app.get('/index.html'... will require the
+    // user to include 'index.html' in the web address.
+    res.render('index.html', {
+        inputvideo: inputvideo,
+        inputtrans: inputtrans,
+        outputvideo: outputvideo,
+        outputtrans: outputtrans,
+        sketchlog: sketchlog,
+        speechlog: speechlog,
+        activitylog: activitylog,
+        outputlog: outputlog,
+        outputSpeechLog: outputSpeechLog,
+        outputActivityLog: outputActivityLog
+    });
 });
 
 app.get('/video.html', function (req, res) {
@@ -238,7 +275,7 @@ app.post('/speechLog_file', function (req, res) {
     //var speechLogFileParams = selectedURL.query;
     var speechLogFileParams = req.body;
     outputSpeechLog.target = speechLogFileParams.speechLogFile;
-    
+
     // this sets the above defined variables
     console.log(outputSpeechLog.target);
     res.end();
@@ -311,79 +348,93 @@ app.get('/annotator-token',
 });
 */
 
-app.post('/userlog', function (req, res){
-  //res.send(req.body);
-  // write user log file as text
-  fs.writeFile('public/userlog/userlog.csv', String(req.body.data),
-               function (err) {
-    if (err) throw err;
-    console.log('userlog.csv was written');
-    res.send(200);
-  });
-  var collCodeData = req.body.data;
-  /*
-  // send this coded data to the other client 
-  app.post('/collCode', function (req, res){
-    res.writeHead(200);
-    res.write(collCodeData);
-    console.log(collCodeData);
-    res.end()
-  }); // end of code segment to send (qual) code to other client
-  */
-  // res.end();
+app.post('/userlog', function (req, res) {
+    //res.send(req.body);
+    // write user log file as text
+    fs.writeFile('public/userlog/userlog.csv', String(req.body.data),
+        function (err) {
+            if (err) throw err;
+            console.log('userlog.csv was written');
+            res.send(200);
+        });
+    var collCodeData = req.body.data;
+    /*
+    // send this coded data to the other client 
+    app.post('/collCode', function (req, res){
+      res.writeHead(200);
+      res.write(collCodeData);
+      console.log(collCodeData);
+      res.end()
+    }); // end of code segment to send (qual) code to other client
+    */
+    // res.end();
 });
 
-app.post('/clicklog', function (req, res){
-  //res.send(req.body);
-  // write user log file as text
-  fs.writeFile('public/clicklog/clicklog.csv', String(req.body.data),
-               function (err) {
-    if (err) throw err;
-    console.log('clicklog.csv was written');
-    res.send(200);
-  });
-  // res.end();
+app.post('/clicklog', function (req, res) {
+    //res.send(req.body);
+    // write user log file as text
+    fs.writeFile('public/clicklog/clicklog.csv', String(req.body.data),
+        function (err) {
+            if (err) throw err;
+            console.log('clicklog.csv was written');
+            res.send(200);
+        });
+    // res.end();
 });
 
 var options = {
-  mode: 'text',
-  pythonOptions: ['-u'],
-  scriptPath: './public/pythonscripts/',
+    mode: 'text',
+    pythonOptions: ['-u'],
+    scriptPath: './public/pythonscripts/',
 };
 
 
-app.post('/infoContent', function (req, res){
-  // invoke this just once, and send all the data over to the client.
-  // This will make the code more responsive.
-  var pyShell = new PythonShell('infoContent.py', options)
-  pyShell.send(req.body.data);
-  pyShell.on('message', function(message){
-    res.send(200, {data: message});
-  });
-  pyShell.end(function(err){
-    if (err) throw err;
-  });
+app.post('/infoContent', function (req, res) {
+    // invoke this just once, and send all the data over to the client.
+    // This will make the code more responsive.
+    var pyShell = new PythonShell('infoContent.py', options)
+    pyShell.send(req.body.data);
+    pyShell.on('message', function (message) {
+        res.send(200, {
+            data: message
+        });
+    });
+    pyShell.end(function (err) {
+        if (err) throw err;
+    });
 });
 
 // code for collaborative (qual) coding
 // code snippet adapted from http://ahoj.io/nodejs-and-websocket-simple-chat-tutorial
+
+
+//PORT to connect to
+const PORT = 3002;
+
+//Instantiate socket server
+var app2 = require('http').createServer().listen(PORT);
+
 wsServer = new WebSocketServer({
-  httpServer: httpserver
+    httpServer: app2
 });
 
-wsServer.on('request', function(request) {
-  var connection = request.accept(null, request.origin);
+wsServer.on('request', function (request) {
+    var connection = request.accept(null, request.origin);
 
-  // handle messages/data from client
-  connection.on('message', function(message) {
-    if (message.type === 'utf8'){
-      // process message/data
-      console.log("websocket data from client: ", message.data);
-      connection.sendUTF(message.data);
-    }
-  });
+    // handle messages/data from client
+    connection.on('message', function (message) {
 
-  connection.on('close', function(connection){
-    // close connection with collaborator
-  });
+        var msgContent = JSON.parse(message['utf8Data']).data;
+        console.log("websocket data from client: ", msgContent);
+
+        if (message.type === 'utf8') {
+
+            connection.send(msgContent);
+        }
+
+    });
+
+    connection.on('close', function (connection) {
+        // close connection with collaborator
+    });
 });

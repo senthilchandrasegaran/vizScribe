@@ -1660,12 +1660,13 @@ window.onload = function () {
           $(function(){
             // if user is running mozilla, use that 
             window.WebSocket = window.WebSocket || window.MozWebSocket;
-            var connection = new WebSocket('ws://127.0.0.1:3000')
+            var connection = new WebSocket('ws://127.0.0.1:3002')
             // var connection = new WebSocket('ws://localhost:3000')
             // note: localhost works too
+            console.log(sendData);
             connection.onopen = function(){
               // do something if connection is opened
-              connection.send(sendData);
+              connection.send(JSON.stringify(sendData))
             };
             connection.onerror = function (error){
               console.log("error occurred in sending/receiving data");
