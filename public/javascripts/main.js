@@ -277,6 +277,29 @@ function hmsToSeconds(str) {
 // removed and the resulting tags are scaled by frequency and showed on
 // the right pane.
 window.onload = function () {
+  var userName = prompt("Please enter your name:", 
+                        "nemo");
+  console.log(userName);
+
+  // NOTE: Websocket for collaborative coding.
+  // These two lines need to be global so that I can write a
+  // function to receive data irrespective of the contextmenu
+  // onclick function below.
+  // if user is running mozilla, use that 
+  window.WebSocket = window.WebSocket || window.MozWebSocket;
+  var connection = new WebSocket('ws://127.0.0.1:3002');
+  $(function (){
+    // incoming messages
+    connection.onmessage = function (message){
+      try {
+        var inData = JSON.parse(message.data);
+      } catch (e){
+        console.log("invalid data format!", message.data);
+        return;
+      }
+      console.log("incoming server data: ", inData.toString);
+    };
+  });
   // determine div heights as specified in the html file
   bottomLeftHeight = $("#bottomleft").height();
   sketchesHeight = $("#sketches").height();
@@ -1586,6 +1609,7 @@ window.onload = function () {
 
       selectedIndices = [];
       // assign selected text to array under the clicked code
+
       $(".contextmenu").on("click", "ul", function (evt) {
         evt.stopPropagation(); // stops click from propagating to
         // underlying div element.
@@ -1655,31 +1679,22 @@ window.onload = function () {
           // Note: the post request seems to take only JSON as data, but
           // read documentation to see if this is always the case. --
           // senthil
-          // Now also send the same data to the websocket on the server
-          // end (this may be redundant, remove if so
+          // Now also SEND the same data to the websocket on the server
+          // end. The function to RECEIVE data is above this entire
+          // event call
           $(function(){
-            // if user is running mozilla, use that 
-            window.WebSocket = window.WebSocket || window.MozWebSocket;
-            var connection = new WebSocket('ws://127.0.0.1:3002')
-            // var connection = new WebSocket('ws://localhost:3000')
-            // note: localhost works too
-            console.log(sendData);
             connection.onopen = function(){
-              // do something if connection is opened
-              connection.send(JSON.stringify(sendData))
+              // send userName if connection is opened
+              connection.send(JSON.stringify(userName));
             };
             connection.onerror = function (error){
               console.log("error occurred in sending/receiving data");
             };
-            connection.onmessage = function (message){
-              try {
-                var inData = JSON.parse(message.data);
-              } catch (e){
-                console.log("invalid data format!", message.data);
-                return;
-              }
-              console.log("incoming server data: ", inData.toString);
+            var sendobj = {
+              text: sendData,
+              userName: userName
             };
+            connection.send(JSON.stringify(sendobj));
           });
           // end of websocket bit of code
           d3.select("#protocolGraphContent")

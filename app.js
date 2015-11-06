@@ -411,6 +411,8 @@ app.post('/infoContent', function (req, res) {
 //PORT to connect to
 const PORT = 3002;
 
+var clients = [ ]; // list of clients connected to the server
+
 //Instantiate socket server
 var app2 = require('http').createServer().listen(PORT);
 
@@ -420,18 +422,39 @@ wsServer = new WebSocketServer({
 
 wsServer.on('request', function (request) {
     var connection = request.accept(null, request.origin);
+    // need to know client index to remove when they 'close'
+    var index = clients.push(connection) - 1;
+    // hard-coding user names for now, extend to have login screens
+    // later
+    var userName = false;
+    //var userName2 = "coder2";
 
     // handle messages/data from client
     connection.on('message', function (message) {
 
-        var msgContent = JSON.parse(message['utf8Data']).data;
-        console.log("websocket data from client: ", msgContent);
+        var msgContent = JSON.parse(message['utf8Data']);
+        console.log("client name: ", msgContent.userName);
+        console.log("websocket data from client: ", msgContent.text.data);
 
         if (message.type === 'utf8') {
+          if (userName === false) {
+            // this means it's what is sent when connection is
+            // established, which is the username
+            userName === msgContent;
+          }
 
-            connection.send(msgContent);
+          if (userName !== false){
+            var obj = {
+              text: msgContent,
+              userName: userName
+            }
+            // connection.send(msgContent);
+            var json = JSON.stringify({type: 'message', data: obj });
+            for (var i=0; i<clients.length; i++){
+              clients[i].sendUTF(json);
+            }
+          }
         }
-
     });
 
     connection.on('close', function (connection) {
