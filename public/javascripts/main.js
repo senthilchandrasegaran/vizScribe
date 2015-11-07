@@ -38,6 +38,8 @@ var videoLenSec;
 var clickLog = [];
 var sendClickData = {};
 var cTime =  new Date();
+//username for collaborative coding
+var userName;
 
 // this set of variables for path viewer
 var timeStamps = [];
@@ -245,8 +247,20 @@ function concordance(word) {
     return concordances; 
 }
 
+// Function to convert hh:mm:ss to seconds
+function hmsToSeconds(str) {
+    var p = str.split(':'),
+        s = 0, m = 1;
+    while (p.length > 0) {
+        s += m * parseInt(p.pop(), 10);
+        m *= 60;
+    }
+    return s;
+} // End Function to convert hh:mm:ss to seconds
+
 
 // Function to handle tabs on protocol view div
+// this is called when document is loaded
 $(function(){
   $('ul.tabs li:first').addClass('active');
   $('.block article').hide();
@@ -261,45 +275,44 @@ $(function(){
   });
 })
 
-// Function to convert hh:mm:ss to seconds
-function hmsToSeconds(str) {
-    var p = str.split(':'),
-        s = 0, m = 1;
-    while (p.length > 0) {
-        s += m * parseInt(p.pop(), 10);
-        m *= 60;
+// establish websocket connection
+window.WebSocket = window.WebSocket || window.MozWebSocket;
+var connection = new WebSocket('ws://127.0.0.1:3002');
+//  function to get username and receive data from server
+//  called when document is loaded
+$(function(){
+  userName = prompt("Please enter your name:", "nemo");
+  console.log(userName);
+  // if user is running mozilla, use that 
+  while (! userName){
+    connection.onopen = function(){
+      // send userName if connection is opened
+      connection.send(JSON.stringify(userName));
+    };
+  }
+  // In case of error:
+  connection.onerror = function (error){
+    console.log("error occurred in sending/receiving data");
+  };
+  // incoming messages
+  connection.onmessage = function (message){
+    try {
+      var inData = JSON.parse(message.data);
+      console.log("here!");
+    } catch (e){
+      console.log("invalid data format!", message.data);
+      return;
     }
-    return s;
-} // End Function to convert hh:mm:ss to seconds
+    console.log("incoming server data: ", inData.toString);
+  };
+});
+
 
 // This function allows selection of transcript file (a CSV file) and
 // displays it on the left bottom pane in the browser. Stop words are
 // removed and the resulting tags are scaled by frequency and showed on
 // the right pane.
 window.onload = function () {
-  var userName = prompt("Please enter your name:", 
-                        "nemo");
-  console.log(userName);
-
-  // NOTE: Websocket for collaborative coding.
-  // These two lines need to be global so that I can write a
-  // function to receive data irrespective of the contextmenu
-  // onclick function below.
-  // if user is running mozilla, use that 
-  window.WebSocket = window.WebSocket || window.MozWebSocket;
-  var connection = new WebSocket('ws://127.0.0.1:3002');
-  $(function (){
-    // incoming messages
-    connection.onmessage = function (message){
-      try {
-        var inData = JSON.parse(message.data);
-      } catch (e){
-        console.log("invalid data format!", message.data);
-        return;
-      }
-      console.log("incoming server data: ", inData.toString);
-    };
-  });
   // determine div heights as specified in the html file
   bottomLeftHeight = $("#bottomleft").height();
   sketchesHeight = $("#sketches").height();
@@ -1683,10 +1696,6 @@ window.onload = function () {
           // end. The function to RECEIVE data is above this entire
           // event call
           $(function(){
-            connection.onopen = function(){
-              // send userName if connection is opened
-              connection.send(JSON.stringify(userName));
-            };
             connection.onerror = function (error){
               console.log("error occurred in sending/receiving data");
             };

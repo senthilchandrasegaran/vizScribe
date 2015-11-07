@@ -420,44 +420,43 @@ wsServer = new WebSocketServer({
     httpServer: app2
 });
 
+var userName = false;
+
 wsServer.on('request', function (request) {
     var connection = request.accept(null, request.origin);
     // need to know client index to remove when they 'close'
     var index = clients.push(connection) - 1;
-    // hard-coding user names for now, extend to have login screens
-    // later
-    var userName = false;
-    //var userName2 = "coder2";
+    console.log("client index: ", index);
 
     // handle messages/data from client
     connection.on('message', function (message) {
-
         var msgContent = JSON.parse(message['utf8Data']);
-        console.log("client name: ", msgContent.userName);
-        console.log("websocket data from client: ", msgContent.text.data);
-
-        if (message.type === 'utf8') {
-          if (userName === false) {
-            // this means it's what is sent when connection is
-            // established, which is the username
-            userName === msgContent;
-          }
-
-          if (userName !== false){
-            var obj = {
-              text: msgContent,
-              userName: userName
-            }
-            // connection.send(msgContent);
-            var json = JSON.stringify({type: 'message', data: obj });
-            for (var i=0; i<clients.length; i++){
-              clients[i].sendUTF(json);
-            }
+        if (userName === false) {
+          // this means it's what is sent when connection is
+          // established, which is the username
+          userName = msgContent.userName;
+          console.log("Connection established: username ", userName,
+                      "received from client");
+        } else {
+          // data received from client
+          userName = msgContent.userName;
+          console.log("client name: ", userName);
+          console.log("data from client: ", msgContent.text.data);
+          // connection.send(msgContent);
+          for (var i=0; i<clients.length; i++){
+            clients[i].send(msgContent);
+            console.log("data sent to client ", i);
           }
         }
     });
 
     connection.on('close', function (connection) {
         // close connection with collaborator
+        if (userName !== false) {
+            console.log((new Date()) + " Peer "
+                + connection.remoteAddress + " disconnected.");
+            // remove user from the list of connected clients
+            clients.splice(index, 1);
+        }
     });
 });
