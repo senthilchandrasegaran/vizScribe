@@ -127,6 +127,39 @@ var colorlistFull = [
       'rgba(166,206,227,'
     ];
 
+var collabColorlistFull = [ 
+      'rgba(177,89,40,0.5)',
+      'rgba(106,61,154,0.5)',
+      'rgba(202,178,214,0.5)',
+      'rgba(253,191,111,0.5)',
+      'rgba(227,26,28,0.5)',
+      'rgba(251,154,153,0.5)',
+      'rgba(51,160,44,0.5)',
+      'rgba(178,223,138,0.5)',
+      'rgba(31,120,180,0.5)',
+      'rgba(166,206,227,0.5)',
+      'rgba(177,89,40,0.5)',      // color list duplicates from here on.
+      'rgba(106,61,154,0.5)',
+      'rgba(202,178,214,0.5)',
+      'rgba(253,191,111,0.5)',
+      'rgba(227,26,28,0.5)',
+      'rgba(251,154,153,0.5)',
+      'rgba(51,160,44,0.5)',
+      'rgba(178,223,138,0.5)',
+      'rgba(31,120,180,0.5)',
+      'rgba(166,206,227,0.5)',
+      'rgba(177,89,40,0.5)',
+      'rgba(106,61,154,0.5)',
+      'rgba(202,178,214,0.5)',
+      'rgba(253,191,111,0.5)',
+      'rgba(227,26,28,0.5)',
+      'rgba(251,154,153,0.5)',
+      'rgba(51,160,44,0.5)',
+      'rgba(178,223,138,0.5)',
+      'rgba(31,120,180,0.5)',
+      'rgba(166,206,227,0.5)'
+    ];
+
 var sketchPathColor = "rgba(225, 120, 0, 0.2)";
 
 // When a new protocol is added
@@ -174,8 +207,6 @@ function preOrderTraversal(protocolName, childrenList, protocolNames) {
 
     return hasChildren; 
 }
-
-
 
 // The hmsToSec function takes a "hh:mm:ss", or "mm:ss" or just an "ss"
 // string and converts it to seconds. Returns a number.
@@ -298,12 +329,205 @@ $(function(){
   connection.onmessage = function (message){
     try {
       var inData = JSON.parse(message.data);
-      console.log("here!");
     } catch (e){
       console.log("invalid data format!", message.data);
       return;
     }
-    console.log("incoming server data: ", inData.toString);
+    inUserName = inData.userName;
+    inDataText = inData.text.data;
+    if (inUserName !== userName){
+      console.log("incoming server data:");
+      console.log(inDataText);
+      // find the total number of codes in this list
+      var transData = inDataText[0].map(function(col, i) { 
+        return inDataText.map(function(row) { 
+          return row[i] 
+        })
+      });
+      codesList = transData[3];
+      // find number of unique codes
+      collProtocolList = [];
+      $.each(codesList, function(i, el){
+        if($.inArray(el, collProtocolList) === -1) {
+          collProtocolList.push(el);
+        }
+      });
+      console.log("List of codes by collaborator:");
+      console.log(collProtocolList);
+
+      d3.select("#collProtocolGraphContent")
+        .selectAll("svg")
+        .remove();
+      var collProtoGraphWidth = $('#collProtocolGraphContent').width()-2;
+      var collProtoGraphHeight = $('#collProtocolGraphContent').height()-2;
+      var collProtocolSVG = d3.select("#collProtocolGraphContent")
+                          .append("svg")
+                          .attr("width", collProtoGraphWidth)
+                          .attr("height", collProtoGraphHeight)
+                          .style({"border" : "1px solid #d0d0d0"});
+
+        var margin = { top: 5, right: 0, bottom: 5, left: 0 };
+
+        var collProtoX = d3.scale.linear()
+          .domain([0, videoLenSec])
+          // convert to scale that adapts
+          .range([0, collProtoGraphWidth-margin.left-margin.right]);
+        var collProtoY = d3.scale.ordinal()
+          .domain(collProtocolList) // convert ditto
+          .rangePoints([margin.top, 
+                       collProtoGraphHeight - margin.bottom], 0);
+        var proSpace = 10;
+        // clickStatus below determines the d3 rectangles' behavior
+        // with respect to the mouseover.
+        var clickStatus = 0;
+        
+        var collCodedData = [];
+        for (var ind=0; ind<inDataText.length; ind++){
+          var rowData = inDataText[ind];
+          var d = {};
+          d.startTime = hmsToSec(rowData[1]);
+          d.endTime = hmsToSec(rowData[2]);
+          d.x = collProtoX(d.startTime);
+          d.code = rowData[3];
+          d.codeIndex = collProtocolList.indexOf(d.code);
+          d.y = (d.codeIndex *
+                 (collProtoGraphHeight-proSpace)/
+                 (collProtocolList.length - 1)
+                ) + proSpace / 2;
+          d.id = d.code + "line" + rowData[0];
+          d.lineID = "line" + rowData[0];
+          // d.width = collProtoX(d.endTime - d.startTime);
+          d.width = 2;
+          d.height = (collProtoGraphHeight-proSpace)/
+                     (collProtocolList.length - 1);
+          d.fill = collabColorlistFull[d.codeIndex];
+          d.spanIds = rowData[4];
+          d.transcriptLine = rowData[5];
+          d.clickStatus = 0;
+          collCodedData.push(d);
+        }
+        var codeTip = d3.tip()
+                        .attr('class', 'd3-tip')
+                        .offset([0, 20])
+                        .direction('e');
+        collProtocolSVG.call(codeTip);
+
+        var rects = collProtocolSVG.selectAll("rect")
+          .data(collCodedData)
+          .enter()
+          .append("rect")
+          .attr("x", function (d) {return d.x;})
+          .attr("y", function (d) {return d.y;})
+          .attr("id", function (d) {return d.id;})
+          .attr("width", function (d) {return d.width;})
+          .attr("height", function (d) {return d.height;})
+          .attr("stroke-width", 1)
+          .attr("stroke", "rgba(255,255,255,0)")
+          .attr("fill", function (d) {return d.fill;})
+          .attr("fill-opacity", 0.7)
+          .attr("z-index", -1)
+          .on("mouseover", function(d){
+            codeTip.html("<b>CODE: </b>" + d.code).show();
+            if (d.clickStatus === 0){
+              for (var si in d.spanIds){
+                $("#"+d.spanIds[si])
+                  .css({"background-color":d.fill});
+              }
+              d3.select(this).attr('width', 3);
+              d3.select(this).attr('fill', boldHighlightColor);
+              d3.select(this).attr('fill-opacity', 1);
+            }
+          })
+          .on("mouseout", function(d){
+            codeTip.hide();
+            if (d.clickStatus === 0){
+              for (var si in d.spanIds){
+                $("#"+d.spanIds[si])
+                  .css({"background-color":"rgba(0,0,0,0)"});
+              }
+              d3.select(this).attr('width', d.width);
+              d3.select(this).attr('fill', d.fill);
+              d3.select(this).attr('fill-opacity', 0.7);
+            }
+          })
+          .on("click", function(d){
+            if (d3.event.ctrlKey || d3.event.metaKey){
+              //
+              cTime =  new Date();
+              var tempTime = cTime.getHours() + ":" +
+                            cTime.getMinutes() + ":" +
+                            cTime.getSeconds();
+              clickLog.push([tempTime, "genCodeWordCloud", 
+                            d.code + "\n"]);
+              sendClickData.data = clickLog;
+              $.post("/clicklog", sendClickData, function (data, error) { });
+              //
+              var lineCollection = [];
+              if (clickStatus===0){
+                // select all coded objects by code ID
+                var sameCodeObjs = $.grep(collCodedData, function(e){ 
+                  return e.code == d.code; 
+                });
+                // color all spans in these objects persistently
+                for (var ind=0; ind<sameCodeObjs.length; ind++){
+                  var currentObj = sameCodeObjs[ind];
+                  for (var si in currentObj.spanIds){
+                    $("#"+currentObj.spanIds[si])
+                      .css({"background-color":d.fill});
+                  }
+                  var codedWords = currentObj
+                                      .transcriptLine
+                                      .toLowerCase()
+                                      .split(wordSeparators);
+                  lineCollection.push(codedWords);
+                  // exempt these rectangles from mouseover,
+                  // mouseout events.
+                  currentObj.clickStatus = 1;
+                }
+                $("#tagList").empty();
+                $("#tagList").css("background-color", "#ffffff");
+                $("#tagList").append(makeWordList(lineCollection, 
+                                                  tagsToRemove));
+                // set general click status as 1, so that this has
+                // to be disabled before another group of spans can
+                // be permanently highlighted.
+                clickStatus = 1;
+              } else {
+                $("#transTable")
+                  .find("span")
+                  .css({"background-color":"rgba(0,0,0,0)"});
+                for (var ind=0; ind<codedData.length; ind++){
+                  codedData[ind].clickStatus = 0;
+                }
+                clickStatus = 0;
+              }
+            } else {
+              // just skip to that time.
+              player.currentTime(d.startTime);
+              var transClickItem = $('#transTable')
+                      .find("#"+d.lineID);
+              //
+              cTime =  new Date();
+              var tempTime = cTime.getHours() + ":" +
+                            cTime.getMinutes() + ":" +
+                            cTime.getSeconds();
+              clickLog.push([tempTime, "codeSkipToTime", 
+                            d.startTime, d.code + "\n"]);
+              // sendClickData.data = clickLog;
+              // $.post("/clicklog", sendClickData, 
+              //       function (data, error) { });
+              //
+              // this small snippet below to scroll the transcript
+              // to show the line corresponding to the item selected
+              // in transgraph
+              var topPos = $(transClickItem).offset().top;
+              $('#transContent')
+                  .scrollTo($(transClickItem),
+                            {duration: 'slow',
+                             transition: 'ease-in-out'});
+            }
+          });
+    } // end of populating collaborator's code timeline
   };
 });
 

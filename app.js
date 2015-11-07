@@ -444,7 +444,7 @@ wsServer.on('request', function (request) {
           console.log("data from client: ", msgContent.text.data);
           // connection.send(msgContent);
           for (var i=0; i<clients.length; i++){
-            clients[i].send(msgContent);
+            clients[i].send(JSON.stringify(msgContent));
             console.log("data sent to client ", i);
           }
         }
