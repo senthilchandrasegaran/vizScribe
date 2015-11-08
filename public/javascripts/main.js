@@ -27,6 +27,7 @@ var spanArray = [];
 var captionArray = [];
 var protocolArray = [];
 var protocolList = [];
+var protocolColorList = [];
 var protocolObject = {};
 var oldProtocolObject = {};
 var selectedText = '';
@@ -309,228 +310,6 @@ $(function(){
 // establish websocket connection
 window.WebSocket = window.WebSocket || window.MozWebSocket;
 var connection = new WebSocket('ws://127.0.0.1:3002');
-//  function to get username and receive data from server
-//  called when document is loaded
-$(function(){
-  userName = prompt("Please enter your name:", "nemo");
-  console.log(userName);
-  // if user is running mozilla, use that 
-  while (! userName){
-    connection.onopen = function(){
-      // send userName if connection is opened
-      connection.send(JSON.stringify(userName));
-    };
-  }
-  // In case of error:
-  connection.onerror = function (error){
-    console.log("error occurred in sending/receiving data");
-  };
-  // incoming messages
-  connection.onmessage = function (message){
-    try {
-      var inData = JSON.parse(message.data);
-    } catch (e){
-      console.log("invalid data format!", message.data);
-      return;
-    }
-    inUserName = inData.userName;
-    inDataText = inData.text.data;
-    if (inUserName !== userName){
-      console.log("incoming server data:");
-      console.log(inDataText);
-      // find the total number of codes in this list
-      var transData = inDataText[0].map(function(col, i) { 
-        return inDataText.map(function(row) { 
-          return row[i] 
-        })
-      });
-      codesList = transData[3];
-      // find number of unique codes
-      collProtocolList = [];
-      $.each(codesList, function(i, el){
-        if($.inArray(el, collProtocolList) === -1) {
-          collProtocolList.push(el);
-        }
-      });
-      console.log("List of codes by collaborator:");
-      console.log(collProtocolList);
-
-      d3.select("#collProtocolGraphContent")
-        .selectAll("svg")
-        .remove();
-      var collProtoGraphWidth = $('#collProtocolGraphContent').width()-2;
-      var collProtoGraphHeight = $('#collProtocolGraphContent').height()-2;
-      var collProtocolSVG = d3.select("#collProtocolGraphContent")
-                          .append("svg")
-                          .attr("width", collProtoGraphWidth)
-                          .attr("height", collProtoGraphHeight)
-                          .style({"border" : "1px solid #d0d0d0"});
-
-        var margin = { top: 5, right: 0, bottom: 5, left: 0 };
-
-        var collProtoX = d3.scale.linear()
-          .domain([0, videoLenSec])
-          // convert to scale that adapts
-          .range([0, collProtoGraphWidth-margin.left-margin.right]);
-        var collProtoY = d3.scale.ordinal()
-          .domain(collProtocolList) // convert ditto
-          .rangePoints([margin.top, 
-                       collProtoGraphHeight - margin.bottom], 0);
-        var proSpace = 10;
-        // clickStatus below determines the d3 rectangles' behavior
-        // with respect to the mouseover.
-        var clickStatus = 0;
-        
-        var collCodedData = [];
-        for (var ind=0; ind<inDataText.length; ind++){
-          var rowData = inDataText[ind];
-          var d = {};
-          d.startTime = hmsToSec(rowData[1]);
-          d.endTime = hmsToSec(rowData[2]);
-          d.x = collProtoX(d.startTime);
-          d.code = rowData[3];
-          d.codeIndex = collProtocolList.indexOf(d.code);
-          d.y = (d.codeIndex *
-                 (collProtoGraphHeight-proSpace)/
-                 (collProtocolList.length - 1)
-                ) + proSpace / 2;
-          d.id = d.code + "line" + rowData[0];
-          d.lineID = "line" + rowData[0];
-          // d.width = collProtoX(d.endTime - d.startTime);
-          d.width = 2;
-          d.height = (collProtoGraphHeight-proSpace)/
-                     (collProtocolList.length - 1);
-          d.fill = collabColorlistFull[d.codeIndex];
-          d.spanIds = rowData[4];
-          d.transcriptLine = rowData[5];
-          d.clickStatus = 0;
-          collCodedData.push(d);
-        }
-        var codeTip = d3.tip()
-                        .attr('class', 'd3-tip')
-                        .offset([0, 20])
-                        .direction('e');
-        collProtocolSVG.call(codeTip);
-
-        var rects = collProtocolSVG.selectAll("rect")
-          .data(collCodedData)
-          .enter()
-          .append("rect")
-          .attr("x", function (d) {return d.x;})
-          .attr("y", function (d) {return d.y;})
-          .attr("id", function (d) {return d.id;})
-          .attr("width", function (d) {return d.width;})
-          .attr("height", function (d) {return d.height;})
-          .attr("stroke-width", 1)
-          .attr("stroke", "rgba(255,255,255,0)")
-          .attr("fill", function (d) {return d.fill;})
-          .attr("fill-opacity", 0.7)
-          .attr("z-index", -1)
-          .on("mouseover", function(d){
-            codeTip.html("<b>CODE: </b>" + d.code).show();
-            if (d.clickStatus === 0){
-              for (var si in d.spanIds){
-                $("#"+d.spanIds[si])
-                  .css({"background-color":d.fill});
-              }
-              d3.select(this).attr('width', 3);
-              d3.select(this).attr('fill', boldHighlightColor);
-              d3.select(this).attr('fill-opacity', 1);
-            }
-          })
-          .on("mouseout", function(d){
-            codeTip.hide();
-            if (d.clickStatus === 0){
-              for (var si in d.spanIds){
-                $("#"+d.spanIds[si])
-                  .css({"background-color":"rgba(0,0,0,0)"});
-              }
-              d3.select(this).attr('width', d.width);
-              d3.select(this).attr('fill', d.fill);
-              d3.select(this).attr('fill-opacity', 0.7);
-            }
-          })
-          .on("click", function(d){
-            if (d3.event.ctrlKey || d3.event.metaKey){
-              //
-              cTime =  new Date();
-              var tempTime = cTime.getHours() + ":" +
-                            cTime.getMinutes() + ":" +
-                            cTime.getSeconds();
-              clickLog.push([tempTime, "genCodeWordCloud", 
-                            d.code + "\n"]);
-              sendClickData.data = clickLog;
-              $.post("/clicklog", sendClickData, function (data, error) { });
-              //
-              var lineCollection = [];
-              if (clickStatus===0){
-                // select all coded objects by code ID
-                var sameCodeObjs = $.grep(collCodedData, function(e){ 
-                  return e.code == d.code; 
-                });
-                // color all spans in these objects persistently
-                for (var ind=0; ind<sameCodeObjs.length; ind++){
-                  var currentObj = sameCodeObjs[ind];
-                  for (var si in currentObj.spanIds){
-                    $("#"+currentObj.spanIds[si])
-                      .css({"background-color":d.fill});
-                  }
-                  var codedWords = currentObj
-                                      .transcriptLine
-                                      .toLowerCase()
-                                      .split(wordSeparators);
-                  lineCollection.push(codedWords);
-                  // exempt these rectangles from mouseover,
-                  // mouseout events.
-                  currentObj.clickStatus = 1;
-                }
-                $("#tagList").empty();
-                $("#tagList").css("background-color", "#ffffff");
-                $("#tagList").append(makeWordList(lineCollection, 
-                                                  tagsToRemove));
-                // set general click status as 1, so that this has
-                // to be disabled before another group of spans can
-                // be permanently highlighted.
-                clickStatus = 1;
-              } else {
-                $("#transTable")
-                  .find("span")
-                  .css({"background-color":"rgba(0,0,0,0)"});
-                for (var ind=0; ind<codedData.length; ind++){
-                  codedData[ind].clickStatus = 0;
-                }
-                clickStatus = 0;
-              }
-            } else {
-              // just skip to that time.
-              player.currentTime(d.startTime);
-              var transClickItem = $('#transTable')
-                      .find("#"+d.lineID);
-              //
-              cTime =  new Date();
-              var tempTime = cTime.getHours() + ":" +
-                            cTime.getMinutes() + ":" +
-                            cTime.getSeconds();
-              clickLog.push([tempTime, "codeSkipToTime", 
-                            d.startTime, d.code + "\n"]);
-              // sendClickData.data = clickLog;
-              // $.post("/clicklog", sendClickData, 
-              //       function (data, error) { });
-              //
-              // this small snippet below to scroll the transcript
-              // to show the line corresponding to the item selected
-              // in transgraph
-              var topPos = $(transClickItem).offset().top;
-              $('#transContent')
-                  .scrollTo($(transClickItem),
-                            {duration: 'slow',
-                             transition: 'ease-in-out'});
-            }
-          });
-    } // end of populating collaborator's code timeline
-  };
-});
-
 
 // This function allows selection of transcript file (a CSV file) and
 // displays it on the left bottom pane in the browser. Stop words are
@@ -549,6 +328,298 @@ window.onload = function () {
   
   var player = videojs('discussion-video');
   player.on('loadedmetadata', function () {
+
+    //  function to get username and receive data from server
+    //  called when document is loaded
+    $(function(){
+      userName = prompt("Please enter your name:", "nemo");
+      console.log(userName);
+      // if user is running mozilla, use that 
+      while (! userName){
+        connection.onopen = function(){
+          // send userName if connection is opened
+          connection.send(JSON.stringify(userName));
+        };
+      }
+      // In case of error:
+      connection.onerror = function (error){
+        console.log("error occurred in sending/receiving data");
+      };
+      // incoming messages
+      connection.onmessage = function (message){
+        try {
+          var inData = JSON.parse(message.data);
+        } catch (e){
+          console.log("invalid data format!", message.data);
+          return;
+        }
+        inUserName = inData.userName;
+        inDataText = inData.text.data;
+        if (inUserName !== userName){
+          // find the total number of codes in this list
+          var transData = inDataText[0].map(function(col, i) { 
+            return inDataText.map(function(row) { 
+              return row[i] 
+            })
+          });
+          codesList = transData[3];
+          // find number of unique codes
+          collProtocolList = [];
+          $.each(codesList, function(i, el){
+            if($.inArray(el, collProtocolList) === -1) {
+              collProtocolList.push(el);
+            }
+          });
+          console.log("List of codes by collaborator:");
+          console.log(collProtocolList);
+          
+          // create a switch for checking if shift-select is on:
+          var d3ShiftSelectState = false;
+          // assign variables to store start and end rects
+          var d3ShiftStart;
+          var d3ShiftEnd;
+          d3.select("#collProtocolGraphContent")
+            .selectAll("svg")
+            .remove();
+          var collProtoGraphWidth = $('#collProtocolGraphContent').width()-2;
+          var collProtoGraphHeight = $('#collProtocolGraphContent').height()-2;
+          var collProtocolSVG = d3.select("#collProtocolGraphContent")
+                              .append("svg")
+                              .attr("width", collProtoGraphWidth)
+                              .attr("height", collProtoGraphHeight)
+                              .style({"border" : "1px solid #d0d0d0"});
+
+            var margin = { top: 5, right: 0, bottom: 5, left: 0 };
+
+            var collProtoX = d3.scale.linear()
+              .domain([0, videoLenSec])
+              // convert to scale that adapts
+              .range([0, collProtoGraphWidth-margin.left-margin.right]);
+            var collProtoY = d3.scale.ordinal()
+              .domain(collProtocolList) // convert ditto
+              .rangePoints([margin.top, 
+                           collProtoGraphHeight - margin.bottom], 0);
+            var proSpace = 10;
+            // clickStatus below determines the d3 rectangles' behavior
+            // with respect to the mouseover.
+            var clickStatus = 0;
+            
+            var collCodedData = [];
+            for (var ind=0; ind<inDataText.length; ind++){
+              var rowData = inDataText[ind];
+              var d = {};
+              d.startTime = hmsToSec(rowData[1]);
+              d.endTime = hmsToSec(rowData[2]);
+              d.x = collProtoX(d.startTime);
+              d.code = rowData[3];
+              d.codeIndex = collProtocolList.indexOf(d.code);
+              d.y = (d.codeIndex *
+                     (collProtoGraphHeight-proSpace)/
+                     (collProtocolList.length)
+                    ) + proSpace / 2;
+              d.id = d.code + "line" + rowData[0];
+              d.lineID = "line" + rowData[0];
+              // d.width = collProtoX(d.endTime - d.startTime);
+              d.width = 2;
+              d.height = (collProtoGraphHeight-proSpace)/
+                         (collProtocolList.length);
+              d.fill = collabColorlistFull[d.codeIndex];
+              d.spanIds = rowData[4];
+              d.transcriptLine = rowData[5];
+              d.clickStatus = 0;
+              collCodedData.push(d);
+            }
+            var codeTip = d3.tip()
+                            .attr('class', 'd3-tip')
+                            .offset([0, 20])
+                            .direction('e');
+            collProtocolSVG.call(codeTip);
+
+            var rects = collProtocolSVG.selectAll("rect")
+              .data(collCodedData)
+              .enter()
+              .append("rect")
+              .attr("x", function (d) {return d.x;})
+              .attr("y", function (d) {return d.y;})
+              .attr("id", function (d) {return d.id;})
+              .attr("width", function (d) {return d.width;})
+              .attr("height", function (d) {return d.height;})
+              .attr("stroke-width", 1)
+              .attr("stroke", "rgba(255,255,255,0)")
+              .attr("fill", function (d) {return d.fill;})
+              .attr("fill-opacity", 0.7)
+              .attr("z-index", -1)
+              .on("mouseover", function(d){
+                codeTip.html("<b>"+inUserName+"'s code: </b>" +
+                             d.code).show();
+                if (d.clickStatus === 0){
+                  for (var si in d.spanIds){
+                    $("#"+d.spanIds[si])
+                      .css({"background-color":d.fill});
+                  }
+                  d3.select(this).attr('width', 3);
+                  d3.select(this).attr('fill', boldHighlightColor);
+                  d3.select(this).attr('fill-opacity', 1);
+                }
+              })
+              .on("mouseout", function(d){
+                codeTip.hide();
+                if (d.clickStatus === 0){
+                  for (var si in d.spanIds){
+                    $("#"+d.spanIds[si])
+                      .css({"background-color":"rgba(0,0,0,0)"});
+                  }
+                  d3.select(this).attr('width', d.width);
+                  d3.select(this).attr('fill', d.fill);
+                  d3.select(this).attr('fill-opacity', 0.7);
+                }
+              })
+              .on("click", function(d){
+                if (d3.event.ctrlKey || d3.event.metaKey){
+                  //)
+                  cTime =  new Date();
+                  var tempTime = cTime.getHours() + ":" +
+                                cTime.getMinutes() + ":" +
+                                cTime.getSeconds();
+                  clickLog.push([tempTime, "genCodeWordCloud", 
+                                d.code + "\n"]);
+                  sendClickData.data = clickLog;
+                  $.post("/clicklog", sendClickData, function (data, error) { });
+                  //
+                  var lineCollection = [];
+                  if (clickStatus===0){
+                    // select all coded objects by code ID
+                    var sameCodeObjs = $.grep(collCodedData, function(e){ 
+                      return e.code == d.code; 
+                    });
+                    // color all spans in these objects persistently
+                    for (var ind=0; ind<sameCodeObjs.length; ind++){
+                      var currentObj = sameCodeObjs[ind];
+                      for (var si in currentObj.spanIds){
+                        $("#"+currentObj.spanIds[si])
+                          .css({"background-color":d.fill});
+                      }
+                      var codedWords = currentObj
+                                          .transcriptLine
+                                          .toLowerCase()
+                                          .split(wordSeparators);
+                      lineCollection.push(codedWords);
+                      // exempt these rectangles from mouseover,
+                      // mouseout events.
+                      currentObj.clickStatus = 1;
+                    }
+                    $("#tagList").empty();
+                    $("#tagList").css("background-color", "#ffffff");
+                    $("#tagList").append(makeWordList(lineCollection, 
+                                                      tagsToRemove));
+                    // set general click status as 1, so that this has
+                    // to be disabled before another group of spans can
+                    // be permanently highlighted.
+                    clickStatus = 1;
+                  } else {
+                    $("#transTable")
+                      .find("span")
+                      .css({"background-color":"rgba(0,0,0,0)"});
+                    for (var ind=0; ind<collCodedData.length; ind++){
+                      collCodedData[ind].clickStatus = 0;
+                    }
+                    clickStatus = 0;
+                  }
+                } else if (d3.event.shiftKey) {
+                  // check if this is the first shift-select event
+                  var startIndex = 0;
+                  var endIndex = 0;
+                  var rectsToMerge = [];
+                  if (d3ShiftSelectState === false){
+                    // store this rectangle as the start item
+                    d3ShiftStart = d;
+                    startIndex = Number(d.lineID.split("line")[1]);
+                    d3ShiftSelectState = true;
+                  } else {
+                    d3ShiftEnd = d;
+                    endIndex = Number(d.lineID.split("line")[1]);
+                    var filteredRects = $.grep(collCodedData, function(e){ 
+                      if (e.code == d.code)
+                      return e.code == d.code; 
+                    });
+                    for (var i = 0; i < filteredRects.length; i++){
+                      var rectObj = filteredRects[i];
+                      var rectIndex =
+                        Number(rectObj.lineID.split("line")[1]);
+                      if ((rectIndex >= startIndex) && 
+                          (rectIndex <= endIndex)) {
+                        //rectObj.select(this)
+                        //       .attr('fill', boldHighlightColor);
+                        rectsToMerge.push(rectObj);
+                      } else {
+                      }
+                    }
+                    var mergeOK = 
+                      confirm("Merge these codes into your timeline?");
+                    if (mergeOK === true){
+                      for (var i=0; i<inDataText.length; i++){
+                        var dataObj = inDataText[i];
+                        var dataLineNum = dataObj[0];
+                        var dataCode = dataObj[3];
+                        for (var j=0; j<rectsToMerge.length; j++){
+                          var rLineNum = Number(rectsToMerge[j] .lineID
+                                                  .split("line")[1]);
+                          var rCode = rectsToMerge[j].code;
+                          if (dataLineNum === rLineNum &&
+                              dataCode === rCode){
+                            selectedIndices.push(dataObj);
+                          }
+                        }
+                      }
+                      console.log("selectedIndices:");
+                      console.log(selectedIndices);
+                      codeViz(selectedIndices, player, protocolList, 
+                              protocolColorList);
+                    
+                      // log that the user is merging collaborator's code
+                      cTime =  new Date();
+                      var tempTime = cTime.getHours() + ":" +
+                                    cTime.getMinutes() + ":" +
+                                    cTime.getSeconds();
+                      clickLog.push([tempTime, "mergeCollabCode", 
+                                    d.code + "\n"]);
+                      sendClickData.data = clickLog;
+                      $.post("/clicklog", sendClickData, 
+                             function (data, error) { });
+                    }
+                    d3ShiftSelectState = false;
+                  }
+                } else {
+                  // just skip to that time.
+                  player.currentTime(d.startTime);
+                  var transClickItem = $('#transTable')
+                          .find("#"+d.lineID);
+                  //
+                  cTime =  new Date();
+                  var tempTime = cTime.getHours() + ":" +
+                                cTime.getMinutes() + ":" +
+                                cTime.getSeconds();
+                  clickLog.push([tempTime, "codeSkipToTime", 
+                                d.startTime, d.code + "\n"]);
+                  // sendClickData.data = clickLog;
+                  // $.post("/clicklog", sendClickData, 
+                  //       function (data, error) { });
+                  //
+                  // this small snippet below to scroll the transcript
+                  // to show the line corresponding to the item selected
+                  // in transgraph
+                  var topPos = $(transClickItem).offset().top;
+                  $('#transContent')
+                      .scrollTo($(transClickItem),
+                                {duration: 'slow',
+                                 transition: 'ease-in-out'});
+                }
+              });
+        } // end of populating collaborator's code timeline
+      };
+    });
+
+
     // var files = evt.target.files; // FileList object
     // files is a FileList of File objects. List some properties.
     var transcriptFile;
@@ -1911,6 +1982,8 @@ window.onload = function () {
             }
             var sendData = {};
             sendData.data = selectedIndices;
+            console.log("selected indices generated here:");
+            console.log(selectedIndices);
           }
           $.post("/userlog", sendData, function (data, error) { });
           // Note: the post request seems to take only JSON as data, but
@@ -1930,179 +2003,9 @@ window.onload = function () {
             connection.send(JSON.stringify(sendobj));
           });
           // end of websocket bit of code
-          d3.select("#protocolGraphContent")
-            .selectAll("svg")
-            .remove();
-          var protoGraphWidth = $('#protocolGraphContent').width()-2;
-          var protoGraphHeight = $('#protocolGraphContent').height()-2;
-          var protocolSVG = d3.select("#protocolGraphContent")
-                              .append("svg")
-                              .attr("width", protoGraphWidth)
-                              .attr("height", protoGraphHeight)
-                              .style({"border" : "1px solid #d0d0d0"});
-
-            var margin = { top: 5, right: 0, bottom: 5, left: 0 };
-
-            var protoX = d3.scale.linear()
-              .domain([0, videoLenSec])
-              // convert to scale that adapts
-              .range([0, protoGraphWidth-margin.left-margin.right]);
-            var protoY = d3.scale.ordinal()
-              .domain(protocolList) // convert ditto
-              .rangePoints([margin.top, 
-                           protoGraphHeight - margin.bottom], 0);
-            var proSpace = 10;
-            // clickStatus below determines the d3 rectangles' behavior
-            // with respect to the mouseover.
-            var clickStatus = 0;
-            
-            var codedData = [];
-            for (var ind=0; ind<selectedIndices.length; ind++){
-              var rowData = selectedIndices[ind];
-              var d = {};
-              d.startTime = hmsToSec(rowData[1]);
-              d.endTime = hmsToSec(rowData[2]);
-              d.x = protoX(d.startTime);
-              d.code = rowData[3];
-              d.codeIndex = protocolList.indexOf(d.code);
-              d.y = (d.codeIndex *
-                     (protoGraphHeight-proSpace)/
-                     (protocolList.length - 1)
-                    ) + proSpace / 2;
-              d.id = d.code + "line" + rowData[0];
-              d.lineID = "line" + rowData[0];
-              // d.width = protoX(d.endTime - d.startTime);
-              d.width = 2;
-              d.height = (protoGraphHeight-proSpace)/
-                         (protocolList.length - 1);
-              d.fill = protocolColorList[d.codeIndex];
-              d.spanIds = rowData[4];
-              d.transcriptLine = rowData[5];
-              d.clickStatus = 0;
-              codedData.push(d);
-            }
-            var codeTip = d3.tip()
-                            .attr('class', 'd3-tip')
-                            .offset([0, 20])
-                            .direction('e');
-            protocolSVG.call(codeTip);
-
-            var rects = protocolSVG.selectAll("rect")
-              .data(codedData)
-              .enter()
-              .append("rect")
-              .attr("x", function (d) {return d.x;})
-              .attr("y", function (d) {return d.y;})
-              .attr("id", function (d) {return d.id;})
-              .attr("width", function (d) {return d.width;})
-              .attr("height", function (d) {return d.height;})
-              .attr("stroke-width", 1)
-              .attr("stroke", "rgba(255,255,255,0)")
-              .attr("fill", function (d) {return d.fill;})
-              .attr("fill-opacity", 0.7)
-              .attr("z-index", -1)
-              .on("mouseover", function(d){
-                codeTip.html("<b>CODE: </b>" + d.code).show();
-                if (d.clickStatus === 0){
-                  for (var si in d.spanIds){
-                    $("#"+d.spanIds[si])
-                      .css({"background-color":d.fill});
-                  }
-                  d3.select(this).attr('width', 3);
-                  d3.select(this).attr('fill', boldHighlightColor);
-                  d3.select(this).attr('fill-opacity', 1);
-                }
-              })
-              .on("mouseout", function(d){
-                codeTip.hide();
-                if (d.clickStatus === 0){
-                  for (var si in d.spanIds){
-                    $("#"+d.spanIds[si])
-                      .css({"background-color":"rgba(0,0,0,0)"});
-                  }
-                  d3.select(this).attr('width', d.width);
-                  d3.select(this).attr('fill', d.fill);
-                  d3.select(this).attr('fill-opacity', 0.7);
-                }
-              })
-              .on("click", function(d){
-                if (d3.event.ctrlKey || d3.event.metaKey){
-                  //
-                  cTime =  new Date();
-                  var tempTime = cTime.getHours() + ":" +
-                                cTime.getMinutes() + ":" +
-                                cTime.getSeconds();
-                  clickLog.push([tempTime, "genCodeWordCloud", 
-                                d.code + "\n"]);
-                  sendClickData.data = clickLog;
-                  $.post("/clicklog", sendClickData, function (data, error) { });
-                  //
-                  var lineCollection = [];
-                  if (clickStatus===0){
-                    // select all coded objects by code ID
-                    var sameCodeObjs = $.grep(codedData, function(e){ 
-                      return e.code == d.code; 
-                    });
-                    // color all spans in these objects persistently
-                    for (var ind=0; ind<sameCodeObjs.length; ind++){
-                      var currentObj = sameCodeObjs[ind];
-                      for (var si in currentObj.spanIds){
-                        $("#"+currentObj.spanIds[si])
-                          .css({"background-color":d.fill});
-                      }
-                      var codedWords = currentObj
-                                          .transcriptLine
-                                          .toLowerCase()
-                                          .split(wordSeparators);
-                      lineCollection.push(codedWords);
-                      // exempt these rectangles from mouseover,
-                      // mouseout events.
-                      currentObj.clickStatus = 1;
-                    }
-                    $("#tagList").empty();
-                    $("#tagList").css("background-color", "#ffffff");
-                    $("#tagList").append(makeWordList(lineCollection, 
-                                                      tagsToRemove));
-                    // set general click status as 1, so that this has
-                    // to be disabled before another group of spans can
-                    // be permanently highlighted.
-                    clickStatus = 1;
-                  } else {
-                    $("#transTable")
-                      .find("span")
-                      .css({"background-color":"rgba(0,0,0,0)"});
-                    for (var ind=0; ind<codedData.length; ind++){
-                      codedData[ind].clickStatus = 0;
-                    }
-                    clickStatus = 0;
-                  }
-                } else {
-                  // just skip to that time.
-                  player.currentTime(d.startTime);
-                  var transClickItem = $('#transTable')
-                          .find("#"+d.lineID);
-                  //
-                  cTime =  new Date();
-                  var tempTime = cTime.getHours() + ":" +
-                                cTime.getMinutes() + ":" +
-                                cTime.getSeconds();
-                  clickLog.push([tempTime, "codeSkipToTime", 
-                                d.startTime, d.code + "\n"]);
-                  sendClickData.data = clickLog;
-                  $.post("/clicklog", sendClickData, 
-                         function (data, error) { });
-                  //
-                  // this small snippet below to scroll the transcript
-                  // to show the line corresponding to the item selected
-                  // in transgraph
-                  var topPos = $(transClickItem).offset().top;
-                  $('#transContent')
-                      .scrollTo($(transClickItem),
-                                {duration: 'slow',
-                                 transition: 'ease-in-out'});
-                }
-              });
-          
+          // call function to generate code timeline
+          codeViz(selectedIndices, player, protocolList, 
+                  protocolColorList);
           // get rid of the context menu
           $('.contextmenu')
             .css({ "box-shadow": "none",
