@@ -161,3 +161,25 @@ function returnSpans(selText){
   }
   return [spanArray, linesList, spanLineArray];
 }
+
+// Toggle the state of being minimized or maximized of a given
+// timeline div
+function toggleMinMax(divTitleName, divName, divTitleText, divOrigHt){
+  $("#"+divTitleName).click(function () {
+      if ($("#"+divName).hasClass('minimize')) {
+          $("#"+divName).animate({ height: divOrigHt }, 200,
+              function(){
+                $("#"+divTitleName)
+                  .text(divTitleText+
+                        " [click to contract view]");
+              }).removeClass('minimize');
+      } else {
+          $("#"+divName).animate({ height: 1 }, 200, "swing",
+              function(){
+                $("#"+divTitleName)
+                  .text(divTitleText + " [click to expand view]");
+              }).addClass('minimize');
+      }
+  });
+}
+

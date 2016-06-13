@@ -1,4 +1,0 @@
-1. Video gets larger at the server side every time the page is
-   refreshed.  Eventually grows to an unmanageable size and has to be
-   deleted.
-

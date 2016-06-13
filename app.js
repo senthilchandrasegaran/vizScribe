@@ -1,3 +1,12 @@
+/***********************************************************************
+ * VizScribe web application for protocol analysis
+ * Code by Senthil Chandrasegaran & Karthik Badam
+
+ * To add more time-series datasets, please see the README file.
+ **********************************************************************/
+
+
+
 /**
 * Module dependencies.
 */
@@ -17,7 +26,6 @@ var fs = require('fs'),
     util = require('util'),
     admZip = require('adm-zip');
 var PythonShell = require('python-shell');
-
 
 // all environments
 app.set('port', process.env.PORT || 3000);
@@ -85,7 +93,7 @@ io.sockets.on('connection', function (socket) {
             if (Stat.isFile()) {
                 Files[Name]['Downloaded'] = Stat.size;
                 Place = Stat.size / 524288;
-                
+
             }
         }
         catch (er) { } //It's a New File
@@ -97,8 +105,8 @@ io.sockets.on('connection', function (socket) {
                 Files[Name]['Handler'] = fd; // We store the file
                                              // handler so we can write
                                              // to it later
-                socket.emit('MoreData', { 'Place': Place, 
-                                          Percent: 0, 
+                socket.emit('MoreData', { 'Place': Place,
+                                          Percent: 0,
                                           'Name': Name  });
             }
         });
@@ -110,18 +118,18 @@ io.sockets.on('connection', function (socket) {
       Files[Name]['Data'] += data['Data'];
       if (Files[Name]['Downloaded'] == Files[Name]['FileSize']) {
       // If File is Fully Uploaded, that is
-        fs.write(Files[Name]['Handler'], Files[Name]['Data'], 
+        fs.write(Files[Name]['Handler'], Files[Name]['Data'],
                  null, 'Binary', function (err, Writen) {
-          socket.emit('MoreData', 
-                      {'Place': Files[Name]['FileSize']/ 524288, 
-                       Percent: 100, 
+          socket.emit('MoreData',
+                      {'Place': Files[Name]['FileSize']/ 524288,
+                       Percent: 100,
                        'Name': Name  });
           Files[Name]['Data'] = ""; //Reset The Buffer
 
                 /* check if a zip file */
           if (Name.indexOf(".zip") >= 0) {
             var zip = new admZip('public/video/' + Name);
-            zip.extractAllTo("public/images/sketches", 
+            zip.extractAllTo("public/images/sketches",
                              /*overwrite*/true);
           }
 
@@ -131,32 +139,34 @@ io.sockets.on('connection', function (socket) {
 
       } else if (Files[Name]['Data'].length > 10485760) {
         //If the Data Buffer reaches 10MB
-        fs.write(Files[Name]['Handler'], 
-                 Files[Name]['Data'], null, 
+        fs.write(Files[Name]['Handler'],
+                 Files[Name]['Data'], null,
                  'Binary', function (err, Writen) {
           Files[Name]['Data'] = ""; //Reset The Buffer
           var Place = Files[Name]['Downloaded'] / 524288;
-          var Percent = (Files[Name]['Downloaded'] / 
+          var Percent = (Files[Name]['Downloaded'] /
                          Files[Name]['FileSize']) * 100;
-          socket.emit('MoreData', 
-                      {'Place': Place, 
-                       'Percent': Percent, 
+          socket.emit('MoreData',
+                      {'Place': Place,
+                       'Percent': Percent,
                        'Name': Name });
         });
 
       } else {
         var Place = Files[Name]['Downloaded'] / 524288;
-        var Percent = (Files[Name]['Downloaded'] / 
+        var Percent = (Files[Name]['Downloaded'] /
                        Files[Name]['FileSize']) * 100;
-        socket.emit('MoreData', 
-                    {'Place': Place, 
-                     'Percent': Percent, 
+        socket.emit('MoreData',
+                    {'Place': Place,
+                     'Percent': Percent,
                      'Name': Name  });
       }
     });
 });
 
-
+// The following function launches the index.html page where the user
+// uploads the data
+// See views/index.html for the corresponding html file
 app.get('/', function (req, res) {
   //this '/' refers to '/index.html'
   // note changing it to app.get('/index.html'... will require the
@@ -175,35 +185,15 @@ app.get('/', function (req, res) {
   });
 });
 
+// This function renders the uploaded video
 app.get('/video.html', function (req, res) {
     res.render('video.html');
 });
 
-
-app.get('/main.html', function (req, res) {
-    res.render('main.html', {
-        inputvideo: inputvideo,
-        inputtrans: inputtrans,
-        outputvideo: outputvideo,
-        outputtrans: outputtrans,
-        sketchlog: sketchlog,
-        speechlog: speechlog,
-        activitylog: activitylog,
-        outputlog: outputlog,
-        outputSpeechLog: outputSpeechLog,
-        outputActivityLog: outputActivityLog
-    });
-});
-
-// app.post('/transcript_file', function (req, res) { 
-//   var selectedUrl = String(req.body.url); 
-//   console.log("Requested URL -" + selectedUrl); 
-// });
+// The next few functions handle the uploaded data and create URLs for
+// the client-side code to access them.
 
 app.post('/transcript_file', function (req, res) {
-    // var selectedURL = url.parse(req.url, true); //creates object
-    // var transcriptParams = selectedURL.query;
-    // console.log(transcriptParams.transcript);
     var transcriptParams = req.body;
     outputtrans.target = transcriptParams.transcript;
     // this sets the above defined variables
@@ -219,7 +209,6 @@ app.get('/receive_transcript_file', function (req, res) {
 app.get('/log_file', function (req, res) {
     var selectedURL = url.parse(req.url, true); //creates object
     var logFileParams = selectedURL.query;
-    // console.log(logFileParams.logFile);
     outputlog.target = logFileParams.logFile;
     // this sets the above defined variables
     res.end();
@@ -232,13 +221,9 @@ app.get('/receive_log_file', function (req, res) {
 });
 
 app.post('/speechLog_file', function (req, res) {
-    //var selectedURL = url.parse(req.url, true); //creates object
-    //var speechLogFileParams = selectedURL.query;
     var speechLogFileParams = req.body;
     outputSpeechLog.target = speechLogFileParams.speechLogFile;
-    
     // this sets the above defined variables
-    console.log(outputSpeechLog.target);
     res.end();
 });
 
@@ -249,9 +234,6 @@ app.get('/receive_speechLog_file', function (req, res) {
 });
 
 app.post('/activityLog_file', function (req, res) {
-    //var selectedURL = url.parse(req.url, true); //creates object
-    //var activityLogFileParams = selectedURL.query;
-    //console.log(activityLogFileParams.activityLogFile);
     var activityLogFileParams = req.body;
     outputActivityLog.target = activityLogFileParams.activityLogFile;
     // this sets the above defined variables
@@ -277,6 +259,8 @@ app.get('/video_parameters', function (req, res) {
     res.end();
 });
 
+// This function handles the main.html file, which is the VizScribe
+// interface. See views/main.html for the corresponding file
 app.get('/main', function (req, res) {
     console.log('video ' + outputvideo.src);
     res.render('main.html', {
@@ -296,7 +280,7 @@ app.get('/main', function (req, res) {
 // This annotator bit is to use the annotator library to allow
 // annotation of the transcribed text.
 /*
-app.get('/annotator-token', 
+app.get('/annotator-token',
     jwt({secret: 'dc176c29-23da-4a19-bc5f-061d45e6d0f4',
          consumerKey: '0cc039fa9d414ddeb43f83447d6838e7',
          userID: 'senthil',
@@ -309,8 +293,8 @@ app.get('/annotator-token',
 });
 */
 
+// records a log of user activity
 app.post('/userlog', function (req, res){
-  //res.send(req.body);
   // write user log file as text
   fs.writeFile('public/userlog/userlog.csv', String(req.body.data),
                function (err) {
@@ -318,7 +302,6 @@ app.post('/userlog', function (req, res){
     console.log('userlog.csv was written');
     res.send(200);
   });
-  // res.end();
 });
 
 app.post('/clicklog', function (req, res){
@@ -330,7 +313,6 @@ app.post('/clicklog', function (req, res){
     console.log('clicklog.csv was written');
     res.send(200);
   });
-  // res.end();
 });
 
 var options = {
@@ -340,6 +322,9 @@ var options = {
 };
 
 
+// This function works, but needs better data handling, and as such is
+// not called right now. The idea is to scale or sort the word cloud
+// based on the information content of each word.
 app.post('/infoContent', function (req, res){
   // invoke this just once, and send all the data over to the client.
   // This will make the code more responsive.
@@ -353,11 +338,3 @@ app.post('/infoContent', function (req, res){
   });
 });
 
-
-
-
-
-//http.createServer(app).listen(app.get('port'), function(){
-//  console.log('Express server listening on port ' + app.get('port'));
-//});
-// END OF OLDER CODE, UNCOMMENT IF RESUMABLE DOES NOT WORK

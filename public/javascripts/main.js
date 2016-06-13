@@ -66,14 +66,7 @@ var speechLogHeight = 0;
 var activityLogHeight = 0;
 var protocolGraphHeight = 0;
 
-/*
-var speakerColors = [
-  "#8da0cb",
-  "#fb8072",
-  "#a6d854",
-  "#ffd92f"
-  ]
-  */
+// colors for each speaker in the data. Add to this list if speakers > 4
 var speakerColors = [
   "#66c2a5",
   "#adc0cb",
@@ -81,17 +74,10 @@ var speakerColors = [
   "#ffd92f"
 ]
 
-/*
-var colorlist = [ "rgba(228,26,28,",
-                  "rgba(55,126,184,",
-                  "rgba(77,175,74,",
-                  "rgba(152,78,163,",
-                  "rgba(255,127,0," ];
-*/
-
+// Color list to use for code definitions
 // Note: the color list below is instantiated in reverse order in the
 // interface.
-var colorlistFull = [ 
+var colorlistFull = [
       'rgba(177,89,40,',
       'rgba(106,61,154,',
       'rgba(202,178,214,',
@@ -136,6 +122,8 @@ var pushColor = function (color) {
     colorlistFull.push(color);
 };
 
+// Function to traverse the user-entered protocol (codes) in order to
+// create an indented tree with corresponding colors
 var depthFirstTraversalProtocolTree = function () {
     var sortedList = [];
     var protocolNames = Object.keys(protocolObject);
@@ -146,7 +134,10 @@ var depthFirstTraversalProtocolTree = function () {
         var deleted = protocolObject[protocolNames[i]].deleted;
         if (level == 1 && !deleted) {
             var childrenList = [];
-            protocolObject[protocolName].hasChildren = preOrderTraversal(protocolName, childrenList, protocolNames);
+            protocolObject[protocolName].hasChildren =
+              preOrderTraversal(protocolName,
+                                childrenList,
+                                protocolNames);
             sortedList.push(protocolName);
             if (childrenList.length > 0)
                 sortedList = sortedList.concat(childrenList);
@@ -155,21 +146,25 @@ var depthFirstTraversalProtocolTree = function () {
     return sortedList;
 }
 
+// Function to recursively go through a tree's children until none are
+// left
 function preOrderTraversal(protocolName, childrenList, protocolNames) {
-    var hasChildren = false; 
+    var hasChildren = false;
     for (var i = 0; i < protocolNames.length; i++) {
         var tempProtocolName = protocolNames[i];
         var parentName = protocolObject[tempProtocolName].parentName;
         var deleted = protocolObject[tempProtocolName].deleted;
-        
+
         if (parentName == protocolName && !deleted) {
             childrenList.push(tempProtocolName);
-            protocolObject[tempProtocolName].hasChildren = preOrderTraversal(tempProtocolName, childrenList, protocolNames);
-            hasChildren = true; 
+            protocolObject[tempProtocolName].hasChildren =
+              preOrderTraversal(tempProtocolName,
+                                childrenList,
+                                protocolNames);
+            hasChildren = true;
         }
     }
-
-    return hasChildren; 
+    return hasChildren;
 }
 
 
@@ -187,7 +182,7 @@ function hmsToSec(hms){
   return seconds;
 }
 
-//copied from 
+// Code credits for below function (getIndicesOf):
 //http://stackoverflow.com/questions/3410464/how-to-find-all-occurrences-of-one-string-in-another-in-javascript
 function getIndicesOf(searchStr, str, caseSensitive) {
     var startIndex = 0, searchStrLen = searchStr.length;
@@ -204,14 +199,16 @@ function getIndicesOf(searchStr, str, caseSensitive) {
 }
 
 
+// Function to generate a text concordance view in the form of an html
+// table
 function concordance(word) {
     //take the captionArray and put in one string
     var allCaptions = "";
-    var window = 60; 
+    var window = 60;
     captionArray.forEach(function (caption) {
         allCaptions += caption[3] + " ";
     });
-    
+
     //now search of the index (indices) of the word in the allCaptions
     var indices = getIndicesOf(word, allCaptions, false);
 
@@ -221,31 +218,31 @@ function concordance(word) {
     for (var i = 0; i < indices.length; i++) {
         var index = indices[i];
         var left = index - window < 0 ? 0 : index - window;
-        var right = index + window + word.length > 
-                    allCaptions.length-1 ? 
+        var right = index + window + word.length >
+                    allCaptions.length-1 ?
                     allCaptions.length-1 : index + window + word.length;
-        concordances.push("<tr>" + 
-                          "<td align='right'>" + 
-                          allCaptions.substring(left, index - 1) + 
+        concordances.push("<tr>" +
+                          "<td align='right'>" +
+                          allCaptions.substring(left, index - 1) +
                           "</td>" +
                           "<td width=10px></td>" +
-                          "<td align='center'><b>" + 
-                          allCaptions.substring(index, 
-                                                index+word.length-1) + 
+                          "<td align='center'><b>" +
+                          allCaptions.substring(index,
+                                                index+word.length-1) +
                           " </b></td>" +
                           "<td width=10px></td>" +
                           "<td align='left'>" +
-                          allCaptions.substring(index + word.length, 
-                                                right) + 
-                          "</td>" + 
+                          allCaptions.substring(index + word.length,
+                                                right) +
+                          "</td>" +
                           "</tr>");
     }
     concordances.push("</table>")
-    return concordances; 
+    return concordances;
 }
 
-
 // Function to handle tabs on protocol view div
+// this is called when document is loaded
 $(function(){
   $('ul.tabs li:first').addClass('active');
   $('.block article').hide();
@@ -260,17 +257,6 @@ $(function(){
   });
 })
 
-// Function to convert hh:mm:ss to seconds
-function hmsToSeconds(str) {
-    var p = str.split(':'),
-        s = 0, m = 1;
-    while (p.length > 0) {
-        s += m * parseInt(p.pop(), 10);
-        m *= 60;
-    }
-    return s;
-} // End Function to convert hh:mm:ss to seconds
-
 // This function allows selection of transcript file (a CSV file) and
 // displays it on the left bottom pane in the browser. Stop words are
 // removed and the resulting tags are scaled by frequency and showed on
@@ -284,11 +270,9 @@ window.onload = function () {
   speechLogHeight = $("#speechLog").height();
   activityLogHeight = $("#activityLog").height();
   protocolGraphHeight = $("#protocolGraph").height();
-  
+
   var player = videojs('discussion-video');
   player.on('loadedmetadata', function () {
-    // var files = evt.target.files; // FileList object
-    // files is a FileList of File objects. List some properties.
     var transcriptFile;
     var fileTemp = $.ajax({
       type: "GET", // can remove this to avoid confusion
@@ -299,14 +283,6 @@ window.onload = function () {
       captionArray = $.csv.toArrays(data);
       // remove the first line, since it's the data header.
       captionArray.splice(0,1);
-      /* Fix this later.
-      var dataArray = data.split("\n");
-      console.log(dataArray);
-      for (var i=1; i< dataArray.length; i++){
-        var dataRow = dataArray[i].split("\t");
-        captionArray.push(dataRow);
-      }
-      */
       var longestLineLength = 0; // num words in the longest line
       for (var i in captionArray) {
         if ((captionArray[i].length > 1) &&
@@ -319,10 +295,6 @@ window.onload = function () {
           var lowerCaseWords = captionArray[i][3]
                                  .toLowerCase()
                                  .split(wordSeparators);
-          // lowerCaseWords.shift();
-          // for some reason, the wordSeparators split the line in
-          // a way that the first word is an empty "".
-          // lowerCaseWords.shift() gets rid of that "".
           lowerCaseLines.push(lowerCaseWords);
           for (var k in words) {
             tempspan += '<span id="line' + i + 'word' + k + '">' +
@@ -338,10 +310,9 @@ window.onload = function () {
           } else {
             labelColor = speakerColors[parseInt(captionArray[i][2]
                                                   .split("F")[1])-1];
-            
+
           }
 
-          // this is the undo point!
           displayLines.push(
              '<tr id="row' +i+ '">' +
              '<td style="border: 1px solid' + labelColor + '; '+
@@ -351,8 +322,8 @@ window.onload = function () {
              // 'background-color:' + labelColor + '; '+
              // 'font-family:courier; font-size:7pt;"'+
              'font-family:sans-serif; font-size:7pt;"'+
-             'class="unselectable" id="speaker'+i+'">' + 
-              captionArray[i][2] +  
+             'class="unselectable" id="speaker'+i+'">' +
+              captionArray[i][2] +
              '</td>' +
              '<td id="line'+ i + '">' +
               tempspan + '</td></tr>')
@@ -381,7 +352,7 @@ window.onload = function () {
           var tempTime = cTime.getHours() + ":" +
                          cTime.getMinutes() + ":" +
                          cTime.getSeconds();
-          clickLog.push([tempTime, "videoSeek", 
+          clickLog.push([tempTime, "videoSeek",
                         player.currentTime()+"\n"]);
           sendClickData.data = clickLog;
           $.post("/clicklog", sendClickData, function (data, error) { });
@@ -401,7 +372,6 @@ window.onload = function () {
         var transScaleY = d3.scale.linear()
                             .domain([0, speakerList_hardcode.length])
                             .range([0, h]);
-        // var maxvalue = Math.max.apply(Math, tagFreq);
         var transGraphPadding = 0;
         var scaleHeights = 0;
         var constantWidth = 0;
@@ -429,7 +399,7 @@ window.onload = function () {
               d.height = transScaleY(0.9);
               */
             } else {
-              d.y = transScaleY(speakerList_hardcode.length - 
+              d.y = transScaleY(speakerList_hardcode.length -
                                 speakerIndex - 1);
               d.fillColor = speakerColors[speakerIndex];
               d.height = transScaleY(0.9);
@@ -438,11 +408,11 @@ window.onload = function () {
           if (constantWidth !== 0){
             d.width = 5;
           } else {
-            var endSec = hmsToSeconds(captionArray[i][1]);
+            var endSec = hmsToSec(captionArray[i][1]);
             d.endTime = endSec;
-            var startSec = hmsToSeconds(captionArray[i][0]);
+            var startSec = hmsToSec(captionArray[i][0]);
             var scaledWidth = transcriptScale(endSec - startSec);
-            if (scaledWidth < 2){ 
+            if (scaledWidth < 2){
               d.width = 2;
             } else {
               d.width = scaledWidth;
@@ -474,8 +444,8 @@ window.onload = function () {
                  .append("rect")
                  .attr("x", function (d) { return d.x; })
                  .attr("y", function (d) { return d.y; })
-                 .attr("width", function (d) { 
-                   return d.width; 
+                 .attr("width", function (d) {
+                   return d.width;
                  })
                  .attr("z", 1)
                  .attr("height", function (d) { return d.height; })
@@ -484,7 +454,7 @@ window.onload = function () {
                  })
                  .attr("fill-opacity", 0.8)
                  .on("mouseover", function(d){
-                   tip.html("<font size=2 color='" + d.fillColor + 
+                   tip.html("<font size=2 color='" + d.fillColor +
                             "'>" + d.speaker + ":  </font>" +
                             d.dialog).show();
                    d3.select(this).attr("width", 5);
@@ -528,7 +498,7 @@ window.onload = function () {
             $("#transTable").find("td").removeClass('hoverHighlight');
             $("#transTable").find("span").removeClass('boldText');
           }
-        } 
+        }
       }); // end function for remove tag on rightclick
 
       //----------------------------------------------------------
@@ -540,20 +510,16 @@ window.onload = function () {
         tagHoverText = $.trim($(this).text());
         // use regular expression to match the whole word only
         var regex = new RegExp("\\b" + tagHoverText + "\\b");
-        var transFilter = $("#transTable").find("span:containsNC('" + 
+        var transFilter = $("#transTable").find("span:containsNC('" +
                                 tagHoverText + "')");
         var transItems = transFilter.filter(function(){
                 return (this.textContent).toLowerCase().match(regex);
               }).parents("td");
         transItems.addClass('hoverHighlight');
-        /*
-        transFilter.filter(function(){
-                return (this.textContent).toLowerCase().match(regex);
-              }).addClass('boldText');
-              */
-        //----------------------------------------------   
+
+        //----------------------------------------------
         // Highlight corresponding items in transGraph
-        //----------------------------------------------   
+        //----------------------------------------------
         var transItemIds = [];
         var hiRects = $("#transGraphContent svg").children('rect');
         // if (prevClickedTag === ""){
@@ -583,9 +549,9 @@ window.onload = function () {
         }
       });
 
-      //---------------------------------------------------------------   
+      //---------------------------------------------------------------
       // remove light highlighting on mouse leave
-      //---------------------------------------------------------------   
+      //---------------------------------------------------------------
       tagListDOM.on('mouseleave', 'text', function () {
         $(this).removeClass('hoverHighlight');
         $("#transTable").find("td").removeClass('hoverHighlight');
@@ -600,12 +566,12 @@ window.onload = function () {
             .each(function(d){
               d3.select(this).attr("fill", d.fillColor);
             });
-        } 
+        }
       });
 
-      //---------------------------------------------------------------   
+      //---------------------------------------------------------------
       // dark highlighting on mouse click
-      //---------------------------------------------------------------   
+      //---------------------------------------------------------------
       tagListDOM.on('click', 'text', function (e) {
           cTime =  new Date();
           var tempTime = cTime.getHours() + ":" +
@@ -641,7 +607,7 @@ window.onload = function () {
               $('.boldClickText')
                   .removeClass('boldClickText');
               var transFilter =
-                $("#transTable").find("span:containsNC('" + 
+                $("#transTable").find("span:containsNC('" +
                                       tagHoverText + "')");
               var regex = new RegExp("\\b" + tagHoverText + "\\b");
               var transItems = transFilter .filter(function(){
@@ -651,9 +617,9 @@ window.onload = function () {
               transFilter.filter(function(){
                   return (this.textContent).toLowerCase().match(regex);
                 }).addClass('boldText');
-              //----------------------------------------------   
+              //----------------------------------------------
               // add bars of highlighted bits next to seekbar
-              //----------------------------------------------   
+              //----------------------------------------------
               var transItemIds = []
               transItems.each(function (index, value) {
                   var idIndex = value.parentNode.rowIndex;
@@ -704,7 +670,7 @@ window.onload = function () {
             if (e.ctrlKey || e.metaKey) {
               e.preventDefault();
               var captionIndex = this.rowIndex;
-              var captionStartTimeMin = 
+              var captionStartTimeMin =
                 captionArray[captionIndex][0];
               captionStartTimeSec = hmsToSec(captionStartTimeMin);
               player.currentTime(captionStartTimeSec);
@@ -712,7 +678,7 @@ window.onload = function () {
               var tempTime = cTime.getHours() + ":" +
                             cTime.getMinutes() + ":" +
                             cTime.getSeconds();
-              clickLog.push([tempTime, "transcript", 
+              clickLog.push([tempTime, "transcript",
                             captionStartTimeSec + "\n"]);
               sendClickData.data = clickLog;
               $.post("/clicklog", sendClickData, function (data, error) { });
@@ -723,16 +689,16 @@ window.onload = function () {
       // End of Video seeking Code
       //----------------------------------------------------------
 
-      //---------------------------------------------------------------   
-      // light gray highlighting on mouseover for transcript
-      //---------------------------------------------------------------   
-      
+      //---------------------------------------------------------------
+      // highlighting on mouseover for transcript
+      //---------------------------------------------------------------
+
       // Add highlighting on mouseenter
       $('#transTable').on('mouseenter', 'tr', function () {
           $(this).children().last().addClass('transHighlight');
-          //----------------------------------------------   
+          //----------------------------------------------
           // add bars of highlighted bits next to seekbar
-          //----------------------------------------------   
+          //----------------------------------------------
           var transItemIds = []
           var idIndex = this.rowIndex;
           transItemIds.push(idIndex);
@@ -752,7 +718,7 @@ window.onload = function () {
                            startTime;
               timeSegArray.push([startTime, duration]);
           }
-      }); 
+      });
 
       // remove highlighting on mouse leave
       $('#transTable').on('mouseleave', 'tr', function () {
@@ -760,10 +726,10 @@ window.onload = function () {
           d3.select("#transGraphContent").selectAll("svg")
             .classed("transRectHighLight", false);
           // .attr("fill", transGraphColor);
-      }); 
+      });
 
-      //--------------------------------------------------------------- 
-      // end of light gray highlighting on mouseover for transcript
+      //---------------------------------------------------------------
+      // end of highlighting on mouseover for transcript
       //---------------------------------------------------------------
 
       // Allow interaction with seesoft-like visualization
@@ -797,7 +763,7 @@ window.onload = function () {
           var transItem = $('#transTable tr').eq(transGraphIndex)
                                              .children().last();
           transItem.addClass('hoverHighlight');
-          // note: 'eq' returns jquery object at index. 
+          // note: 'eq' returns jquery object at index.
           // For DOM object at index use 'get'
       }); // end of transGraph onmouseenter function.
 
@@ -828,8 +794,8 @@ window.onload = function () {
             // show a word cloud based on only that speaker's utterances
             var lineCollection = [];
               // select all coded objects by code ID
-              var sameSpeakerObjs = $.grep(transGraphData, function(e){ 
-                return e.speaker == d.speaker; 
+              var sameSpeakerObjs = $.grep(transGraphData, function(e){
+                return e.speaker == d.speaker;
               });
               var speakerID = sameSpeakerObjs[0].speaker;
               // color all spans in these objects persistently
@@ -847,9 +813,9 @@ window.onload = function () {
               // change the background of the taglist to reflect the
               // speaker color, so that the user gets the context.
               $("#tagList").empty();
-              $("#tagList").append(makeWordList(lineCollection, 
+              $("#tagList").append(makeWordList(lineCollection,
                                                 tagsToRemove));
-              $("#tagList").css("background-color", 
+              $("#tagList").css("background-color",
                     speakerColors[parseInt(speakerID.split("F")[1])-1]);
           } else {
             var transGraphIndex = $('#transGraphContent svg')
@@ -863,10 +829,10 @@ window.onload = function () {
             var tempTime = cTime.getHours() + ":" +
                           cTime.getMinutes() + ":" +
                           cTime.getSeconds();
-            clickLog.push([tempTime, "transGraph", 
+            clickLog.push([tempTime, "transGraph",
                           captionStartTimeSec + "\n"]);
             sendClickData.data = clickLog;
-            $.post("/clicklog", sendClickData, 
+            $.post("/clicklog", sendClickData,
                    function (data, error) { });
             var transClickItem = $('#transTable tr').eq(transGraphIndex)
                                                     .children().last();
@@ -888,233 +854,81 @@ window.onload = function () {
         });
       });
 
-      // toggle the size of the transGraph div 
-      $("#transGraphTitle").click(function () {
-          if ($("#transGraph").hasClass('minimize')) {
-              cTime =  new Date();
-              var tempTime = cTime.getHours() + ":" +
-                            cTime.getMinutes() + ":" +
-                            cTime.getSeconds();
-              clickLog.push([tempTime, "transGraphMaximize\n"]);
-              sendClickData.data = clickLog;
-              $.post("/clicklog", sendClickData, function (data, error) { });
-              $("#transGraph").animate({ height: transGraphHeight }, 200,
-                  function(){
-                    $("#transGraphTitle")
-                      .text("Graphical View of Transcript "+
-                            "[click to contract view]");
-                  }).removeClass('minimize');
-          } else {
-              cTime =  new Date();
-              var tempTime = cTime.getHours() + ":" +
-                            cTime.getMinutes() + ":" +
-                            cTime.getSeconds();
-              clickLog.push([tempTime, "transGraphMinimize\n"]);
-              sendClickData.data = clickLog;
-              $.post("/clicklog", sendClickData, function (data, error) { });
-              $("#transGraph").animate({ height: 1 }, 200, "swing",
-                  function(){
-                    $("#transGraphTitle")
-                      .text("Graphical View of Transcript "+
-                            "[click to expand view]");
-                  }).addClass('minimize');
-          }
-      });
+      // toggle the size of the transGraph div
+      toggleMinMax("transGraphTitle", "transGraph",
+                   "Graphical View of Transcript", transGraphHeight);
 
-      // toggle the size of the sketchLog div 
-      $("#sketchLogTitle").click(function () {
-          if ($("#sketchLog").hasClass('minimize')) {
-              cTime =  new Date();
-              var tempTime = cTime.getHours() + ":" +
-                            cTime.getMinutes() + ":" +
-                            cTime.getSeconds();
-              clickLog.push([tempTime, "sketchLogMaximize\n"]);
-              sendClickData.data = clickLog;
-              $.post("/clicklog", sendClickData, function (data, error) { });
-              $("#sketchLog").animate({ height: sketchLogHeight }, 200,
-                  function(){
-                    $("#sketchLogTitle")
-                      .text("sketch Participation Chart "+
-                            "[click to contract view]");
-                  }).removeClass('minimize');
-          } else {
-              cTime =  new Date();
-              var tempTime = cTime.getHours() + ":" +
-                            cTime.getMinutes() + ":" +
-                            cTime.getSeconds();
-              clickLog.push([tempTime, "sketchLogMinimize\n"]);
-              sendClickData.data = clickLog;
-              $.post("/clicklog", sendClickData, function (data, error) { });
-              $("#sketchLog").animate({ height: 1 }, 200, "swing",
-                  function(){
-                    $("#sketchLogTitle")
-                      .text("sketch Participation Chart "+
-                            "[click to expand view]");
-                  }).addClass('minimize');
-          }
-      });
+      // toggle the size of the sketchLog div
+      toggleMinMax("sketchLogTitle", "sketchLog",
+                   "Sketch Participation Chart", sketchLogHeight);
 
-      // toggle the size of the speechLog div 
-      $("#speechLogTitle").click(function () {
-          if ($("#speechLog").hasClass('minimize')) {
-              cTime =  new Date();
-              var tempTime = cTime.getHours() + ":" +
-                            cTime.getMinutes() + ":" +
-                            cTime.getSeconds();
-              clickLog.push([tempTime, "speechLogMaximize\n"]);
-              sendClickData.data = clickLog;
-              $.post("/clicklog", sendClickData, function (data, error) { });
-              $("#speechLog").animate({ height: speechLogHeight }, 200,
-                  function(){
-                    $("#speechLogTitle")
-                      .text("Speech Participation Chart "+
-                            "[click to contract view]");
-                  }).removeClass('minimize');
-          } else {
-              cTime =  new Date();
-              var tempTime = cTime.getHours() + ":" +
-                            cTime.getMinutes() + ":" +
-                            cTime.getSeconds();
-              clickLog.push([tempTime, "speechLogMinimize\n"]);
-              sendClickData.data = clickLog;
-              $.post("/clicklog", sendClickData, function (data, error) { });
-              $("#speechLog").animate({ height: 1 }, 200, "swing",
-                  function(){
-                    $("#speechLogTitle")
-                      .text("Speech Participation Chart "+
-                            "[click to expand view]");
-                  }).addClass('minimize');
-          }
-      });
+      // toggle the size of the speechLog div
+      toggleMinMax("speechLogTitle", "speechLog",
+                   "Speech Participation Chart", speechLogHeight);
 
-      // toggle the size of the activityLog div 
-      $("#activityLogTitle").click(function () {
-          if ($("#activityLog").hasClass('minimize')) {
-              cTime =  new Date();
-              var tempTime = cTime.getHours() + ":" +
-                            cTime.getMinutes() + ":" +
-                            cTime.getSeconds();
-              clickLog.push([tempTime, "activityLogMaximize\n"]);
-              sendClickData.data = clickLog;
-              $.post("/clicklog", sendClickData, function (data, error) { });
-              $("#activityLog").animate({height:activityLogHeight},200,
-                  function(){
-                    $("#activityLogTitle")
-                      .text("Activity Level Chart "+
-                            "[click to contract view]");
-                  }).removeClass('minimize');
-          } else {
-              cTime =  new Date();
-              var tempTime = cTime.getHours() + ":" +
-                            cTime.getMinutes() + ":" +
-                            cTime.getSeconds();
-              clickLog.push([tempTime, "activityLogMinimize\n"]);
-              sendClickData.data = clickLog;
-              $.post("/clicklog", sendClickData, function (data, error) { });
-              $("#activityLog").animate({ height: 1 }, 200, "swing",
-                  function(){
-                    $("#activityLogTitle")
-                      .text("Activity Level Chart "+
-                            "[click to expand view]");
-                  }).addClass('minimize');
-          }
-      });
-
-      // toggle the size of the protocolGraph div 
-      /*
-      $("#protocolGraphTitle").click(function () {
-          if ($("#protocolGraph").hasClass('minimize')) {
-              cTime =  new Date();
-              var tempTime = cTime.getHours() + ":" +
-                            cTime.getMinutes() + ":" +
-                            cTime.getSeconds();
-              clickLog.push([tempTime, "protoLogMaximize\n"]);
-              sendClickData.data = clickLog;
-              $.post("/clicklog", sendClickData, function (data, error) { });
-              $("#protocolGraph").animate({height:protocolGraphHeight},
-                                          200,
-                  function(){
-                    $("#protocolGraphTitle")
-                      .text("Code Timeline "+
-                            "[click to contract view]");
-                  }).removeClass('minimize');
-          } else {
-              cTime =  new Date();
-              var tempTime = cTime.getHours() + ":" +
-                            cTime.getMinutes() + ":" +
-                            cTime.getSeconds();
-              clickLog.push([tempTime, "protoLogMinimize\n"]);
-              sendClickData.data = clickLog;
-              $.post("/clicklog", sendClickData, function (data, error) { });
-              $("#protocolGraph").animate({ height: 1}, 200, "swing",
-                  function(){
-                    $("#protocolGraphTitle")
-                      .text("Code Timeline "+
-                            "[click to expand view]");
-                  }).addClass('minimize');
-          }
-      });
-      */
+      // toggle the size of the activityLog div
+      toggleMinMax("activityLogTitle", "activityLog",
+                   "Activity Level Chart", activityLogHeight);
 
       // show Video Progress on the sketch and Protocol Divs
       var vidPlayer = videojs("discussion-video");
       vidPlayer.ready(function () {
           // this is for the transcript graph div
           var $transGraphScrubberProgress = $("#transGraphScrubber");
-          var trOffsetMargin = $("#transGraph").height() + 
+          var trOffsetMargin = $("#transGraph").height() +
                            parseFloat(
                              $("#transGraph").css("border-top-width")
                                             .split("px")[0])+
                            parseFloat(
                              $("#transGraph").css("border-bottom-width")
                                           .split("px")[0]);
-          $transGraphScrubberProgress.css({"margin-top": 
+          $transGraphScrubberProgress.css({"margin-top":
                                           0-trOffsetMargin});
           // this is for the new sketch div
           var $sketchLogScrubberProgress = $("#sketchLogScrubber");
-          var skOffsetMargin = $("#sketchLog").height() + 
+          var skOffsetMargin = $("#sketchLog").height() +
                            parseFloat(
                              $("#sketchLog").css("border-top-width")
                                             .split("px")[0])+
                            parseFloat(
                              $("#sketchLog").css("border-bottom-width")
                                           .split("px")[0]);
-          $sketchLogScrubberProgress.css({"margin-top": 
+          $sketchLogScrubberProgress.css({"margin-top":
                                           0-skOffsetMargin});
           // scrubber for speech div
           var $speechLogScrubberProgress = $("#speechLogScrubber");
-          var spOffsetMargin = $("#speechLog").height() + 
+          var spOffsetMargin = $("#speechLog").height() +
                            parseFloat(
                              $("#speechLog").css("border-top-width")
                                             .split("px")[0])+
                            parseFloat(
                              $("#speechLog").css("border-bottom-width")
                                           .split("px")[0]);
-          $speechLogScrubberProgress.css({"margin-top": 
+          $speechLogScrubberProgress.css({"margin-top":
                                           0-spOffsetMargin});
           // scrubber for activity div
           var $activityLogScrubberProgress = $("#activityLogScrubber");
-          actOffsetMargin = $("#activityLog").height() + 
+          actOffsetMargin = $("#activityLog").height() +
                            parseFloat(
                              $("#activityLog").css("border-top-width")
                                               .split("px")[0])+
                            parseFloat(
                              $("#activityLog").css("border-bottom-width")
                                               .split("px")[0]);
-          $activityLogScrubberProgress.css({"margin-top": 
+          $activityLogScrubberProgress.css({"margin-top":
                                             0-actOffsetMargin});
           var $protocolScrubberProgress = $("#protocolGraphScrubber");
-          protocolOffsetMargin = $("#protocolGraph").height() + 
+          protocolOffsetMargin = $("#protocolGraph").height() +
                            parseFloat( $("#protocolGraph")
                                           .css("border-top-width")
                                           .split("px")[0])+
                            parseFloat( $("#protocolGraph")
                                           .css("border-bottom-width")
                                           .split("px")[0]);
-          $protocolScrubberProgress.css({"margin-top": 
+          $protocolScrubberProgress.css({"margin-top":
                                             0-protocolOffsetMargin});
           vidPlayer.on('timeupdate', function (e) {
-              var percent = parseFloat(this.currentTime()) / 
+              var percent = parseFloat(this.currentTime()) /
                             parseFloat(this.duration());
               $transGraphScrubberProgress.width((percent * 100.0)+"%");
               $sketchLogScrubberProgress.width((percent * 100.0)+"%");
@@ -1140,7 +954,7 @@ window.onload = function () {
           }
       }); // end function for tabbed indenting
 
-      // On focus returning back to the "view" tab, 
+      // On focus returning back to the "view" tab,
       // update text in that tab with whatever was entered in the
       // protocol edit tab
 
@@ -1184,8 +998,8 @@ window.onload = function () {
               //KB edits --------
 
               //working with pArray directly
-              //need to find difference to 
-              //make sure the protocol are not completely rewritten 
+              //need to find difference to
+              //make sure the protocol are not completely rewritten
 
               //Structure of the protocol object
               // protocol1 : {color, level, parentName}
@@ -1193,7 +1007,7 @@ window.onload = function () {
               // protocol3 : {color, level, parentName}
               // note that this is a linear buffer but the hierarchy is encoded in level variable
 
-              //read the protocols and levels into a list first 
+              //read the protocols and levels into a list first
 
               var newProtocolList = [];
               var parentName = "#ISROOT#";
@@ -1225,7 +1039,7 @@ window.onload = function () {
 
                   var presenceCounter = 0;
 
-                  //check the position of this protocol in the oldList 
+                  //check the position of this protocol in the oldList
                   for (var j = 0; j < protocolKeyList.length; j++) {
                       var tempProtocolName = protocolKeyList[j];
                       var templevel = protocolObject[protocolKeyList[j]].level;
@@ -1237,7 +1051,7 @@ window.onload = function () {
                           if (templevel == level) {
                               if (tempParentName == parentName) {
 
-                                  //found the protocol .. now unsetting the delete flag                            
+                                  //found the protocol .. now unsetting the delete flag
                                   protocolObject[tempProtocolName].deleted = false;
                                   break;
                               } else {
@@ -1282,10 +1096,11 @@ window.onload = function () {
                       }
                   }
 
-                  //What if the protocolObject is empty -- ie., there is no previous protocolList!
+                  //What if the protocolObject is empty -- ie., there is
+                  //no previous protocolList!
                   if (protocolKeyList.length == 0) {
-                      //add each protocol in the protocol list to the protocolObject
-                      //means the protocol is NEW!
+                      //add each protocol in the protocol list to the
+                      //protocolObject means the protocol is NEW!
                       var color = getColor();
 
                       //if (level != 1) {
@@ -1380,8 +1195,8 @@ window.onload = function () {
           for (var pindex in protoTimeArray) {
               for (var ind in selectedIndices) {
                   if (protoTimeArray[pindex][0] == selectedIndices[ind][3]) {
-                      var timeInSecs = hmsToSeconds(selectedIndices[ind][2]) -
-                         hmsToSeconds(selectedIndices[ind][1])
+                      var timeInSecs = hmsToSec(selectedIndices[ind][2]) -
+                         hmsToSec(selectedIndices[ind][1])
                       protoTimeArray[pindex][2] += timeInSecs;
                   }
               }
@@ -1414,7 +1229,7 @@ window.onload = function () {
 
           tSVG.append("g")
               .attr("class", "x axis")
-              .attr("transform", "translate(0," + 
+              .attr("transform", "translate(0," +
                                   (chartHeight + 5) + ")")
               .call(xAxis)
               .append("text")
@@ -1455,13 +1270,13 @@ window.onload = function () {
         }
         selectedText = String(t);
         if (selectedText.length > 0){
-          var rangeObject = $(t.getRangeAt(0)); 
+          var rangeObject = $(t.getRangeAt(0));
           var startSpan = rangeObject.attr("startContainer");
           var endSpan = rangeObject.attr("endContainer");
-          var startLineID = startSpan.parentNode.parentNode.id; 
-          var endLineID = endSpan.parentNode.parentNode.id;          
-          var sliceStart = startLineID.split("line")[1]; 
-          var sliceEnd = parseInt(endLineID.split("line")[1])+1; 
+          var startLineID = startSpan.parentNode.parentNode.id;
+          var endLineID = endSpan.parentNode.parentNode.id;
+          var sliceStart = startLineID.split("line")[1];
+          var sliceEnd = parseInt(endLineID.split("line")[1])+1;
           var linesList = lowerCaseLines.slice(sliceStart, sliceEnd);
           if (e.button !== 2) {
             cTime =  new Date();
@@ -1481,7 +1296,7 @@ window.onload = function () {
         } else {
           $("#tagList").empty();
           $("#tagList").css("background-color", "#ffffff");
-          $("#tagList").append(makeWordList(lowerCaseLines, 
+          $("#tagList").append(makeWordList(lowerCaseLines,
                                             tagsToRemove));
         }
       });
@@ -1513,7 +1328,7 @@ window.onload = function () {
               menuItems += '<ul id="' + protocolList[ind] + '">' +
                 protocolList[ind] + '</ul>';
           }
-          
+
           // The code below makes sure the context menu is fully
           // visible and doesn't overflow the displayed extents of
           // the page
@@ -1680,13 +1495,13 @@ window.onload = function () {
               .range([0, protoGraphWidth-margin.left-margin.right]);
             var protoY = d3.scale.ordinal()
               .domain(protocolList) // convert ditto
-              .rangePoints([margin.top, 
+              .rangePoints([margin.top,
                            protoGraphHeight - margin.bottom], 0);
             var proSpace = 10;
             // clickStatus below determines the d3 rectangles' behavior
             // with respect to the mouseover.
             var clickStatus = 0;
-            
+
             var codedData = [];
             for (var ind=0; ind<selectedIndices.length; ind++){
               var rowData = selectedIndices[ind];
@@ -1763,7 +1578,7 @@ window.onload = function () {
                   var tempTime = cTime.getHours() + ":" +
                                 cTime.getMinutes() + ":" +
                                 cTime.getSeconds();
-                  clickLog.push([tempTime, "genCodeWordCloud", 
+                  clickLog.push([tempTime, "genCodeWordCloud",
                                 d.code + "\n"]);
                   sendClickData.data = clickLog;
                   $.post("/clicklog", sendClickData, function (data, error) { });
@@ -1771,8 +1586,8 @@ window.onload = function () {
                   var lineCollection = [];
                   if (clickStatus===0){
                     // select all coded objects by code ID
-                    var sameCodeObjs = $.grep(codedData, function(e){ 
-                      return e.code == d.code; 
+                    var sameCodeObjs = $.grep(codedData, function(e){
+                      return e.code == d.code;
                     });
                     // color all spans in these objects persistently
                     for (var ind=0; ind<sameCodeObjs.length; ind++){
@@ -1792,7 +1607,7 @@ window.onload = function () {
                     }
                     $("#tagList").empty();
                     $("#tagList").css("background-color", "#ffffff");
-                    $("#tagList").append(makeWordList(lineCollection, 
+                    $("#tagList").append(makeWordList(lineCollection,
                                                       tagsToRemove));
                     // set general click status as 1, so that this has
                     // to be disabled before another group of spans can
@@ -1817,10 +1632,10 @@ window.onload = function () {
                   var tempTime = cTime.getHours() + ":" +
                                 cTime.getMinutes() + ":" +
                                 cTime.getSeconds();
-                  clickLog.push([tempTime, "codeSkipToTime", 
+                  clickLog.push([tempTime, "codeSkipToTime",
                                 d.startTime, d.code + "\n"]);
                   sendClickData.data = clickLog;
-                  $.post("/clicklog", sendClickData, 
+                  $.post("/clicklog", sendClickData,
                          function (data, error) { });
                   //
                   // this small snippet below to scroll the transcript
@@ -1833,7 +1648,7 @@ window.onload = function () {
                                  transition: 'ease-in-out'});
                 }
               });
-          
+
           // get rid of the context menu
           $('.contextmenu')
             .css({ "box-shadow": "none",
@@ -1875,7 +1690,7 @@ window.onload = function () {
           var tempTime = cTime.getHours() + ":" +
                         cTime.getMinutes() + ":" +
                         cTime.getSeconds();
-          clickLog.push([tempTime, "sketchLogContent", 
+          clickLog.push([tempTime, "sketchLogContent",
                          playerTime +"\n"]);
           sendClickData.data = clickLog;
           $.post("/clicklog", sendClickData, function (data, error) { });
@@ -1888,7 +1703,7 @@ window.onload = function () {
       }
     }); // End code to generate paths
     // End Stuff to execute when log file loaded
-      
+
     // Function to read in the speech log file
     var speechLogFile;
     var fileTemp2 = $.ajax({
@@ -1910,7 +1725,7 @@ window.onload = function () {
           var tempTime = cTime.getHours() + ":" +
                         cTime.getMinutes() + ":" +
                         cTime.getSeconds();
-          clickLog.push([tempTime, "speechLogContent", 
+          clickLog.push([tempTime, "speechLogContent",
                         playerTime + "\n"]);
           sendClickData.data = clickLog;
           $.post("/clicklog", sendClickData, function (data, error) { });
