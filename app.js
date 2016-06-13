@@ -1,3 +1,9 @@
+/***********************************************************************
+ * VizScribe web application for protocol analysis
+ * Code by Senthil Chandrasegaran & Karthik Badam
+ **********************************************************************/
+
+
 /**
  * Module dependencies.
  */
@@ -195,7 +201,9 @@ io.sockets.on('connection', function (socket) {
     });
 });
 
-
+// The following function launches the index.html page where the user
+// uploads the data
+// See views/index.html for the corresponding html file
 app.get('/', function (req, res) {
     //this '/' refers to '/index.html'
     // note changing it to app.get('/index.html'... will require the
@@ -214,31 +222,19 @@ app.get('/', function (req, res) {
     });
 });
 
+// This function renders the uploaded video
 app.get('/video.html', function (req, res) {
     res.render('video.html');
 });
 
-
-app.get('/main.html', function (req, res) {
-    res.render('main.html', {
-        inputvideo: inputvideo,
-        inputtrans: inputtrans,
-        outputvideo: outputvideo,
-        outputtrans: outputtrans,
-        sketchlog: sketchlog,
-        speechlog: speechlog,
-        activitylog: activitylog,
-        outputlog: outputlog,
-        outputSpeechLog: outputSpeechLog,
-        outputActivityLog: outputActivityLog
-    });
-});
 
 // app.post('/transcript_file', function (req, res) { 
 //   var selectedUrl = String(req.body.url); 
 //   console.log("Requested URL -" + selectedUrl); 
 // });
 
+// The next few functions handle the uploaded data and create URLs for
+// the client-side code to access them.
 app.post('/transcript_file', function (req, res) {
     // var selectedURL = url.parse(req.url, true); //creates object
     // var transcriptParams = selectedURL.query;
@@ -316,6 +312,8 @@ app.get('/video_parameters', function (req, res) {
     res.end();
 });
 
+// This function handles the main.html file, which is the VizScribe
+// interface. See views/main.html for the corresponding file
 app.get('/main', function (req, res) {
     console.log('video ' + outputvideo.src);
     res.render('main.html', {
@@ -389,6 +387,9 @@ var options = {
 };
 
 
+// This function works, but needs better data handling, and as such is
+// not called right now. The idea is to scale or sort the word cloud
+// based on the information content of each word.
 app.post('/infoContent', function (req, res) {
     // invoke this just once, and send all the data over to the client.
     // This will make the code more responsive.
@@ -405,7 +406,8 @@ app.post('/infoContent', function (req, res) {
 });
 
 // code for collaborative (qual) coding
-// code snippet adapted from http://ahoj.io/nodejs-and-websocket-simple-chat-tutorial
+// code snippet adapted from:
+// http://ahoj.io/nodejs-and-websocket-simple-chat-tutorial
 
 
 //PORT to connect to

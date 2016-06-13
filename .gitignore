@@ -8,5 +8,5 @@
 *.swp
 
 node_modules/
-public/userlog/*
-public/clicklog/*
+public/userlog/*.csv
+public/clicklog/*.csv

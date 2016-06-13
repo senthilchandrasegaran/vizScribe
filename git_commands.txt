@@ -18,3 +18,11 @@ to examine both versions of the conflicted files.
 git repack -a -d -f --depth=250 --window=250
 
 Run this command if your ".git" folder becomes too large.
+
+BRANCHING
+check out branch:
+git checkout <branchname>
+
+push to branch:
+git push origin <branchname>
+

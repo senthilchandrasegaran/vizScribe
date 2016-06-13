@@ -1,8 +1,9 @@
-22:44:15,transGraphMinimize
-,22:44:16,sketchLogMinimize
-,22:44:18,speechLogMinimize
-,22:44:19,activityLogMinimize
-,22:45:21,viewCode
-,22:45:30,mergeCollabCode,toy classification
-,22:45:35,videoSeek,577.6
-,22:45:38,videoSeek,746.34
+16:9:37,transGraph,656.2
+,16:9:37,videoSeek,656.2
+,16:10:24,speechLogContent,702.798571
+,16:10:52,activityLogContent,997
+,16:10:52,videoSeek,997
+,16:13:47,viewCode
+,16:13:53,selectLinesInTranscript
+,16:13:54,contextmenu
+,16:14:2,videoSeek,1521.640045

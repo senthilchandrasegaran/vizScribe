@@ -70,14 +70,7 @@ var activityLogHeight = 0;
 var protocolGraphHeight = 0;
 var collProtocolGraphHeight = 0;
 
-/*
-var speakerColors = [
-  "#8da0cb",
-  "#fb8072",
-  "#a6d854",
-  "#ffd92f"
-  ]
-  */
+// colors for each speaker in the data. Add to this list if speakers > 4
 var speakerColors = [
   "#66c2a5",
   "#adc0cb",
@@ -85,14 +78,7 @@ var speakerColors = [
   "#ffd92f"
 ]
 
-/*
-var colorlist = [ "rgba(228,26,28,",
-                  "rgba(55,126,184,",
-                  "rgba(77,175,74,",
-                  "rgba(152,78,163,",
-                  "rgba(255,127,0," ];
-*/
-
+// Color list to use for code definitions
 // Note: the color list below is instantiated in reverse order in the
 // interface.
 var colorlistFull = [ 
@@ -128,6 +114,7 @@ var colorlistFull = [
       'rgba(166,206,227,'
     ];
 
+// Color list for code definition in the case of collaborators
 var collabColorlistFull = [ 
       'rgba(177,89,40,0.5)',
       'rgba(106,61,154,0.5)',
@@ -173,6 +160,8 @@ var pushColor = function (color) {
     colorlistFull.push(color);
 };
 
+// Function to traverse the user-entered protocol (codes) in order to
+// create an indented tree with corresponding colors
 var depthFirstTraversalProtocolTree = function () {
     var sortedList = [];
     var protocolNames = Object.keys(protocolObject);
@@ -192,6 +181,8 @@ var depthFirstTraversalProtocolTree = function () {
     return sortedList;
 }
 
+// Function to recursively go through a tree's children until none are
+// left
 function preOrderTraversal(protocolName, childrenList, protocolNames) {
     var hasChildren = false; 
     for (var i = 0; i < protocolNames.length; i++) {
@@ -205,7 +196,6 @@ function preOrderTraversal(protocolName, childrenList, protocolNames) {
             hasChildren = true; 
         }
     }
-
     return hasChildren; 
 }
 
@@ -222,6 +212,19 @@ function hmsToSec(hms){
   return seconds;
 }
 
+// Function to convert hh:mm:ss to seconds
+// Older version of the above hmsToSec function: delete after verifying
+function hmsToSeconds(str) {
+    var p = str.split(':'),
+        s = 0, m = 1;
+    while (p.length > 0) {
+        s += m * parseInt(p.pop(), 10);
+        m *= 60;
+    }
+    return s;
+} // End Function to convert hh:mm:ss to seconds
+
+// Function to find all indices of a string in another larger string
 //copied from 
 //http://stackoverflow.com/questions/3410464/how-to-find-all-occurrences-of-one-string-in-another-in-javascript
 function getIndicesOf(searchStr, str, caseSensitive) {
@@ -238,7 +241,8 @@ function getIndicesOf(searchStr, str, caseSensitive) {
     return indices;
 }
 
-
+// Function to generate a text concordance view in the form of an html
+// table
 function concordance(word) {
     //take the captionArray and put in one string
     var allCaptions = "";
@@ -279,18 +283,6 @@ function concordance(word) {
     return concordances; 
 }
 
-// Function to convert hh:mm:ss to seconds
-function hmsToSeconds(str) {
-    var p = str.split(':'),
-        s = 0, m = 1;
-    while (p.length > 0) {
-        s += m * parseInt(p.pop(), 10);
-        m *= 60;
-    }
-    return s;
-} // End Function to convert hh:mm:ss to seconds
-
-
 // Function to handle tabs on protocol view div
 // this is called when document is loaded
 $(function(){
@@ -307,14 +299,14 @@ $(function(){
   });
 })
 
-// establish websocket connection
+// establish websocket connection (FOR COLLABORATIVE CODING)
 window.WebSocket = window.WebSocket || window.MozWebSocket;
 var connection = new WebSocket('ws://127.0.0.1:3002');
 
 // This function allows selection of transcript file (a CSV file) and
-// displays it on the left bottom pane in the browser. Stop words are
+// displays it on the right bottom pane in the browser. Stop words are
 // removed and the resulting tags are scaled by frequency and showed on
-// the right pane.
+// the right top pane.
 window.onload = function () {
   // determine div heights as specified in the html file
   bottomLeftHeight = $("#bottomleft").height();
@@ -328,7 +320,6 @@ window.onload = function () {
   
   var player = videojs('discussion-video');
   player.on('loadedmetadata', function () {
-
     //  function to get username and receive data from server
     //  called when document is loaded
     $(function(){
@@ -771,9 +762,11 @@ window.onload = function () {
           if (constantWidth !== 0){
             d.width = 5;
           } else {
-            var endSec = hmsToSeconds(captionArray[i][1]);
+            // var endSec = hmsToSeconds(captionArray[i][1]);
+            var endSec = hmsToSec(captionArray[i][1]);
             d.endTime = endSec;
-            var startSec = hmsToSeconds(captionArray[i][0]);
+            // var startSec = hmsToSeconds(captionArray[i][0]);
+            var startSec = hmsToSec(captionArray[i][0]);
             var scaledWidth = transcriptScale(endSec - startSec);
             if (scaledWidth < 2){ 
               d.width = 2;
@@ -1671,37 +1664,38 @@ window.onload = function () {
                         });
 
               protoRect.append("rect")
-             .attr("width", 15)
-             .attr("height", 15)
-             .attr("stroke-width", 1)
-             .attr("fill", function (d, i) {
-                 var indents = protocolObject[d].level;
-                 var color = protocolObject[d].color;
-                 color = color + (0.5).toString() + ")";
-                 // protocolColorList.push(color);
-                 return color;
-             })
-             .attr("stroke", "#ffffff");
+                       .attr("width", 15)
+                       .attr("height", 15)
+                       .attr("stroke-width", 1)
+                       .attr("fill", function (d, i) {
+                           var indents = protocolObject[d].level;
+                           var color = protocolObject[d].color;
+                           color = color + (0.5).toString() + ")";
+                           // protocolColorList.push(color);
+                           return color;
+                       })
+                       .attr("stroke", "#ffffff");
 
-              protoRect.append("text")
-             .attr("x", function (d, i) {
-                 protocolObject[d].level;
-             })
-             .attr("y", function (d, i) {
-                 return 10;
-             })
-             .attr("dx", "2em")
-             .text(function (d) {
-                 return d;
-             })
-             .style("background-color", function(d,i){
-                 var indents = protocolObject[d].level;
-                 var color = protocolObject[d].color;
-                 color = color + (0.5).toString() + ")";
-                 protocolColorList.push(color);
-                 return color;
-             });
-          }
+                        protoRect.append("text")
+                       .attr("x", function (d, i) {
+                           protocolObject[d].level;
+                       })
+                       .attr("y", function (d, i) {
+                           return 10;
+                       })
+                       .attr("dx", "2em")
+                       .text(function (d) {
+                           return d;
+                       })
+                       .style("background-color", function(d,i){
+                           var indents = protocolObject[d].level;
+                           var color = protocolObject[d].color;
+                           color = color + (0.5).toString() + ")";
+                           protocolColorList.push(color);
+                           return color;
+                       });
+          } // end of condition checking if the view protocol tab was
+            // active.
           protocolList.push("unassign");
           protocolColorList.push("rgba(255,255,255,0.1)");
       }); // end function for updating protocols from entered text
@@ -1727,8 +1721,10 @@ window.onload = function () {
           for (var pindex in protoTimeArray) {
               for (var ind in selectedIndices) {
                   if (protoTimeArray[pindex][0] == selectedIndices[ind][3]) {
-                      var timeInSecs = hmsToSeconds(selectedIndices[ind][2]) -
-                         hmsToSeconds(selectedIndices[ind][1])
+                      var timeInSecs = hmsToSec(selectedIndices[ind][2]) -
+                         hmsToSec(selectedIndices[ind][1])
+                      // var timeInSecs = hmsToSeconds(selectedIndices[ind][2]) -
+                      //   hmsToSeconds(selectedIndices[ind][1])
                       protoTimeArray[pindex][2] += timeInSecs;
                   }
               }
