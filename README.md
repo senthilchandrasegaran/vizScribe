@@ -4,7 +4,7 @@ Typically such observations require audio, video, and transcript data, and more 
 VizScribe can help you view time-sequence data from these different
 sources together to get a coherent view of subjects' behavior.
 
-![Screenshot](./wiki/images/interface.png)
+![Screenshot](./interface.png)
 
 
 ## Demo Video
