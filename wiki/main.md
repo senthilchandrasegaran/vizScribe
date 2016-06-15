@@ -19,10 +19,10 @@ Before running VizScribe, you need to have the following data:
 2. A corresponding transcript file with timestamps.
    The formatting of the transcript should be:
 
-    ```Text
-       start time,end time,speaker,dialog
-       00:00:01.5,00:00:03.0,Travis Bickle,You talkin' to me?
-    ```
+```
+   start time,end time,speaker,dialog
+   00:00:01.5,00:00:03.0,Travis Bickle,You talkin' to me?
+```
 
    Note that the timestamps follow the format `hh:mm:ss.s` 
 
@@ -52,7 +52,7 @@ Apart from the video, you will see 3 main views at this point.
 
 The transcript view:
 
-<img src="./images/transcript.png" alt="transcript" style="width: 500px;"/>
+<img src="./images/transcript.png" alt="transcript" style="width: 350px;"/>
 
 A representation of the transcript as a series of "speech events" on a timeline, color-coded by speaker (see the corresponding colors on the transcript view above).
 
@@ -62,7 +62,7 @@ A representation of the transcript as a series of "speech events" on a timeline,
 And finally, a word cloud view that is generated from the whole transcript. 
 Individual words are scaled according to the number of times they occur in the transcript.
 
-<img src="./images/wordcloud.png" alt="wordcloud" style="width: 350px;"/>
+<img src="./images/wordcloud.png" alt="wordcloud" style="width: 250px;"/>
 
 ### Links between views
 All the above visualizations are interlinked; i.e. you can click on one
@@ -97,8 +97,8 @@ Finally, right-click on a word to remove it from the word cloud. At the moment, 
 
 ## Coding
 As a protocol analyst, you may want to identify certain kinds of behavior or speech and categorize it as such.
-To first specify such a tag, 
 
+(To be Completed)
 
 
 
