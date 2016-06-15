@@ -6,6 +6,8 @@
 *.zip
 *.gz
 *.swp
+*.pptx
+git_commands.txt
 
 node_modules/
 public/userlog/
