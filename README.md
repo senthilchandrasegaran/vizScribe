@@ -11,5 +11,5 @@ sources together to get a coherent view of subjects' behavior.
 Watch the demo video [here](https://vimeo.com/169905057)
 
 ## Wiki
-Check out the [Wiki](./wiki/main.md) for instructions on installation, use, and customization.
+Check out the [Wiki](https://github.com/senthilchandrasegaran/vizScribe/wiki) for instructions on installation, use, and customization.
 
