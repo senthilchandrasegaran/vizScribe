@@ -164,6 +164,7 @@ io.sockets.on('connection', function (socket) {
     });
 });
 
+/***************** UPLOADING DATA TO THE SERVER**********************/
 // The following function launches the index.html page where the user
 // uploads the data
 // See views/index.html for the corresponding html file
@@ -181,10 +182,22 @@ app.get('/', function (req, res) {
     activitylog: activitylog,
     outputlog: outputlog,
     outputSpeechLog: outputSpeechLog,
-    outputActivityLog: outputActivityLog
+    outputActivityLog: outputActivityLog,
+    /*
+     * TO ADD NEW DATASET:
+     * Copy the block of code below,
+     * Uncomment it,
+     * Then rename all occurrences of 'newData' to a meaningful name.
+    */
+    /*
+       newDataSeries: newDataSeries,
+       newDataSeriesOutput: newDataSeriesOutput,
+    */
   });
 });
+/****************END UPLOADING DATA TO THE SERVER**********************/
 
+/****************HANDLE UPLOADED DATA : HOST URL***********************/
 // This function renders the uploaded video
 app.get('/video.html', function (req, res) {
     res.render('video.html');
@@ -259,6 +272,29 @@ app.get('/video_parameters', function (req, res) {
     res.end();
 });
 
+
+/*
+ * TO ADD NEW DATASET:
+ * Copy the block of code below and uncomment.
+
+*/
+
+/*
+app.post('/newDataSeries_file', function (req, res) {
+    var newDataSeriesFileParams = req.body;
+    newDataSeriesOutput.target = newDataSeriesFileParams.newDataSeriesFile;
+    res.end();
+});
+
+app.get('/receive_newDataSeries_file', function (req, res) {
+    res.writeHead(200);
+    res.write(newDataSeriesOutput.target);
+    res.end()
+});
+*/
+/**********END OF HANDLING UPLOADED DATA : HOST URL********************/
+
+/************************DATA ON CLIENT PAGE***************************/
 // This function handles the main.html file, which is the VizScribe
 // interface. See views/main.html for the corresponding file
 app.get('/main', function (req, res) {
@@ -273,26 +309,23 @@ app.get('/main', function (req, res) {
         activitylog: activitylog,
         outputlog: outputlog,
         outputSpeechLog: outputSpeechLog,
-        outputActivityLog: outputActivityLog
+        outputActivityLog: outputActivityLog,
+     /*
+      * TO ADD NEW DATASET:
+      * Copy-Paste the block of code below,
+      * Uncomment it,
+      * Then rename all occurrences of 'newDataSeries'
+      * to a more meaningful name.
+     */
+     /*
+        newDataSeries: newDataSeries,
+        newDataSeriesOutput: newDataSeriesOutput,
+     */
     });
 });
+/**********************END OF DATA ON CLIENT PAGE**********************/
 
-// This annotator bit is to use the annotator library to allow
-// annotation of the transcribed text.
-/*
-app.get('/annotator-token',
-    jwt({secret: 'dc176c29-23da-4a19-bc5f-061d45e6d0f4',
-         consumerKey: '0cc039fa9d414ddeb43f83447d6838e7',
-         userID: 'senthil',
-         issuedAt: '2014-09-09T10:51:18Z',
-         ttl: 86400}),
-    function(req, res){
-      // if (!req.user.admin) return res.send(401);
-      console.log("token received!");
-      res.send(200);
-});
-*/
-
+// LOGGING USER ACTIVITY (FOR USER STUDIES)
 // records a log of user activity
 app.post('/userlog', function (req, res){
   // write user log file as text
@@ -315,6 +348,8 @@ app.post('/clicklog', function (req, res){
   });
 });
 
+
+// EXPERIMENTAL: USE PYTHON NLP FOR SERVER-SIDE TEXT PROCESSING
 var options = {
   mode: 'text',
   pythonOptions: ['-u'],

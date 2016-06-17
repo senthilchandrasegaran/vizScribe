@@ -12,6 +12,12 @@ window.onload = function() {
         var filesInput4 = document.getElementById(sketchlog.id);
         var filesInput5 = document.getElementById(speechlog.id);
         var filesInput6 = document.getElementById(activitylog.id);
+        /* TO ADD NEW DATA SERIES,
+         * Copy-paste the line below this comment block,
+         * then uncomment it to add more data series.
+         * WARNING: Read the instructions on the Wiki first!
+         * Replace 'N' in variable name with next number*/
+        // var filesInputN = document.getElementById(newDataSeries.id);
 
         // Read video
         filesInput.addEventListener("change", function (event) {
@@ -285,6 +291,42 @@ window.onload = function() {
                 console.log("activityLogfile read!");
             }
         });
+
+        /* TO ADD NEW DATA SERIES
+         * Uncomment below code block to add event listener for new data
+           series (make a copy of it first).
+           Then rename all occurrences of 'newDataSeries' to match the
+           variable name from the app.js/vizScribe.js file.
+           WARNING! Read Wiki before attempting this!
+         */
+
+        /*
+        filesInputN.addEventListener("change", function (event) {
+            var files = event.target.files; //FileList object
+            var output = document.getElementById(newDataSeries.id);
+            for (var i = 0; i < files.length; i++) {
+                var file = files[i];
+                var dataReader = new FileReader();
+                dataReader.addEventListener("load", function (event) {
+                    var textFile = event.target;
+                    console.log("newDataSeries file: " +
+                                textFile.result.toString());
+
+                    $.ajax({
+                        type: "POST",
+                        url: "/newDataSeries_file",
+                        data: { newDataSeriesFile:
+                                JSON.stringify(textFile.result) }
+                    }).done(function (msg) {
+                        console.log("newDataSeriesfile Saved: " + msg);
+                    });
+                });
+
+                dataReader.readAsText(file);
+                console.log("newDataSeriesfile read!");
+            }
+        });
+        */
     } else {
         console.log("Your browser does not support File API");
     }
