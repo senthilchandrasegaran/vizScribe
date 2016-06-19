@@ -66,48 +66,57 @@ var speechLogHeight = 0;
 var activityLogHeight = 0;
 var protocolGraphHeight = 0;
 
+/* TO ADD NEW DATASET
+ * Make a copy of the below line of code,
+ * Uncomment it, and change `newDataSeriesHeight' to
+ * a more meaningful name consistent with the other files
+ * IMPORTANT: See the Wiki for details now how to do this properly!
+ */
+// var newDataSeriesHeight = 0;
+
+
 // colors for each speaker in the data. Add to this list if speakers > 4
 var speakerColors = [
-  "#66c2a5",
-  "#adc0cb",
-  "#a6d854",
-  "#ffd92f"
-]
+        "#66c2a5",
+        "#adc0cb",
+        "#a6d854",
+        "#ffd92f"
+    ];
 
 // Color list to use for code definitions
 // Note: the color list below is instantiated in reverse order in the
 // interface.
 var colorlistFull = [
-      'rgba(177,89,40,',
-      'rgba(106,61,154,',
-      'rgba(202,178,214,',
-      'rgba(253,191,111,',
-      'rgba(227,26,28,',
-      'rgba(251,154,153,',
-      'rgba(51,160,44,',
-      'rgba(178,223,138,',
-      'rgba(31,120,180,',
-      'rgba(166,206,227,',
-      'rgba(177,89,40,',      // color list duplicates from here on.
-      'rgba(106,61,154,',
-      'rgba(202,178,214,',
-      'rgba(253,191,111,',
-      'rgba(227,26,28,',
-      'rgba(251,154,153,',
-      'rgba(51,160,44,',
-      'rgba(178,223,138,',
-      'rgba(31,120,180,',
-      'rgba(166,206,227,',
-      'rgba(177,89,40,',
-      'rgba(106,61,154,',
-      'rgba(202,178,214,',
-      'rgba(253,191,111,',
-      'rgba(227,26,28,',
-      'rgba(251,154,153,',
-      'rgba(51,160,44,',
-      'rgba(178,223,138,',
-      'rgba(31,120,180,',
-      'rgba(166,206,227,'
+        'rgba(177,89,40,',
+        'rgba(106,61,154,',
+        'rgba(202,178,214,',
+        'rgba(253,191,111,',
+        'rgba(227,26,28,',
+        'rgba(251,154,153,',
+        'rgba(51,160,44,',
+        'rgba(178,223,138,',
+        'rgba(31,120,180,',
+        'rgba(166,206,227,',
+        'rgba(177,89,40,',      // color list duplicates from here on.
+        'rgba(106,61,154,',
+        'rgba(202,178,214,',
+        'rgba(253,191,111,',
+        'rgba(227,26,28,',
+        'rgba(251,154,153,',
+        'rgba(51,160,44,',
+        'rgba(178,223,138,',
+        'rgba(31,120,180,',
+        'rgba(166,206,227,',
+        'rgba(177,89,40,',
+        'rgba(106,61,154,',
+        'rgba(202,178,214,',
+        'rgba(253,191,111,',
+        'rgba(227,26,28,',
+        'rgba(251,154,153,',
+        'rgba(51,160,44,',
+        'rgba(178,223,138,',
+        'rgba(31,120,180,',
+        'rgba(166,206,227,'
     ];
 
 var sketchPathColor = "rgba(225, 120, 0, 0.2)";
@@ -115,7 +124,7 @@ var sketchPathColor = "rgba(225, 120, 0, 0.2)";
 // When a new protocol is added
 var getColor = function () {
     return colorlistFull.pop();
-}
+};
 
 // When the protocol is deleted!
 var pushColor = function (color) {
@@ -271,6 +280,14 @@ window.onload = function () {
   activityLogHeight = $("#activityLog").height();
   protocolGraphHeight = $("#protocolGraph").height();
 
+  /* TO ADD NEW DATASET
+   * Make a copy of the below line of code,
+   * Uncomment it, and change `newDataSeries' and `newDataSeriesHeight'
+   * to a more meaningful name consistent with the other files
+   * IMPORTANT: See the Wiki for details now how to do this properly!
+   */
+  // newDataSeriesHeight = $("#newDataSeries").height();
+
   var player = videojs('discussion-video');
   player.on('loadedmetadata', function () {
     var transcriptFile;
@@ -318,9 +335,6 @@ window.onload = function () {
              '<td style="border: 1px solid' + labelColor + '; '+
              'border-right: 7px solid' + labelColor + '; '+
              'color: rgba(100, 100, 100, 1); ' +
-             // 'color: rgba(255, 255, 255, 1); ' +
-             // 'background-color:' + labelColor + '; '+
-             // 'font-family:courier; font-size:7pt;"'+
              'font-family:sans-serif; font-size:7pt;"'+
              'class="unselectable" id="speaker'+i+'">' +
               captionArray[i][2] +
@@ -418,17 +432,6 @@ window.onload = function () {
               d.width = scaledWidth;
             };
           }
-          /*
-          if (scaleHeights === 0){
-            d.height = h;
-          } else {
-            // scales line height proportional to the number of
-            // words in the line, but it makes short utterances
-            // difficult to make out.
-            var lineRatio = d.length / longestLineLength;
-            d.height = lineRatio * h;
-          }
-          */
           d.dialog = captionArray[i][3];
           transGraphData.push(d);
         }
@@ -522,7 +525,6 @@ window.onload = function () {
         //----------------------------------------------
         var transItemIds = [];
         var hiRects = $("#transGraphContent svg").children('rect');
-        // if (prevClickedTag === ""){
         if (isTagClicked){
           // do nothing to the transGraph on mouseenter if a word in the
           // tag cloud is already clicked.
@@ -725,7 +727,6 @@ window.onload = function () {
           $(this).children().removeClass('transHighlight');
           d3.select("#transGraphContent").selectAll("svg")
             .classed("transRectHighLight", false);
-          // .attr("fill", transGraphColor);
       });
 
       //---------------------------------------------------------------
@@ -823,7 +824,6 @@ window.onload = function () {
                                     .index(this);
             var captionStartTimeMin = captionArray[transGraphIndex][0]
             captionStartTimeSec = hmsToSec(captionStartTimeMin);
-            // e.preventDefault();
             player.currentTime(captionStartTimeSec);
             cTime =  new Date();
             var tempTime = cTime.getHours() + ":" +
@@ -855,20 +855,27 @@ window.onload = function () {
       });
 
       // toggle the size of the transGraph div
-      toggleMinMax("transGraphTitle", "transGraph",
-                   "Graphical View of Transcript", transGraphHeight);
+      toggleMinMax("transGraphTitle", "transGraph", "Graphical View of Transcript", transGraphHeight);
 
       // toggle the size of the sketchLog div
-      toggleMinMax("sketchLogTitle", "sketchLog",
-                   "Sketch Participation Chart", sketchLogHeight);
+      toggleMinMax("sketchLogTitle", "sketchLog", "Sketch Participation Chart", sketchLogHeight);
 
       // toggle the size of the speechLog div
-      toggleMinMax("speechLogTitle", "speechLog",
-                   "Speech Participation Chart", speechLogHeight);
+      toggleMinMax("speechLogTitle", "speechLog", "Speech Participation Chart", speechLogHeight);
 
       // toggle the size of the activityLog div
-      toggleMinMax("activityLogTitle", "activityLog",
-                   "Activity Level Chart", activityLogHeight);
+      toggleMinMax("activityLogTitle", "activityLog", "Activity Level Chart", activityLogHeight);
+
+      /* TO ADD NEW DATASET
+       * Make a copy of the below line of code,
+       * Uncomment it, and change `newDataSeries' and
+       * `newDataSeriesHeight' to a more meaningful name consistent with
+       * the other files
+       * IMPORTANT: See the Wiki for details now how to do this
+       * properly!
+       */
+      // toggleMinMax("newDataSeriesTitle", "newDataSeries",
+      //              "newDataseries Chart", newDataSeriesHeight);
 
       // show Video Progress on the sketch and Protocol Divs
       var vidPlayer = videojs("discussion-video");
@@ -917,6 +924,7 @@ window.onload = function () {
                                               .split("px")[0]);
           $activityLogScrubberProgress.css({"margin-top":
                                             0-actOffsetMargin});
+
           var $protocolScrubberProgress = $("#protocolGraphScrubber");
           protocolOffsetMargin = $("#protocolGraph").height() +
                            parseFloat( $("#protocolGraph")
@@ -927,6 +935,30 @@ window.onload = function () {
                                           .split("px")[0]);
           $protocolScrubberProgress.css({"margin-top":
                                             0-protocolOffsetMargin});
+
+          /* TO ADD NEW DATASET
+           * Make a copy of the below block of code,
+           * Uncomment it, and change all variable that contain the text
+           * `newDataSeries' to a more meaningful name consistent with
+           * the other files
+           * IMPORTANT: See the Wiki for details now how to do this
+           * properly!
+           */
+          /*
+          var $newDataSeriesScrubberProgress = $("#newDataSeriesScrubber");
+          newDataSeriesOffsetMargin =
+                $("#newDataSeries").height() +
+                parseFloat($("#newDataSeries")
+                             .css("border-top-width")
+                             .split("px")[0]) +
+                parseFloat($("#newDataSeries")
+                             .css("border-bottom-width")
+                             .split("px")[0]);
+          $newDataSeriesScrubberProgress.css({"margin-top":
+                                              0-actOffsetMargin});
+          */
+
+
           vidPlayer.on('timeupdate', function (e) {
               var percent = parseFloat(this.currentTime()) /
                             parseFloat(this.duration());
@@ -935,6 +967,16 @@ window.onload = function () {
               $speechLogScrubberProgress.width((percent * 100.0)+"%");
               $activityLogScrubberProgress.width((percent * 100.0)+"%");
               $protocolScrubberProgress.width((percent * 100.0)+"%");
+
+              /* TO ADD NEW DATASET
+               * Make a copy of the below block of code,
+               * Uncomment it, and change all variable that contain the
+               * text `newDataSeries' to a more meaningful name
+               * consistent with the other files
+               * IMPORTANT: See the Wiki for details now how to do this
+               * properly!
+               */
+              // $newDataSeriesScrubberProgress.width((percent * 100.0)+"%");
           });
       });
 
@@ -1420,27 +1462,6 @@ window.onload = function () {
                                           "rgba(255, 255, 255, 0.1"});
                   }
                 }
-                // var spanString = "";
-                /*
-                for (var j in spansList){
-                  var tempSpan = $(spansList[j]);
-                  tempSpan.parent().children().css({
-                    "background-color":
-                     protocolColorList[
-                       protocolList.indexOf($(this).text())] });
-                  spanString += tempSpan.text();
-                }
-                if ((spanString
-                      .indexOf(selectedIndices[ksel][4]) > -1) ||
-                    (selectedIndices[ksel][4]
-                      .indexOf(spanString) > -1)){
-                  selectedIndices.splice(ksel, 1);
-                } else {
-                  // delete this else statement later
-                  var tempIndex = spanString
-                                  .indexOf(selectedIndices[ksel][4]);
-                }
-                */
               }
             } else {
               var spanString = "";
@@ -1517,7 +1538,6 @@ window.onload = function () {
                     ) + proSpace / 2;
               d.id = d.code + "line" + rowData[0];
               d.lineID = "line" + rowData[0];
-              // d.width = protoX(d.endTime - d.startTime);
               d.width = 2;
               d.height = (protoGraphHeight-proSpace)/
                          (protocolList.length - 1);
@@ -1657,8 +1677,7 @@ window.onload = function () {
             .empty();
         } // end of code that determines what happens when the
           // contextmenu is clicked on.
-      }); // end of code that decides what happens when an item is
-          // clicked on the context menu
+      }); // end of code that decides what happens when an item is clicked on the context menu
 
       // remove context menu when clicked elsewhere
       $('#transContent').on('click', function () {
@@ -1673,9 +1692,8 @@ window.onload = function () {
     // Function to read in the log file
     var logFile;
     var fileTemp1 = $.ajax({
-        type: "GET", // can remove this to avoid confusion
-        url: "/receive_log_file", // change to send_trn_fil
-        // note: "send" from POV of client
+        type: "GET",
+        url: "/receive_log_file",
         dataType: "text"
     }).done(function (data) {
       if (typeof data === 'string' &&
@@ -1707,9 +1725,8 @@ window.onload = function () {
     // Function to read in the speech log file
     var speechLogFile;
     var fileTemp2 = $.ajax({
-        type: "GET", // can remove this to avoid confusion
-        url: "/receive_speechLog_file", // change to send_trn_fil
-        // note: "send" from POV of client
+        type: "GET",
+        url: "/receive_speechLog_file",
         dataType: "text"
     }).done(function (speechdata){
       if (typeof speechdata === "string" &&
@@ -1742,9 +1759,8 @@ window.onload = function () {
     // Function to read in the activity log file
     var activityLogFile;
     var fileTemp2 = $.ajax({
-        type: "GET", // can remove this to avoid confusion
-        url: "/receive_activityLog_file", // change to send_trn_fil
-        // note: "send" from POV of client
+        type: "GET",
+        url: "/receive_activityLog_file",
         dataType: "text"
     }).done(function (activitydata) {
       if (typeof activitydata === "string" &&
@@ -1774,6 +1790,38 @@ window.onload = function () {
         console.log("activity divs are now hidden");
       }
     }); // end of stuff to do with activityLog
+
+
+
+    /* TO ADD NEW DATASET
+     * Make a copy of the below block of code, Uncomment it, and change
+     * all variable that contain the text `newDataSeries' and `NewData'
+     * to a more meaningful name consistent with the other files.
+     * IMPORTANT: See the Wiki for details now how to do this properly!
+     */
+    /*
+    var newDataSeriesFile;
+    var fileTempN = $.ajax({
+        type: "GET",
+        url: "/receive_newDataSeries_file",
+        dataType: "text"
+    }).done(function (newData) {
+      if (typeof newData === "string" &&
+          newData !== ""){
+        newData = JSON.parse(newData);
+        console.log("new Data Series file received!");
+        // generate beautiful visuals
+        newDataSeriesViz(newData, player, transGraphData);
+        // check file newDataViz.js for how this function works
+      } else {
+        // hide everything!
+        $('#newDataSeriesTitle').hide();
+        $('#newDataSeries').hide();
+        console.log("new Data Series divs are now hidden");
+      }
+    }); // end of stuff to do with newDataSeries
+    */
+
   }); //player.ready attempt for the whole code chunk
 } // end of window.onload code
 
@@ -1783,4 +1831,3 @@ window.onload = function () {
 // zM -- close all folds
 // zR -- open all folds
 // set foldmethod = syntax
-
