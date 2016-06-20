@@ -1,60 +1,56 @@
-function speechViz(speechdata, player, transGraphData){
-  // parse speech data
-  var speechArray = speechdata.split("\n");
-  var numSpeakers = speechArray[0].split(",").length - 1;
-  var speakerList = speechArray[0]
+function newDataViz(newData, player, transGraphData){
+  var newDataArray = newData.split("\n");
+  var numSpeakers = newDataArray[0].split(",").length - 1;
+  var speakerList = newDataArray[0]
                       .split(",")
-                      .slice(1, speechArray[0].length-1);
-  // generate beautiful visuals
-  d3.select("#speechLogContent").selectAll("svg").remove();
-  var speechW = $("#speechLogContent").width()-2;
-  var speechH = $("#speechLog").height()-2;
+                      .slice(1, newDataArray[0].length-1);
+  // generate visuals
+  d3.select("#newDataSeriesContent").selectAll("svg").remove();
+  var newDataW = $("#newDataSeriesContent").width()-2;
+  var newDataH = $("#newDataSeries").height()-2;
 
-  var speechSVG = d3.select("#speechLogContent").append("svg")
-                    .attr("width", speechW) //for border
-                    .attr("height", speechH) //for border
-                    .style({"border" : "1px solid #d0d0d0"});
-  var speechScaleX = d3.scale.linear()
-                      .domain([0, videoLenSec])
-                      .range([0, speechW]);
-  var speechScaleY = d3.scale.linear()
-                      .domain([0, numSpeakers])
-                      .range([0, speechH]);
-  var speechScaleSp = d3.scale.linear()
-                        .domain([0,1])
-                        .range([0, speechH/numSpeakers]);
-  // create carefully structured data array
-  var speechPlotData = [];
+  var newDataSVG = d3.select("#newDataSeriesContent").append("svg")
+                     .attr("width", newDataW)
+                     .attr("height", newDataH)
+                     .style({"border" : "1px solid #d0d0d0"});
+  var newDataScaleX = d3.scale.linear()
+                        .domain([0, videoLenSec])
+                        .range([0, newDataW]);
+  var newDataScaleY = d3.scale.linear()
+                        .domain([0, numSpeakers])
+                        .range([0, newDataH]);
+  var newDatascalesp = d3.scale.linear()
+                         .domain([0,1])
+                         .range([0, newDataH/numSpeakers]);
+  var newPlotData = [];
+
   for (speakerIndex=0; speakerIndex<numSpeakers; speakerIndex++){
     var prevTime = 0;
-    for (var i=1; i<speechArray.length; i++){
-      var spRow = speechArray[i].split(",");
+    for (var i=1; i<newDataArray.length; i++){
+      var spRow = newDataArray[i].split(",");
       if (spRow.length > 1){
         var d = {};
         var timeStampSec = hmsToSec(spRow[0]);
-        d.x = speechScaleX(timeStampSec);
-        d.width = speechScaleX(timeStampSec - prevTime);
-        d.height = speechScaleY(spRow[speakerIndex+1]);
-        d.y = speechScaleY(numSpeakers-speakerIndex) - d.height;
-        d.y0 = speechScaleY(numSpeakers-speakerIndex-1);
+        d.x = newDataScaleX(timeStampSec);
+        d.width = 2;
+        d.height = newDataScaleY(spRow[speakerIndex+1]);
+        d.y = newDataScaleY(numSpeakers-speakerIndex) - d.height;
+        d.y0 = newDataScaleY(numSpeakers-speakerIndex-1);
         d.timeStamp = timeStampSec;
         d.speaker = speakerList[speakerIndex];
-        d.participationValue = parseFloat(spRow[speakerIndex+1]); 
+        d.dataValue = parseFloat(spRow[speakerIndex+1]);
         d.fillColor = speakerColors[speakerIndex];
-        speechPlotData.push(d);
+        newPlotData.push(d);
         prevTime = timeStampSec;
       }
     }
   }
-
-  /* Create tooltip for displaying content on mouseover */
-  var speechTip = d3.tip()
+  var newDataTip = d3.tip()
                     .attr('class', 'd3-tip')
                     .direction('s');
-  speechSVG.call(speechTip);
-  // use data array to generate d3 representations
-  var speechRects = speechSVG.selectAll("rect")
-        .data(speechPlotData)
+  newDataSVG.call(newDataTip);
+  var newDataRects = newDataSVG.selectAll("rect")
+        .data(newPlotData)
         .enter()
         .append("rect")
         .attr("x", function(d){return d.x;})
@@ -66,11 +62,12 @@ function speechViz(speechdata, player, transGraphData){
         /* INTERACTIONS WITH THE VISUALIZATION */
         /* Show tooltip on mouseover */
         .on('mouseover', function(d){
-          d3.select(this).attr('height', speechScaleY(1));
+          d3.select(this).attr('height', newDataScaleY(1));
           d3.select(this).attr('width', 2);
           d3.select(this).attr('y', d.y0);
           d3.select(this).attr('fill', greenHighlight);
-          speechTip.html(d.speaker).show();
+          d3.select(this).attr('fill-opacity', 1);
+          newDataTip.html(d.speaker + ": " + d.dataValue).show();
         })
         /* hide tooltip on mouseout */
         .on('mouseout', function(d){
@@ -78,8 +75,13 @@ function speechViz(speechdata, player, transGraphData){
           d3.select(this).attr('width', d.width);
           d3.select(this).attr('y', d.y);
           d3.select(this)
-            .attr("fill", function(d){return d.fillColor;});
-          speechTip.hide();
+            .attr("fill", function(d){
+              return d.fillColor;
+            })
+            .attr("fill-opacity", function(d){
+              return d.fillOpacity;
+            })
+          newDataTip.hide();
         })
         /* On mouse click, skip video to corresponding time and
          * scroll transcript to corresponding speech event */
@@ -87,7 +89,7 @@ function speechViz(speechdata, player, transGraphData){
           player.currentTime(d.timeStamp);
           for (var i=0; i<transGraphData.length-1; i++){
             var tObj = transGraphData[i];
-              var tObjNext = transGraphData[i+1];
+            var tObjNext = transGraphData[i+1];
             if (d.timeStamp >= tObj.timeStamp &&
                 d.timeStamp <= tObjNext.timeStamp){
               transGraphIndex = i+1;
@@ -106,10 +108,11 @@ function speechViz(speechdata, player, transGraphData){
                                         .children().last();
               transClickItem.addClass('hoverHighlight')
                             .delay(2000)
-                            .removeClass('hoverHighlight', 
+                            .removeClass('hoverHighlight',
                                          {duration:500});
-              // this small snippet below to scroll the transcript to show
-              // the line corresponding to the item selected in transgraph
+              // this small snippet below to scroll the transcript to
+              // show the line corresponding to the item selected in
+              // transgraph
               $('#transContent').scrollTo($(transScrollItem),
                                           {duration: 'slow',
                                            transition: 'ease-in-out'});
