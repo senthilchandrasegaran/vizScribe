@@ -10,7 +10,7 @@ sources together to get a coherent view of subjects' behavior.
 ## Demo Video
 Watch the demo video:
 
-[![Click to play video](https://github.com/senthilchandrasegaran/vizScribe/wiki/images/video_thumbnail.png)](https://vimeo.com/169905057)
+[![Click to play video](https://github.com/senthilchandrasegaran/vizScribe/wiki/images/video_thumbnail.png =640x)](https://vimeo.com/169905057)
 
 ## Wiki
 Check out the [Wiki](https://github.com/senthilchandrasegaran/vizScribe/wiki) for instructions on installation, use, and customization.
