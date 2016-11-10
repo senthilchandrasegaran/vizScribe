@@ -15,4 +15,4 @@ Watch the demo video:
 ## Wiki
 Check out the [Wiki](https://github.com/senthilchandrasegaran/vizScribe/wiki) for instructions on installation, use, and customization.
 
-Released under [BSD license](https://opensource.org/licenses/BSD-3-Clause). Copyright 2016 Senthil Chandrasegaran, Sriram Karthik Badam.
+Released under [BSD license](https://opensource.org/licenses/BSD-3-Clause). Copyright 2016 [Senthil Chandrasegaran](https://github.com/senthilchandrasegaran), [Sriram Karthik Badam](https://github.com/karthikbadam).
