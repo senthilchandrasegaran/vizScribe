@@ -93,9 +93,9 @@ function makeWordList(lowerCaseLines, wordsToRemove, sortMethod) {
   var maxfreq = tagList[0][1];
   var tagspans = "";
   var tagFreq = [];
-  var fontScale = d3.scale.linear()
+  var fontScale = d3.scale.log()
                     .domain([maxfreq, 1])
-                    .range([25, 10]);
+                    .range([30, 10]);
 
   // Generate html of the word list, each word scaled according to its
   // frequency. Return this value.
